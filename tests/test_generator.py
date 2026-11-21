@@ -10,7 +10,7 @@ import pytest
 from paysight.config import get_settings
 from paysight.data import names
 from paysight.data.generator import GenerationResult
-from paysight.data.ground_truth import iter_checks, load_ground_truth
+from paysight.data.ground_truth import iter_checks, load_ground_truth, write_ground_truth
 from tests.conftest import build_dataset
 
 
@@ -58,11 +58,21 @@ def test_committed_ground_truth_passes_all_checks() -> None:
 
 
 @pytest.mark.slow
-def test_full_scale_regeneration_matches_committed_hash(full_dataset: GenerationResult) -> None:
-    """A fresh full-scale build reproduces the committed ground truth exactly."""
-    truth = load_ground_truth(get_settings().ground_truth_path)
+def test_full_scale_regeneration_matches_committed_hash(
+    full_dataset: GenerationResult, tmp_path: Path
+) -> None:
+    """A fresh full-scale build reproduces the committed ground truth exactly, file included.
+
+    A reviewer runs ``paysight data generate`` after cloning; the committed file must not show
+    up as modified (read as text, so line endings do not matter).
+    """
+    committed = get_settings().ground_truth_path
+    truth = load_ground_truth(committed)
     assert full_dataset.content_hash == truth["meta"]["content_hash"]
     assert full_dataset.seconds < 60
+    fresh = tmp_path / "ground_truth.yaml"
+    write_ground_truth(full_dataset.ground_truth, fresh)
+    assert fresh.read_text(encoding="utf-8") == committed.read_text(encoding="utf-8")
 
 
 def test_clean_view_has_unique_attempts(small_con: duckdb.DuckDBPyConnection) -> None:

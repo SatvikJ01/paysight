@@ -61,13 +61,6 @@ S2_mix_shift:
     rate_effect_pp: -0.47
     mix_share: 0.68
     segments:
-      UPI:
-        share0: 0.5397
-        share1: 0.4253
-        rate0: 0.9306
-        rate1: 0.9303
-        mix_pp: -10.645
-        rate_pp: -0.014
       CARD_EMI:
         share0: 0.0291
         share1: 0.109
@@ -75,6 +68,27 @@ S2_mix_shift:
         rate1: 0.816
         mix_pp: 6.525
         rate_pp: -0.004
+      UPI:
+        share0: 0.5397
+        share1: 0.4253
+        rate0: 0.9306
+        rate1: 0.9303
+        mix_pp: -10.645
+        rate_pp: -0.014
+      DEBIT_CARD:
+        share0: 0.1672
+        share1: 0.1637
+        rate0: 0.86
+        rate1: 0.8335
+        mix_pp: -0.295
+        rate_pp: -0.439
+      NETBANKING:
+        share0: 0.0568
+        share1: 0.0469
+        rate0: 0.7872
+        rate1: 0.7944
+        mix_pp: -0.779
+        rate_pp: 0.037
       CREDIT_CARD:
         share0: 0.1472
         share1: 0.2075
@@ -89,20 +103,6 @@ S2_mix_shift:
         rate1: 0.9187
         mix_pp: -1.149
         rate_pp: 0.009
-      NETBANKING:
-        share0: 0.0568
-        share1: 0.0469
-        rate0: 0.7872
-        rate1: 0.7944
-        mix_pp: -0.779
-        rate_pp: 0.037
-      DEBIT_CARD:
-        share0: 0.1672
-        share1: 0.1637
-        rate0: 0.86
-        rate1: 0.8335
-        mix_pp: -0.295
-        rate_pp: -0.439
   novamart_share_w0: 0.0602
   novamart_share_w1: 0.2997
   novamart_method_mix_w1:
