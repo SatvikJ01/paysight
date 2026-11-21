@@ -1,0 +1,45 @@
+{
+  "key": "f5543aa4603c424402c8bd46cc251b4ac0e8345f1a6d8c3e4c54b3e337a15e63",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "Period analysed: 12 Oct 2026 only (2026-10-12 to 2026-10-12)."
+    ],
+    "caveats": [
+      "Duplicate records on 12 Oct: 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts, +3.0%). Paysight counts each attempt once. These were removed in the clean view, keeping the first ingestion."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Total payment attempts on 12 Oct 2026 were 11,363."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "The raw data held 11,704 rows for 12 Oct, of which 341 were duplicate ingestions; after removing them, 11,363 unique attempts remain."
+      }
+    ],
+    "headline": "There were 11,363 payment attempts on 12 Oct 2026, counting each attempt once.",
+    "hypotheses": [],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "The raw data held 11,704 rows for 12 Oct, of which 341 were duplicate ingestions; after removing them, 11,363 unique attempts remain.",
+        "rationale": "Raw row counts overstate attempts by about 3.0% on this day, so reports built on raw data would be inflated.",
+        "text": "Use the de-duplicated figure of 11,363 for reporting on 12 Oct, and raise the duplicate ingestion with the data engineering team so it can be prevented at source."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 623,
+    "output_tokens": 489
+  }
+}

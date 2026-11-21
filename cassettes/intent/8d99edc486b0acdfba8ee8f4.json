@@ -1,0 +1,47 @@
+{
+  "key": "8d99edc486b0acdfba8ee8f417412c6151e5ffc89ab6e9a232acbe20aad8c493",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [],
+    "compare_time_expr": "previous_period",
+    "custom_sql_reason": null,
+    "dimensions": [],
+    "entities": [],
+    "extra_steps": [
+      {
+        "dimension": null,
+        "reason": "Identify which failure codes increased between the two periods.",
+        "tool": "failure_codes"
+      },
+      {
+        "dimension": "payment_method",
+        "reason": "See whether the decline is concentrated in a particular payment method.",
+        "tool": "breakdown"
+      },
+      {
+        "dimension": "acquirer_name",
+        "reason": "Check whether a specific acquirer drove the drop.",
+        "tool": "breakdown"
+      }
+    ],
+    "filters": [],
+    "metrics": [
+      "attempt_success_rate"
+    ],
+    "needs_custom_sql": false,
+    "question_type": "root_cause",
+    "restatement": "Why attempt success rate (approval rate) fell over the last 2 weeks compared with the 2 weeks before.",
+    "time_expr": "last_n_weeks:2",
+    "unsafe_reason": null
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 77,
+    "output_tokens": 304
+  }
+}

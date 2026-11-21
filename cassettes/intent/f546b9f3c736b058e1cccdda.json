@@ -1,0 +1,31 @@
+{
+  "key": "f546b9f3c736b058e1cccdda45bf9ee9e3f2acbcf97e313bfb8ed3db58010da2",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [],
+    "compare_time_expr": null,
+    "custom_sql_reason": null,
+    "dimensions": [],
+    "entities": [],
+    "extra_steps": [],
+    "filters": [],
+    "metrics": [
+      "attempt_success_rate"
+    ],
+    "needs_custom_sql": false,
+    "question_type": "metric_lookup",
+    "restatement": "Attempt success rate for this month (October 2026) across all regions.",
+    "time_expr": "this_month",
+    "unsafe_reason": null
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 56,
+    "output_tokens": 151
+  }
+}

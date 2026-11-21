@@ -1,0 +1,72 @@
+{
+  "key": "b9b7791c393835e0f27e0f5433e74265500648ed7defb45a73b56d15a8760a83",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "Period analysed: 2026-10-25 to 2026-10-31 (the last 7 days).",
+      "Technical success rate = successful attempts divided by non-abandoned attempts."
+    ],
+    "caveats": [
+      "Success rate depends on the denominator: attempt-level 88.5%, order-level 90.7%, technical 92.0%. Retries and customer drop-offs explain the gap.",
+      "The technical rate excludes abandoned attempts, so it reads higher than the attempt-level rate.",
+      "Volume was about 39% above the usual level for these weekdays, which may be a real business event or a data gap; check before comparing totals across this period."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Technical success rate for 25-31 Oct 2026 was 92.0%: 101,587 successful attempts out of 110,368 non-abandoned attempts."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "The same week's success rate was 88.5% when measured per attempt (101,587 of 114,846) and 90.7% when measured per order (101,585 of 111,953)."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "The three definitions differ by up to 3.59 percentage points, because each uses a different denominator."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "Attempt volume was about 39% higher than the usual level for those weekdays across all 7 days."
+      }
+    ],
+    "headline": "Last week (25-31 Oct 2026) the technical success rate was 92.0%, meaning 101,587 successful attempts out of 110,368 non-abandoned attempts.",
+    "hypotheses": [
+      {
+        "confidence": "low",
+        "how_to_verify": "Check the sales and campaign calendar for 25-31 Oct and compare order counts and settlement totals against the finance system.",
+        "rationale": "Volume was elevated on every day of the week, which is consistent with a real business event, but the data scan cannot tell a sale apart from a data gap.",
+        "text": "The higher volume is likely due to a sale or promotional event rather than a data error."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "The three definitions differ by up to 3.59 percentage points, because each uses a different denominator.",
+        "rationale": "The same week reads 92.0%, 88.5% or 90.7% depending on the denominator, which can cause confusion in reviews.",
+        "text": "Always state which success rate definition (technical, attempt-level or order-level) is used when sharing this number."
+      },
+      {
+        "linked_fact_or_hypothesis": "The higher volume is likely due to a sale or promotional event rather than a data error.",
+        "rationale": "Volume was about 39% above normal, so raw totals are not like-for-like with typical weeks.",
+        "text": "Confirm the cause of the volume spike before comparing this week's totals with other weeks."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 926,
+    "output_tokens": 921
+  }
+}

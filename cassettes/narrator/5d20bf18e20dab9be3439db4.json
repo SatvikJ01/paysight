@@ -1,0 +1,108 @@
+{
+  "key": "5d20bf18e20dab9be3439db4b179cc7e77d6666b04d02b4fee24142ecd7bf737",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "'Success rate' means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "Period: 14-20 September 2026 compared with 7-13 September 2026."
+    ],
+    "caveats": [
+      "Success rate depends on the denominator: attempt-level 84.21%, order-level 87.07%, technical 86.56% (retries and drop-offs explain the gap).",
+      "The daily series for Kestrel Bank debit cards shown only runs to 18 September, so the pattern for 19-20 September is not visible.",
+      "The data-quality scan found no issues, but the cause of the timeouts is inferred from failure codes, not confirmed by acquirer logs."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Card attempt success rate fell 2.54pp from 86.75% (28,534 attempts) to 84.21% (28,358 attempts). The change is statistically and practically significant."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "By payment method, the mix effect is 0.00pp and the rate effect is -2.54pp. Debit card contributes -1.36pp, credit card -0.93pp and card EMI -0.25pp. Payment-method shares barely moved (debit 49.1% to 49.0%, credit 42.6% to 42.6%, EMI 8.4% to 8.4%)."
+      },
+      {
+        "evidence_ids": [
+          "E3",
+          "E11"
+        ],
+        "text": "Kestrel Bank is about 30% of card volume but accounts for -2.63pp (104%) of the -2.54pp change. Its success rate fell from 87.0% to 78.2%, a drop of 8.78pp. The other acquirers show no significant change: Meridian Bank +0.85pp, Northstar Bank -0.75pp and Saffron Bank 0.00pp."
+      },
+      {
+        "evidence_ids": [
+          "E5"
+        ],
+        "text": "Within Kestrel Bank, debit cards fell from 86.47% to 77.23% (-9.24pp, -1.36pp of the total) and credit cards from 88.74% to 80.56% (-1.04pp of the total)."
+      },
+      {
+        "evidence_ids": [
+          "E7"
+        ],
+        "text": "Kestrel Bank debit card daily success rate was 86.96%, 87.55% and 85.45% on 14-16 September, then fell to 57.14% on 17 September and 55.52% on 18 September."
+      },
+      {
+        "evidence_ids": [
+          "E6"
+        ],
+        "text": "For Kestrel Bank debit cards, ACQ_TIMEOUT failures rose from 0.22 to 10.21 per 100 attempts (9 to 433 failures). Other failure codes moved by less than 0.4 per 100 attempts."
+      },
+      {
+        "evidence_ids": [
+          "E9"
+        ],
+        "text": "Across all card attempts, ACQ_TIMEOUT rose from 0.22 to 3.04 per 100 attempts (63 to 863 failures), the largest increase of any failure code. The next largest was INSUFFICIENT_FUNDS at +0.23 per 100."
+      },
+      {
+        "evidence_ids": [
+          "E10"
+        ],
+        "text": "Every issuing bank shown fell by between 2.08pp and 2.93pp, so the decline is not specific to any issuer."
+      }
+    ],
+    "headline": "Card success rate fell 2.54pp, from 86.75% to 84.21%, and the whole drop is a like-for-like rate decline, not a shift in payment-method mix; it is concentrated at one acquirer, Kestrel Bank, which fell 8.78pp.",
+    "hypotheses": [
+      {
+        "confidence": "high",
+        "how_to_verify": "Ask Kestrel Bank for incident or maintenance logs from 17-18 September. Check ACQ_TIMEOUT counts by hour and by Kestrel route, and check whether the rate recovered after 18 September.",
+        "rationale": "The drop is almost entirely at Kestrel Bank (104% of the change), it begins abruptly on 17 September in the daily data, and ACQ_TIMEOUT, a technical acquirer code, jumped from 0.22 to 10.21 per 100 Kestrel debit attempts while other codes stayed flat.",
+        "text": "A technical problem on the Kestrel Bank acquiring route (connectivity or processing) starting around 17 September caused authorisations to time out and drove most of the card success-rate drop."
+      },
+      {
+        "confidence": "med",
+        "how_to_verify": "Pull the failure-code shift for Kestrel Bank credit cards and confirm ACQ_TIMEOUT is the main increase.",
+        "rationale": "Kestrel credit card success fell from 88.74% to 80.56%, a similar pattern to debit, but the failure-code breakdown was only provided for Kestrel debit cards.",
+        "text": "Credit cards at Kestrel Bank were affected by the same timeout issue."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "A technical problem on the Kestrel Bank acquiring route (connectivity or processing) starting around 17 September caused authorisations to time out and drove most of the card success-rate drop.",
+        "rationale": "Kestrel Bank accounts for essentially all of the 2.54pp drop, and its ACQ_TIMEOUT rate rose sharply.",
+        "text": "Escalate to Kestrel Bank to confirm the root cause of the ACQ_TIMEOUT spike on 17-18 September and obtain a fix or incident report."
+      },
+      {
+        "linked_fact_or_hypothesis": "Kestrel Bank is about 30% of card volume but accounts for -2.63pp (104%) of the -2.54pp change. Its success rate fell from 87.0% to 78.2%, a drop of 8.78pp. The other acquirers show no significant change: Meridian Bank +0.85pp, Northstar Bank -0.75pp and Saffron Bank 0.00pp.",
+        "rationale": "Other acquirers were stable, and the daily series shows the drop began abruptly, so earlier detection would limit lost revenue.",
+        "text": "Consider routing or failing over Kestrel-bound card traffic to healthier acquirers while the issue persists, and add an alert on ACQ_TIMEOUT per 100 attempts by acquirer."
+      },
+      {
+        "linked_fact_or_hypothesis": "Kestrel Bank debit card daily success rate was 86.96%, 87.55% and 85.45% on 14-16 September, then fell to 57.14% on 17 September and 55.52% on 18 September.",
+        "rationale": "The daily series provided ends at 18 September, so recovery is not visible in the evidence.",
+        "text": "Re-check Kestrel Bank daily success rates for 19-20 September and after to confirm whether the rate has recovered."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 7890,
+    "output_tokens": 2229
+  }
+}

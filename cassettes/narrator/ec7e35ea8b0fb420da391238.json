@@ -1,0 +1,83 @@
+{
+  "key": "ec7e35ea8b0fb420da391238b4ef959f92c48b56b8b7066401cdfa0c0c888419",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "Period analysed is 12–18 October 2026 (2026-10-12..2026-10-18)."
+    ],
+    "caveats": [
+      "The unexplained settlement difference for Orbit Electronics is flagged for investigation; nothing in the data explains it yet.",
+      "Duplicate records on 12 Oct: 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts, +3.0%). Paysight counts each attempt once and removed the duplicates in the clean view, keeping the first ingestion.",
+      "Attempt volume on 18 Oct was +40% versus the usual level for that weekday. This could be a real sale or a data gap; it is not a data error by itself, so check before comparing totals across this period."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Orbit Electronics' transaction GMV for 12–18 October 2026 was ₹5,085,470.47, against settled gross of ₹5,074,271.13."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Refunds of ₹65,213.40 and fees (MDR) of ₹36,783.23 were netted off, leaving settled net of ₹4,972,274.50."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "After accounting for refunds and fees, an unexplained difference of -₹11,199.34 (-0.22%) remains between settled gross and the GMV of the dates covered."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The whole unexplained difference sits in one batch, STL-MER0397-20261014, for 14 October: gross ₹610,986.45 versus GMV ₹622,185.79 (-1.80%)."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "The data-quality scan found 341 duplicate attempts on 12 October (11,704 raw rows vs 11,363 unique attempts); these were removed so each attempt is counted once."
+      }
+    ],
+    "headline": "Mostly, but not fully: Orbit Electronics' settlements fall ₹11,199.34 (0.22%) short of its transactions for 12–18 October, and the shortfall is not explained by refunds or fees. It traces to one batch on 14 October, which is flagged for investigation.",
+    "hypotheses": [
+      {
+        "confidence": "med",
+        "how_to_verify": "Request the transaction-level settlement file for STL-MER0397-20261014 and match it to the 14 October attempts to find which transactions are missing or reduced.",
+        "rationale": "The entire gap sits in a single batch with no matching refund or fee explanation in the data.",
+        "text": "The 14 October batch may have been short-settled by the acquirer or settlement partner, for example through held, rejected or missing transactions."
+      },
+      {
+        "confidence": "low",
+        "how_to_verify": "Check whether batches for 13 and 15 October show offsetting over-settlement of roughly ₹11,199.34.",
+        "rationale": "Batches are matched to the GMV of the dates they cover, so transactions near the day boundary could fall on either side.",
+        "text": "The gap could come from a cut-off timing difference, where some 14 October transactions were settled in a different batch."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "The whole unexplained difference sits in one batch, STL-MER0397-20261014, for 14 October.",
+        "rationale": "This is the only batch with an unexplained difference, so it is the fastest route to resolving the gap.",
+        "text": "Raise the 14 October batch (STL-MER0397-20261014) with the acquirer or settlement operations and ask for a transaction-level breakdown."
+      },
+      {
+        "linked_fact_or_hypothesis": "The gap could come from a cut-off timing difference.",
+        "rationale": "This would rule out a timing or cut-off explanation.",
+        "text": "Check adjacent-day batches for an offsetting amount before escalating as a true shortfall."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 1285,
+    "output_tokens": 1271
+  }
+}

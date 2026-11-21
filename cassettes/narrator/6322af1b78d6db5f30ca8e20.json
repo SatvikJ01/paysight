@@ -1,0 +1,66 @@
+{
+  "key": "6322af1b78d6db5f30ca8e20dab3921dc2187b929aa1f27bdc790a40639b5f26",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "Order scope: all orders were included.",
+      "Period: 1 Oct 2026 to 31 Oct 2026."
+    ],
+    "caveats": [
+      "Part of this answer uses custom SQL written by the AI, outside the governed semantic layer. It was validated (read-only, governed views only, role filters applied) before running, but its logic has not been reviewed like the governed metrics.",
+      "Duplicate records on 12 Oct: 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts, +3.0%). Paysight counts each attempt once, keeping the first ingestion.",
+      "Volume spike 18 Oct-31 Oct: attempt volume was +39% versus the usual level for those weekdays over 14 days. Real business events (sales) and data gaps both look like this; check before comparing totals across this period."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Out of 419,385 orders in October 2026, 10,865 had more than one payment attempt, which is 2.59% of orders."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "On 12 Oct, 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts); each attempt is counted once in the clean data."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "Attempt volume from 18 Oct to 31 Oct was +39% versus the usual level for those weekdays."
+      }
+    ],
+    "headline": "In October 2026, 2.6% of orders (10,865 of 419,385) needed more than one payment attempt to complete.",
+    "hypotheses": [
+      {
+        "confidence": "low",
+        "how_to_verify": "Break down the multi-attempt order share by day or week within October and compare the 18-31 Oct window with 1-17 Oct.",
+        "rationale": "Volume was +39% above the usual weekday level from 18 Oct, but the evidence does not show how multi-attempt orders were distributed across days.",
+        "text": "The late-October volume spike may reflect a sale or promotional event, which could have shifted the share of multi-attempt orders in that period."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "The late-October volume spike may reflect a sale or promotional event, which could have shifted the share of multi-attempt orders in that period.",
+        "rationale": "A single monthly figure of 2.59% can hide differences between normal days and high-volume days.",
+        "text": "Split the multi-attempt order share by week or day to see whether the late-October spike changed it."
+      },
+      {
+        "linked_fact_or_hypothesis": "Out of 419,385 orders in October 2026, 10,865 had more than one payment attempt, which is 2.59% of orders.",
+        "rationale": "The figure comes from AI-written SQL outside the governed metrics, so its logic has not had the same review.",
+        "text": "Have the analytics team review the custom SQL logic and, if this metric is needed regularly, add it to the governed semantic layer."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 1103,
+    "output_tokens": 967
+  }
+}

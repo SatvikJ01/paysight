@@ -1,0 +1,18 @@
+{
+  "key": "1dc56c849a7f023d31fadce778642947820e417db4e69c4723f62f3d0e5b3df3",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "answer": "Orbit Electronics received 1,294 orders in October 2026.",
+    "status": "answered"
+  },
+  "schema": "BaselineAnswer",
+  "template_id": "baseline_answer",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 612,
+    "output_tokens": 36
+  }
+}

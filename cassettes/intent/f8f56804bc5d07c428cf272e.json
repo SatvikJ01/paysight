@@ -1,0 +1,51 @@
+{
+  "key": "f8f56804bc5d07c428cf272ee5fa8583d3138e916e87c2882940a3826a62a050",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [
+      {
+        "field": "metric",
+        "materiality": "low",
+        "options": [
+          "failed_attempts",
+          "attempt_success_rate (lowest first)"
+        ],
+        "proposed_default": "failed_attempts"
+      }
+    ],
+    "dimensions": [
+      "merchant_name"
+    ],
+    "extra_steps": [
+      {
+        "reason": "Show why the top failing merchants are failing.",
+        "tool": "failure_codes"
+      }
+    ],
+    "filters": [
+      {
+        "dimension": "region",
+        "op": "=",
+        "values": [
+          "south"
+        ]
+      }
+    ],
+    "metrics": [
+      "failed_attempts"
+    ],
+    "question_type": "ranking",
+    "restatement": "Merchants in the south region ranked by number of failed payment attempts for the last 7 days.",
+    "time_expr": "last_n_days:7"
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 55,
+    "output_tokens": 222
+  }
+}

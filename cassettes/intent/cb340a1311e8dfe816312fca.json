@@ -1,0 +1,44 @@
+{
+  "key": "cb340a1311e8dfe816312fcab6b3f1d338ec2868238e0c0b82b0c374d5c323f0",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [],
+    "compare_time_expr": null,
+    "custom_sql_reason": "The catalog only exposes average ticket size (avg_ticket_inr); a median of successful attempt amounts needs a custom percentile calculation over successful attempts.",
+    "dimensions": [],
+    "entities": [
+      {
+        "dimension": "merchant_group",
+        "text": "NovaMart"
+      }
+    ],
+    "extra_steps": [],
+    "filters": [
+      {
+        "dimension": "merchant_group",
+        "op": "=",
+        "values": [
+          "NovaMart"
+        ]
+      }
+    ],
+    "metrics": [
+      "avg_ticket_inr"
+    ],
+    "needs_custom_sql": true,
+    "question_type": "metric_lookup",
+    "restatement": "Median successful payment amount for the NovaMart merchant group during its festive sale, 18-31 October 2026.",
+    "time_expr": "explicit:2026-10-18..2026-10-31",
+    "unsafe_reason": null
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 75,
+    "output_tokens": 287
+  }
+}

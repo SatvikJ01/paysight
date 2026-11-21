@@ -1,0 +1,18 @@
+{
+  "key": "ceb5f2612b63bdc25e34737a127ab87293017458f24f79c2410cc2a43df45ed8",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "note": "Shows daily attempt success rates from 10 to 24 September 2026 so 17 September can be compared with the days around it; the 'SUCCESS' status value is an assumption since the schema does not list status values.",
+    "sql": "SELECT txn_date, COUNT(*) AS attempts, SUM(CASE WHEN status = 'SUCCESS' THEN 1 ELSE 0 END) AS successes, ROUND(100.0 * SUM(CASE WHEN status = 'SUCCESS' THEN 1 ELSE 0 END) / COUNT(*), 2) AS success_rate_pct FROM v_attempts_clean WHERE created_at >= TIMESTAMP '2026-09-10' AND created_at < TIMESTAMP '2026-09-25' GROUP BY txn_date ORDER BY txn_date LIMIT 50"
+  },
+  "schema": "BaselineSQL",
+  "template_id": "baseline_sql",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 1348,
+    "cache_write_tokens": 0,
+    "input_tokens": 19,
+    "output_tokens": 294
+  }
+}

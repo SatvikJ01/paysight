@@ -1,0 +1,71 @@
+{
+  "key": "20baeed1fcab9c89834f6610f4ae525f55db20b4a9d006b2807ff01951149285",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "'Success rate' means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "Period: 2026-08-01 to 2026-08-31, UPI payments only."
+    ],
+    "caveats": [
+      "Success rate depends on the denominator: attempt-level 93.1%, order-level 95.5%, technical 96.8%. Retries and drop-offs explain the gap.",
+      "The data-quality scan flagged missing issuer IDs on Meridian Bank card attempts in August 2026 (8.0%). This does not affect the UPI figure directly, but issuer-level views for that scope are understated."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "UPI attempt success rate for 2026-08-01 to 2026-08-31 was 93.1%: 184,077 successful attempts out of 197,696 attempts, with each retry counted as a separate attempt."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "The same UPI traffic shows an order-level success rate of 95.5% (181,222 of 189,760 orders) and a technical success rate of 96.8% (184,077 of 190,115)."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "The three definitions are up to 3.71pp apart, with attempt-level the lowest at 93.1% and technical the highest at 96.8%."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "The data-quality scan found one warning, on Meridian Bank card attempts in August 2026: 8.0% (2,856 of 35,507) have no issuer ID. This is a card scope, not UPI."
+      }
+    ],
+    "headline": "The UPI attempt success rate in August 2026 was 93.1%, with 184,077 successful attempts out of 197,696 total attempts.",
+    "hypotheses": [
+      {
+        "confidence": "med",
+        "how_to_verify": "Count orders with at least one failed attempt followed by a successful attempt, and compare that against the difference between attempt-level and order-level failures.",
+        "rationale": "Order-level success is higher than attempt-level success, and every retry is counted as its own attempt in the attempt-level denominator.",
+        "text": "The gap between the attempt-level rate (93.1%) and the order-level rate (95.5%) is likely driven by customers retrying failed UPI payments and eventually succeeding, so some failed attempts sit inside orders that ended up successful."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "The same UPI traffic shows an order-level success rate of 95.5% (181,222 of 189,760 orders) and a technical success rate of 96.8% (184,077 of 190,115).",
+        "rationale": "The headline number moves by up to 3.71pp depending on the denominator, so an unlabelled figure can be misread.",
+        "text": "Quote the UPI success rate together with its definition (attempt-level 93.1%, order-level 95.5%, technical 96.8%) in reports and dashboards."
+      },
+      {
+        "linked_fact_or_hypothesis": "The gap between the attempt-level rate (93.1%) and the order-level rate (95.5%) is likely driven by customers retrying failed UPI payments and eventually succeeding, so some failed attempts sit inside orders that ended up successful.",
+        "rationale": "This would confirm or reject the retry explanation for the attempt-versus-order gap.",
+        "text": "If the retry effect matters for decisions, break down UPI failures by retry behaviour to see how many failed attempts are later recovered."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 2035,
+    "input_tokens": 1046,
+    "output_tokens": 1169
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "key": "f35becb004287a18866d9bfbdcedb7e8e34178a6d1781d1bea7bfebc1c2f3d94",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [],
+    "compare_time_expr": null,
+    "custom_sql_reason": null,
+    "dimensions": [],
+    "entities": [],
+    "extra_steps": [],
+    "filters": [],
+    "metrics": [
+      "gmv_inr"
+    ],
+    "needs_custom_sql": false,
+    "question_type": "metric_lookup",
+    "restatement": "Total GMV (sum of successful attempt amounts in INR) for September 2026.",
+    "time_expr": "month:2026-09",
+    "unsafe_reason": null
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 6284,
+    "input_tokens": 54,
+    "output_tokens": 158
+  }
+}

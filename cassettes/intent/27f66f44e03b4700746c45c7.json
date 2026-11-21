@@ -1,0 +1,39 @@
+{
+  "key": "27f66f44e03b4700746c45c76aaca41bea1bd4960e2a450c0f06a6f07526dbe3",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [],
+    "compare_time_expr": null,
+    "custom_sql_reason": null,
+    "dimensions": [],
+    "entities": [],
+    "extra_steps": [],
+    "filters": [
+      {
+        "dimension": "region",
+        "op": "=",
+        "values": [
+          "west"
+        ]
+      }
+    ],
+    "metrics": [
+      "attempt_success_rate"
+    ],
+    "needs_custom_sql": false,
+    "question_type": "metric_lookup",
+    "restatement": "Attempt success rate for merchants in the west region over the last 7 days.",
+    "time_expr": "last_n_days:7",
+    "unsafe_reason": null
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 57,
+    "output_tokens": 178
+  }
+}

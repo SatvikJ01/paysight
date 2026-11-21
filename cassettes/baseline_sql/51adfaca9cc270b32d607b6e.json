@@ -1,0 +1,18 @@
+{
+  "key": "51adfaca9cc270b32d607b6e1f2378125d71a35dd6fdeeebe5c15a83d31be35b",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "note": "Averages amount_inr over successful attempts in the East region for September 2026; the exact region and status literals ('East', 'SUCCESS') are assumed and may need adjusting to the data's actual values.",
+    "sql": "SELECT AVG(amount_inr) AS avg_successful_ticket_size_inr FROM v_attempts_clean WHERE created_at >= TIMESTAMP '2026-09-01' AND created_at < TIMESTAMP '2026-10-01' AND region = 'East' AND status = 'SUCCESS' LIMIT 50"
+  },
+  "schema": "BaselineSQL",
+  "template_id": "baseline_sql",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 1348,
+    "cache_write_tokens": 0,
+    "input_tokens": 23,
+    "output_tokens": 192
+  }
+}

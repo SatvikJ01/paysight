@@ -1,0 +1,76 @@
+{
+  "key": "b740692bc6d6d71c745ef0dd2d1abdd4f6809d6290023fc7b6a74ce6280a7ce7",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "Period analysed is 2026-09-01 to 2026-09-30.",
+      "Order-level success rate means the share of orders with at least one successful attempt."
+    ],
+    "caveats": [
+      "Success rate depends on the denominator: attempt-level 89.63%, order-level 92.28%, technical 93.37%. Retries and drop-offs explain the gap between them."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Order-level success rate for 2026-09-01 to 2026-09-30 was 92.28%, with 316,628 successful orders out of 343,111 total orders."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "The same period shows different success rates depending on the denominator: attempt-level 89.63% (316,628 of 353,242 attempts), order-level 92.28% (316,628 of 343,111 orders), and technical 93.37% (316,628 of 339,128)."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "The gap between the lowest and highest definition is 3.73 percentage points."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "The data-quality scan found no issues (0 findings) across the attempts and dimension tables."
+      }
+    ],
+    "headline": "The order-level success rate in September 2026 was 92.3%: 316,628 of 343,111 orders had at least one successful attempt.",
+    "hypotheses": [
+      {
+        "confidence": "med",
+        "how_to_verify": "Check the distribution of attempts per order and the share of failed attempts that belong to orders that eventually succeeded.",
+        "rationale": "There are 353,242 attempts for 343,111 orders, so there are more attempts than orders, which is consistent with retries.",
+        "text": "The attempt-level rate is lower than the order-level rate because some orders needed more than one attempt, and failed retries count against the attempt-level rate."
+      },
+      {
+        "confidence": "med",
+        "how_to_verify": "Review the technical success rate definition and list the orders that are excluded from its denominator.",
+        "rationale": "Its denominator (339,128) is smaller than the order count (343,111) while the numerator is the same.",
+        "text": "The technical success rate is higher than the order-level rate because it excludes some orders or attempts, such as customer drop-offs, from its denominator."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "E3",
+        "rationale": "The three definitions differ by up to 3.73pp for the same month.",
+        "text": "State the denominator whenever quoting the September success rate (for example 'order-level 92.28%') so numbers are not compared across definitions."
+      },
+      {
+        "linked_fact_or_hypothesis": "Hypothesis 1",
+        "rationale": "More attempts than orders suggests retries influence the gap between attempt-level and order-level rates.",
+        "text": "Analyse retry behaviour (attempts per order and retry success) to see how much recoverable failure there is."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 788,
+    "output_tokens": 935
+  }
+}

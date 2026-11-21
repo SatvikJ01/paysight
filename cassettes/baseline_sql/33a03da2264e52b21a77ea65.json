@@ -1,0 +1,18 @@
+{
+  "key": "33a03da2264e52b21a77ea65bde60e2c233ccd81d5af36e365b341c3fa06fa0d",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "note": "Averages latency_ms over non-success attempts from 2024-10-31 to 2026-10-31, assuming a successful status value is 'SUCCESS' (the exact status labels were not specified in the schema).",
+    "sql": "SELECT AVG(latency_ms) AS avg_failed_latency_ms FROM v_attempts_clean WHERE status <> 'SUCCESS' AND created_at >= TIMESTAMP '2024-10-31' AND created_at < TIMESTAMP '2026-11-01' LIMIT 50"
+  },
+  "schema": "BaselineSQL",
+  "template_id": "baseline_sql",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 1348,
+    "cache_write_tokens": 0,
+    "input_tokens": 26,
+    "output_tokens": 187
+  }
+}

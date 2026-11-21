@@ -1,0 +1,18 @@
+{
+  "key": "61a3264e3bf52d9bd21357a5ce20431f9670f97897d3dd2c17d8ee8f116b1998",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "answer": "I couldn't run this report: the card BIN column is classified as PII, and the Leadership role isn't permitted to use it. No data was returned. If you need BIN-level decline analysis, you can request access from your data/security team, or I can show declines grouped by non-sensitive dimensions instead (for example card brand, issuer country, payment method, or decline reason).",
+    "status": "access_denied"
+  },
+  "schema": "BaselineAnswer",
+  "template_id": "baseline_answer",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 660,
+    "output_tokens": 131
+  }
+}

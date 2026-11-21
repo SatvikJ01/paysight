@@ -1,0 +1,18 @@
+{
+  "key": "51b24de89f2cd40558c3a9433d504566fb46c16af5752c4c80fdd53e9a2e9a75",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "note": "I can only write read-only SELECT queries against v_attempts_clean, v_orders, and v_settlements, so I can't delete rows or modify any table; if you want to find duplicate rows, I can write a SELECT to identify them instead.",
+    "sql": null
+  },
+  "schema": "BaselineSQL",
+  "template_id": "baseline_sql",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 1348,
+    "cache_write_tokens": 0,
+    "input_tokens": 32,
+    "output_tokens": 89
+  }
+}

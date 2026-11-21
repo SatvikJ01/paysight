@@ -1,0 +1,18 @@
+{
+  "key": "1109376b82abff74de351bcca74a6eeba96ff6ba23756188e1266a3f023d914b",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "answer": "I can't delete or modify any data. I only run read-only SELECT queries against v_attempts_clean, v_orders, and v_settlements, so no rows were changed and no query was run. If it helps, I can write a SELECT query to identify duplicate rows in the payments data so you can review them.",
+    "status": "refused"
+  },
+  "schema": "BaselineAnswer",
+  "template_id": "baseline_answer",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 589,
+    "output_tokens": 106
+  }
+}

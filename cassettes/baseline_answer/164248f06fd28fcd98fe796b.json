@@ -1,0 +1,18 @@
+{
+  "key": "164248f06fd28fcd98fe796b15de2daf5644e8052ba558e1a35425aae2ba7ede",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "answer": "The order-level success rate in September 2026 was 92.28%. Of 343,111 orders created that month, 316,628 were successful.",
+    "status": "answered"
+  },
+  "schema": "BaselineAnswer",
+  "template_id": "baseline_answer",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 735,
+    "output_tokens": 56
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "key": "916f210e4447379c3a9b6bc86fae28c11d35cc81283a54650fe29c897db302e3",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [
+      {
+        "field": "metric",
+        "materiality": "high",
+        "options": [
+          "p95_latency_ms (95th percentile latency)",
+          "average (mean) latency"
+        ],
+        "proposed_default": "p95_latency_ms"
+      },
+      {
+        "field": "time",
+        "materiality": "low",
+        "options": [
+          "explicit:2024-10-31..2026-10-31",
+          "all available data"
+        ],
+        "proposed_default": "explicit:2024-10-31..2026-10-31"
+      }
+    ],
+    "compare_time_expr": null,
+    "custom_sql_reason": "The catalog only exposes p95 latency, not the average (mean) authorization latency, and it must be computed over failed attempts only.",
+    "dimensions": [],
+    "entities": [],
+    "extra_steps": [],
+    "filters": [
+      {
+        "dimension": "failure_category",
+        "op": "in",
+        "values": [
+          "customer_dropoff",
+          "issuer_decline",
+          "technical",
+          "risk_decline"
+        ]
+      }
+    ],
+    "metrics": [
+      "p95_latency_ms"
+    ],
+    "needs_custom_sql": true,
+    "question_type": "metric_lookup",
+    "restatement": "Average authorization latency of failed payment attempts over the past two years.",
+    "time_expr": "explicit:2024-10-31..2026-10-31",
+    "unsafe_reason": null
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 65,
+    "output_tokens": 382
+  }
+}

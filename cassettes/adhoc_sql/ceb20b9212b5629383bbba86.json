@@ -1,0 +1,18 @@
+{
+  "key": "ceb20b9212b5629383bbba8616ccdddcf4706984d1a2a88fe504444242ce6e05",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "explanation": "Computes the median amount_inr over successful NovaMart payment attempts created between 18 and 31 October 2026 inclusive.",
+    "sql": "SELECT MEDIAN(amount_inr) AS median_successful_amount_inr, COUNT(*) AS successful_attempts FROM v_attempts_clean WHERE merchant_group = 'NovaMart' AND status = 'SUCCESS' AND created_at >= TIMESTAMP '2026-10-18' AND created_at < TIMESTAMP '2026-11-01' LIMIT 50"
+  },
+  "schema": "AdhocSQL",
+  "template_id": "adhoc_sql",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 1633,
+    "input_tokens": 44,
+    "output_tokens": 196
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "key": "bf562cc750171efd27ccba470b8d73659a043ec243ec8bc1814f299fe2205535",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "'Success rate' means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "Period: 18 Sep 2026 compared with 17 Sep 2026 (the immediately preceding period of equal length). The evidence analysis itself compares 17-18 Sep against a 10-16 Sep baseline, so the figures above describe the combined 17-18 Sep window rather than 18 Sep alone."
+    ],
+    "caveats": [],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "Card attempt success rate fell 9.24pp, from 87.0% (28,445 attempts, 10-16 Sep) to 77.75% (7,956 attempts, 17-18 Sep). The change is statistically and practically significant."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Before the drop, daily card success rate was stable at roughly 86-88% between 4 and 15 Sep."
+      },
+      {
+        "evidence_ids": [
+          "E3",
+          "E10"
+        ],
+        "text": "Kestrel Bank is the segment that concentrates the drop: its card success rate fell 29.07pp from 86.87% to 57.8%. The other acquirers moved by 1.45pp or less and none of those changes is significant (Northstar Bank 86.65% to 85.2%, Meridian Bank 86.98% to 87.77%, Saffron Bank 87.5% to 87.17%)."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "Within Kestrel Bank, all three card methods fell significantly: debit card fell 30.11pp from 86.42% to 56.31%, credit card fell 28.71pp from 88.64% to 59.94%, and card EMI fell 23.87pp from 80.67% to 56.8%."
+      },
+      {
+        "evidence_ids": [
+          "E5",
+          "E9"
+        ],
+        "text": "ACQ_TIMEOUT (a technical failure) is the code that moved. Across all card attempts it rose from 0.24 to 10.24 per 100 attempts (815 failures in the current window). Within Kestrel Bank it rose from 0.26 to 32.27 per 100 attempts (803 failures). Other failure codes moved by less than 1 per 100 attempts."
+      },
+      {
+        "evidence_ids": [
+          "E8"
+        ],
+        "text": "Success rate was lower than normal in many hours of the day: the drop was statistically significant in hours 8 and 10 to 23, with the worst hour being 12:00 (down 13.64pp)."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "Other dimensions (category, issuer, region, merchant group, channel, payment method) showed much weaker concentration than acquirer."
+      },
+      {
+        "evidence_ids": [
+          "E7"
+        ],
+        "text": "The data-quality scan found no issues for 17-18 Sep."
+      }
+    ],
+    "headline": "Card payments on 18 Sep fell sharply: success rate dropped 9.24pp from 87.0% to 77.75%, and the drop is concentrated almost entirely in Kestrel Bank acquiring, where acquirer timeouts surged.",
+    "hypotheses": [
+      {
+        "confidence": "high",
+        "how_to_verify": "Ask Kestrel Bank for incident logs and the exact start/end of the timeout period; confirm the hourly Kestrel timeline shows a step change that matches their incident window.",
+        "rationale": "The drop is isolated to Kestrel Bank across all its card methods, while other acquirers are flat. ACQ_TIMEOUT, an acquirer-side technical code, jumped from 0.26 to 32.27 per 100 attempts there and explains nearly all of the change.",
+        "text": "A technical problem on the Kestrel Bank acquiring side (connectivity, capacity or an outage) caused the surge in acquirer timeouts and the resulting success-rate drop."
+      },
+      {
+        "confidence": "low",
+        "how_to_verify": "Check Kestrel Bank success rate and ACQ_TIMEOUT rate for 19 Sep onward, hour by hour.",
+        "rationale": "Hourly rates were significantly below baseline from hour 10 through 23, but the evidence does not show the current state after 18 Sep.",
+        "text": "The problem may still be ongoing or only partly resolved, since the drop runs across 17 and 18 Sep and most hours from 10:00 onward were significantly lower."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "A technical problem on the Kestrel Bank acquiring side caused the surge in acquirer timeouts",
+        "rationale": "Kestrel Bank's card success rate fell to 57.8% and timeouts account for almost all of the change.",
+        "text": "Escalate to Kestrel Bank now for a root-cause explanation and a confirmed fix time for the ACQ_TIMEOUT failures."
+      },
+      {
+        "linked_fact_or_hypothesis": "Kestrel Bank is the segment that concentrates the drop",
+        "rationale": "Other acquirers held their success rates at 85-88%, so rerouting could recover much of the lost volume.",
+        "text": "Consider routing card traffic away from Kestrel Bank to healthy acquirers (Northstar, Meridian, Saffron) until timeouts return to about 0.3 per 100 attempts."
+      },
+      {
+        "linked_fact_or_hypothesis": "ACQ_TIMEOUT (a technical failure) is the code that moved",
+        "rationale": "The jump from 0.26 to 32.27 per 100 attempts was large and would have been caught early by a simple threshold.",
+        "text": "Set up an alert on ACQ_TIMEOUT per 100 attempts by acquirer, and on hourly acquirer success rate."
+      },
+      {
+        "linked_fact_or_hypothesis": "The problem may still be ongoing or only partly resolved",
+        "rationale": "It is not clear from the evidence whether the issue has ended.",
+        "text": "Monitor Kestrel Bank hourly from 19 Sep onward to confirm recovery."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 6758,
+    "output_tokens": 1975
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "key": "b9f5f3b477da9a241e109d0809147a2b6efc1be6b57cd2af05b020986ecdb86f",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "note": "Counts payment attempts created on 12 October 2026 (assuming the current year of the data, 2026) from the cleaned attempts view.",
+    "sql": "SELECT COUNT(attempt_id) AS attempt_count FROM v_attempts_clean WHERE created_at >= TIMESTAMP '2026-10-12' AND created_at < TIMESTAMP '2026-10-13' LIMIT 50"
+  },
+  "schema": "BaselineSQL",
+  "template_id": "baseline_sql",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 1348,
+    "input_tokens": 22,
+    "output_tokens": 144
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "key": "5ede539dc5a0cfabd2d8e523e74f0bf12219e3a607300a8331ff60df8953092b",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "note": "Compares successful order totals and counts for Orbit Electronics from 12-18 Oct 2026 against settlement gross amounts and txn counts whose coverage window falls inside that range; the 'SUCCESS' order_status value is assumed and settlement batches straddling the window edges would be excluded.",
+    "sql": "WITH s AS (SELECT merchant_name, SUM(gross_amount_inr) AS settled_gross_inr, SUM(txn_count) AS settled_txn_count, MIN(covered_from) AS first_covered_from, MAX(covered_to) AS last_covered_to FROM v_settlements WHERE merchant_name = 'Orbit Electronics' AND covered_from >= DATE '2026-10-12' AND covered_to <= DATE '2026-10-18' GROUP BY merchant_name), o AS (SELECT merchant_name, SUM(amount_inr) AS order_amount_inr, COUNT(*) AS order_count FROM v_orders WHERE merchant_name = 'Orbit Electronics' AND created_at >= TIMESTAMP '2026-10-12' AND created_at < TIMESTAMP '2026-10-19' AND order_status = 'SUCCESS' GROUP BY merchant_name) SELECT o.merchant_name, o.order_count, s.settled_txn_count, o.order_amount_inr, s.settled_gross_inr, o.order_amount_inr - s.settled_gross_inr AS gross_difference_inr, s.first_covered_from, s.last_covered_to FROM o LEFT JOIN s ON o.merchant_name = s.merchant_name LIMIT 50"
+  },
+  "schema": "BaselineSQL",
+  "template_id": "baseline_sql",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 1348,
+    "cache_write_tokens": 0,
+    "input_tokens": 33,
+    "output_tokens": 563
+  }
+}

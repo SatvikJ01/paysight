@@ -1,0 +1,31 @@
+{
+  "key": "fc3453ebdb38c66a5e51772263ddc5593f47e9ae5071092d6d601e2838855555",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [],
+    "compare_time_expr": null,
+    "custom_sql_reason": null,
+    "dimensions": [],
+    "entities": [],
+    "extra_steps": [],
+    "filters": [],
+    "metrics": [
+      "technical_success_rate"
+    ],
+    "needs_custom_sql": false,
+    "question_type": "metric_lookup",
+    "restatement": "Technical success rate (successful attempts over non-abandoned attempts) for the last 7 days.",
+    "time_expr": "last_n_days:7",
+    "unsafe_reason": null
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 56,
+    "output_tokens": 164
+  }
+}

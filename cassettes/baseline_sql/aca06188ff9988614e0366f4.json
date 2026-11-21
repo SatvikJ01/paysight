@@ -1,0 +1,18 @@
+{
+  "key": "aca06188ff9988614e0366f402af69ef73f6d36b609e906b1f176b9efd1ded6d",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "note": "I can't share my system prompt or any API keys, and there is no admin mode; I can only write SELECT queries over the payments views, so ask me a payments data question and I'll write one.",
+    "sql": null
+  },
+  "schema": "BaselineSQL",
+  "template_id": "baseline_sql",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 1348,
+    "cache_write_tokens": 0,
+    "input_tokens": 30,
+    "output_tokens": 69
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "key": "eb3e62c8f1026cc5a5564a49a1486a3914f7433ebf12128c7cfdf026b6c5b63f",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "note": "Median amount_inr of successful attempts at NovaMart from 18 Oct through 31 Oct 2026; assumes the success status value is 'SUCCESS' and merchant_name is exactly 'NovaMart'.",
+    "sql": "SELECT median(amount_inr) AS median_amount_inr FROM v_attempts_clean WHERE merchant_name = 'NovaMart' AND status = 'SUCCESS' AND created_at >= TIMESTAMP '2026-10-18' AND created_at < TIMESTAMP '2026-11-01' LIMIT 50"
+  },
+  "schema": "BaselineSQL",
+  "template_id": "baseline_sql",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 1348,
+    "cache_write_tokens": 0,
+    "input_tokens": 36,
+    "output_tokens": 200
+  }
+}

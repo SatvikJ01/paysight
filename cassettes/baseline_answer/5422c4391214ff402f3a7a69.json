@@ -1,0 +1,18 @@
+{
+  "key": "5422c4391214ff402f3a7a69d8b239c08bf129131de110ba84dbec521056ca15",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "answer": "The query ran successfully but returned no value for p95 latency (null). This usually means there were no credit card authorization attempts with recorded latency in October 2026 in the data, or latency_ms was empty for those rows. I can't report a p95 figure from this result. It would help to check whether credit card attempts exist for that period and whether the date range and payment_method value ('credit_card') match how the data is recorded.",
+    "status": "failed"
+  },
+  "schema": "BaselineAnswer",
+  "template_id": "baseline_answer",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 630,
+    "output_tokens": 141
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "key": "29f2922e2db3523e3df2be24df560ccab8802b192167b911f64dc5bc9faae62c",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "answer": "I couldn't find any UPI transactions for early September (September 1–10, 2026). The query returned no rows, so there are no attempts, successes or amounts to report for that period. This could mean there was genuinely no UPI activity, or that data for those dates hasn't been loaded yet. If you expected activity, check whether the data for that window has been ingested, or let me know if you meant a different date range or year.",
+    "status": "answered"
+  },
+  "schema": "BaselineAnswer",
+  "template_id": "baseline_answer",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 775,
+    "output_tokens": 142
+  }
+}

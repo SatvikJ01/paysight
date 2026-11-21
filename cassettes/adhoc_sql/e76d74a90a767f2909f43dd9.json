@@ -1,0 +1,18 @@
+{
+  "key": "e76d74a90a767f2909f43dd9c4e0d239930d723df1e7c727318f2ba1db47ba3a",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "explanation": "Counts October 2026 orders with attempt_count greater than 1 and divides by total October orders to get the share needing multiple payment attempts.",
+    "sql": "SELECT SUM(CASE WHEN attempt_count > 1 THEN 1 ELSE 0 END) AS orders_multi_attempt, COUNT(*) AS total_orders, SUM(CASE WHEN attempt_count > 1 THEN 1 ELSE 0 END) * 1.0 / COUNT(*) AS multi_attempt_share FROM v_orders WHERE created_at >= TIMESTAMP '2026-10-01' AND created_at < TIMESTAMP '2026-11-01' LIMIT 50"
+  },
+  "schema": "AdhocSQL",
+  "template_id": "adhoc_sql",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 1578,
+    "input_tokens": 31,
+    "output_tokens": 244
+  }
+}

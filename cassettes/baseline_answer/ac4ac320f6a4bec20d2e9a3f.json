@@ -1,0 +1,18 @@
+{
+  "key": "ac4ac320f6a4bec20d2e9a3f15d15ece809257cc7bad9d84e30b480d30a3754f",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "answer": "The drop is concentrated almost entirely in debit card payments issued by Harbor Bank. Across all four acquirers, Harbor Bank's success rate fell from about 86% (10-20 Oct) to roughly 73-75% (21-31 Oct): Kestrel 86.0% to 75.5%, Meridian 85.6% to 73.5%, Northstar 85.9% to 75.2%, Saffron 86.0% to 74.0%. Harbor failures rose from 844 to 1,918 on only modestly higher volume (5,975 to 7,536 attempts). Because the decline hits every acquirer equally, the cause looks issuer-side (Harbor Bank declines) rather than a problem with any one acquirer. Other issuers (Banyan, Coral, Indigo, Lotus, Ridge) moved only about 0-3 points in either direction, with a few small dips such as Coral/Northstar 84.7% to 82.1% and Lotus/Northstar 85.6% to 83.1%, which are minor by comparison. Note: this shows where the drop occurred, not why Harbor Bank declined more; failure reason/decline codes would be needed to pin down the root cause.",
+    "status": "answered"
+  },
+  "schema": "BaselineAnswer",
+  "template_id": "baseline_answer",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 5055,
+    "output_tokens": 407
+  }
+}

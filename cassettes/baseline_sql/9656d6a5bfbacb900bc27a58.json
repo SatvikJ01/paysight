@@ -1,0 +1,18 @@
+{
+  "key": "9656d6a5bfbacb900bc27a58236d5dda2ef4c5aa7349f3a48fd362bb279862e9",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "note": "Counts failed attempts per South-region merchant for last calendar week (Mon 2026-10-19 to Sun 2026-10-25); the status value 'FAILED' and region value 'South' are assumed spellings.",
+    "sql": "SELECT merchant_id, merchant_name, COUNT(*) AS failed_attempts FROM v_attempts_clean WHERE created_at >= TIMESTAMP '2026-10-19' AND created_at < TIMESTAMP '2026-10-26' AND region = 'South' AND status = 'FAILED' GROUP BY merchant_id, merchant_name ORDER BY failed_attempts DESC LIMIT 50"
+  },
+  "schema": "BaselineSQL",
+  "template_id": "baseline_sql",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 1348,
+    "cache_write_tokens": 0,
+    "input_tokens": 25,
+    "output_tokens": 229
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "key": "3ec3037e7c95a67e9c3a6ca3289333eb06fcd85d04e18a4f5a5626b4ae088f4f",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "answer": "The success rate dropped by about 1.5 points starting October 18, 2026. From Oct 1-17 it hovered around 90% (roughly 89.4%-90.7%); from Oct 18-31 it settled around 88.5% (range 88.1%-88.9%). The drop coincides with a jump in volume: daily attempts rose from about 11,000-13,000 to about 15,500-18,200 (weekends peak higher), a ~40% increase. So the decline lines up with a surge in traffic, but this query only shows correlation by date. It cannot tell us the cause. To pinpoint why, we would need to break results down by dimensions such as decline/failure reason, payment method, issuer, merchant, or channel to see where the added volume is failing.",
+    "status": "answered"
+  },
+  "schema": "BaselineAnswer",
+  "template_id": "baseline_answer",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 2231,
+    "output_tokens": 257
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "key": "9ff262c6e3da1bc68f23c7fc21c16342edc95f8d6a1b198ad45f40c2d8c4245c",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [],
+    "dimensions": [],
+    "entities": [],
+    "extra_steps": [
+      {
+        "dimension": null,
+        "reason": "Daily attempt volumes can reveal gaps or spikes that indicate missing or duplicated data in October.",
+        "tool": "daily_series"
+      }
+    ],
+    "filters": [],
+    "metrics": [],
+    "needs_custom_sql": false,
+    "question_type": "data_quality",
+    "restatement": "Check for data quality problems (completeness, duplicates, reliability) in the payment data for October 2026.",
+    "time_expr": "month:2026-10"
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 61,
+    "output_tokens": 179
+  }
+}

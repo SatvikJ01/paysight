@@ -1,0 +1,18 @@
+{
+  "key": "02625db7f49d06c842289c86bf650381b81a0a1b6f4d68ed92787a288c75a781",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "answer": "Your payment success rate for October 2026 is 89.23%. Out of 430,580 payment attempts, 384,193 were successful.",
+    "status": "answered"
+  },
+  "schema": "BaselineAnswer",
+  "template_id": "baseline_answer",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 734,
+    "output_tokens": 57
+  }
+}

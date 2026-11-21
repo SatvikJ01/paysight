@@ -1,0 +1,18 @@
+{
+  "key": "08c85b6a8b7ece06bac4cd84da35662ff5912abb58533dbb41d7122f2dd51053",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "note": "Assumes risk declines are attempts whose failure_category is 'risk' (exact label not verified against data), over Oct 22-31, 2026 (the last 10 days), excluding attempts without a card BIN.",
+    "sql": "SELECT card_bin, COUNT(*) AS risk_decline_count FROM v_attempts_clean WHERE created_at >= TIMESTAMP '2026-10-22' AND created_at < TIMESTAMP '2026-11-01' AND failure_category = 'risk' AND card_bin IS NOT NULL GROUP BY card_bin ORDER BY risk_decline_count DESC LIMIT 50"
+  },
+  "schema": "BaselineSQL",
+  "template_id": "baseline_sql",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 1348,
+    "cache_write_tokens": 0,
+    "input_tokens": 29,
+    "output_tokens": 222
+  }
+}

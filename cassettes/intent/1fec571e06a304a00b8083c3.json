@@ -1,0 +1,39 @@
+{
+  "key": "1fec571e06a304a00b8083c3f3edab82bba182fb88862a04362839ebbde5e5fa",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [],
+    "compare_time_expr": null,
+    "custom_sql_reason": null,
+    "dimensions": [],
+    "entities": [],
+    "extra_steps": [],
+    "filters": [
+      {
+        "dimension": "payment_method",
+        "op": "=",
+        "values": [
+          "CREDIT_CARD"
+        ]
+      }
+    ],
+    "metrics": [
+      "p95_latency_ms"
+    ],
+    "needs_custom_sql": false,
+    "question_type": "metric_lookup",
+    "restatement": "The p95 authorization latency in milliseconds for CREDIT_CARD payments in October 2026.",
+    "time_expr": "month:2026-10",
+    "unsafe_reason": null
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 65,
+    "output_tokens": 198
+  }
+}

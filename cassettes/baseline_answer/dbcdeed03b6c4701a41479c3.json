@@ -1,0 +1,18 @@
+{
+  "key": "dbcdeed03b6c4701a41479c32ddc5f430ace7b8cb99d029c17be94a3108161c9",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "answer": "I can't give a success rate for the West region last week because the query returned no data. There were no payment attempts recorded for any West-region merchant between 2026-10-19 and 2026-10-26 in the data I can see. This could mean there was genuinely no activity, or that the region label or date range doesn't match how the data is stored. If you expected activity, it's worth checking the region name and the week you meant.",
+    "status": "answered"
+  },
+  "schema": "BaselineAnswer",
+  "template_id": "baseline_answer",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 751,
+    "output_tokens": 137
+  }
+}

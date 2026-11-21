@@ -1,0 +1,18 @@
+{
+  "key": "5f50a8c3b9b79d4e0d7a18b0494b4667288c69fb31a3eae7b43be0573081809b",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "answer": "Your GMV for September 2026 was about ₹126.9 crore (₹1,269,089,291.47), counting only orders with a SUCCESS status.",
+    "status": "answered"
+  },
+  "schema": "BaselineAnswer",
+  "template_id": "baseline_answer",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 610,
+    "output_tokens": 64
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "key": "c16fd4beedb0168188219be070c9419725544b9fb169da93641b57f8997c2fc2",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "'Success rate' means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "Period analysed: 1 Oct 2026 to 31 Oct 2026, compared with 31 Aug to 30 Sep 2026."
+    ],
+    "caveats": [
+      "Duplicate records on 12 Oct: 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts, +3.0%). Paysight counts each attempt once and keeps the first ingestion.",
+      "Volume spike from 18 Oct to 31 Oct: attempt volume was 39% above the usual weekday level over 14 days. Real sales and data gaps both look like this, so check before comparing totals across this period.",
+      "The daily series shown in the evidence covers only the first days of the comparison window, so the day-by-day pattern within October is not visible here.",
+      "Failure codes are reported per 100 attempts, not as raw counts, so they can be compared across periods of different volume."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "The October success rate was 89.2% (384,193 successful of 430,580 attempts), versus 89.7% (326,607 of 364,324 attempts) from 31 Aug to 30 Sep. It fell 0.42pp."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "The change is statistically significant (p-value 1.25e-09), but it is not flagged as practically significant. The confidence intervals are 89.1% to 89.3% for October and 89.6% to 89.8% for the baseline."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "Merchant group is the dimension that most concentrates the change. NovaMart's success rate fell from 89.5% to 86.8%."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "Most other dimensions moved only a little. For example, the Zephyr issuer rose from 92.2% to 93.3%, and the Kestrel Bank acquirer rose from 89.2% to 89.4%."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "Within NovaMart, 13 of the 24 hours showed a statistically significant drop, including hour 0 (-6.10pp) and hours 8 to 12 (-5.62pp at hour 8, -5.67pp at hour 9, -5.43pp at hour 10). The largest drop was at hour 5 (-6.29pp), but that hour was not significant."
+      },
+      {
+        "evidence_ids": [
+          "E6"
+        ],
+        "text": "NovaMart's failures per 100 attempts rose most for AUTH_3DS_ABANDONED (0.49 to 1.72), EMI_NOT_ELIGIBLE (0.17 to 1.18) and DO_NOT_HONOR (0.64 to 1.55)."
+      },
+      {
+        "evidence_ids": [
+          "E6"
+        ],
+        "text": "Some NovaMart failure codes fell per 100 attempts, including UPI_COLLECT_EXPIRED (1.32 to 0.58) and NB_SESSION_ABANDONED (0.85 to 0.37)."
+      },
+      {
+        "evidence_ids": [
+          "E7"
+        ],
+        "text": "Attempt volume ran 39% above the usual weekday level from 18 Oct to 31 Oct, and 12 Oct had 341 duplicate attempts that were removed."
+      }
+    ],
+    "headline": "October's attempt success rate was 89.2% across 430,580 attempts, down 0.42pp from 89.7% in the prior period (31 Aug to 30 Sep). The dip is small, and it is concentrated in the NovaMart merchant group.",
+    "hypotheses": [
+      {
+        "confidence": "med",
+        "how_to_verify": "Compare NovaMart's payment-method mix and daily success rate before and after 18 Oct, and confirm the sale dates with the merchant.",
+        "rationale": "The volume spike starts on 18 Oct, and NovaMart's EMI_NOT_ELIGIBLE and AUTH_3DS_ABANDONED failures per 100 attempts rose sharply. Together these fit a sale-driven mix shift.",
+        "text": "A sale or promotion at NovaMart in the second half of October shifted its payment mix toward EMI and 3-D Secure authentication, which lowered its success rate."
+      },
+      {
+        "confidence": "low",
+        "how_to_verify": "Break NovaMart's issuer declines down by payment method and issuer, and compare like-for-like against the baseline.",
+        "rationale": "These codes all rose per 100 attempts for NovaMart, but the evidence does not show whether this is a real rate change or a side effect of the mix shift.",
+        "text": "Higher issuer-side declines (DO_NOT_HONOR, ISSUER_RISK_DECLINE, INSUFFICIENT_FUNDS) are adding to NovaMart's lower success rate."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "A sale or promotion at NovaMart in the second half of October shifted its payment mix toward EMI and 3-D Secure authentication, which lowered its success rate.",
+        "rationale": "This tells you whether anything needs fixing or whether the dip is just a shift toward harder-to-succeed payment methods.",
+        "text": "Break NovaMart's success rate down by payment method for October versus the baseline to separate the mix effect from a like-for-like rate effect."
+      },
+      {
+        "linked_fact_or_hypothesis": "NovaMart's failures per 100 attempts rose most for AUTH_3DS_ABANDONED (0.49 to 1.72), EMI_NOT_ELIGIBLE (0.17 to 1.18) and DO_NOT_HONOR (0.64 to 1.55).",
+        "rationale": "These two codes show the largest increases per 100 attempts and may be partly fixable through checkout design or eligibility messaging.",
+        "text": "Review the 3-D Secure authentication flow and EMI eligibility checks for NovaMart, since AUTH_3DS_ABANDONED and EMI_NOT_ELIGIBLE rose the most."
+      },
+      {
+        "linked_fact_or_hypothesis": "Within NovaMart, 13 of the 24 hours showed a statistically significant drop, including hour 0 (-6.10pp) and hours 8 to 12 (-5.62pp at hour 8, -5.67pp at hour 9, -5.43pp at hour 10). The largest drop was at hour 5 (-6.29pp), but that hour was not significant.",
+        "rationale": "Hour-level patterns can point to time-bound issues such as issuer behaviour or peak-load effects.",
+        "text": "Look at NovaMart's morning hours (8 to 12) and midnight hour specifically, where the drops were statistically significant."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 5428,
+    "output_tokens": 2234
+  }
+}

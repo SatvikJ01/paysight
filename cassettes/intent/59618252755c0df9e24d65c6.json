@@ -1,0 +1,43 @@
+{
+  "key": "59618252755c0df9e24d65c64b97e31f7ce4b2f8923551cf5427f783f51602a8",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "custom_sql_reason": null,
+    "dimensions": [],
+    "entities": [
+      {
+        "dimension": "merchant_group",
+        "text": "NovaMart"
+      }
+    ],
+    "filters": [
+      {
+        "dimension": "merchant_group",
+        "op": "=",
+        "values": [
+          "NovaMart"
+        ]
+      }
+    ],
+    "metrics": [
+      "gmv_inr",
+      "settled_gross_inr",
+      "settled_net_inr"
+    ],
+    "needs_custom_sql": false,
+    "question_type": "reconciliation",
+    "restatement": "Reconcile NovaMart group transaction totals against settlement totals for the last week of October 2026 (25-31 Oct).",
+    "time_expr": "explicit:2026-10-25..2026-10-31",
+    "unsafe_reason": null
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 69,
+    "output_tokens": 228
+  }
+}

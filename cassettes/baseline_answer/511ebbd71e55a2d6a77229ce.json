@@ -1,0 +1,18 @@
+{
+  "key": "511ebbd71e55a2d6a77229ce965fd40f5c27b95b098f676644649a272274c585",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "answer": "The query ran but returned no value (NULL) for the average successful ticket size in the East region for September 2026. This usually means there were no successful transactions matching those filters in that period — for example, the data may not cover September 2026 yet, or the region value may be labelled differently. I can't give an average ticket size from this result.",
+    "status": "failed"
+  },
+  "schema": "BaselineAnswer",
+  "template_id": "baseline_answer",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 638,
+    "output_tokens": 115
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "key": "1492bd3382a196405f6b52b8af15053a302c0d3b50391313321c0158552513f8",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "answer": "The query ran successfully but returned no card payment attempts for 18 September 2026, so I can't say what happened. This could mean there was no card activity that day, the date is outside the data's coverage, or the date or filters need adjusting. Please confirm the date (and year) or let me check a wider range.",
+    "status": "failed"
+  },
+  "schema": "BaselineAnswer",
+  "template_id": "baseline_answer",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 791,
+    "output_tokens": 106
+  }
+}

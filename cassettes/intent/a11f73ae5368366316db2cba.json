@@ -1,0 +1,64 @@
+{
+  "key": "a11f73ae5368366316db2cbaec4802ede07cba18b5ed63be6d07c354480ae425",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [
+      {
+        "field": "metric",
+        "materiality": "low",
+        "options": [
+          "attempt_success_rate",
+          "order_success_rate",
+          "technical_success_rate"
+        ],
+        "proposed_default": "attempt_success_rate"
+      }
+    ],
+    "compare_time_expr": "explicit:2026-08-22..2026-08-31",
+    "dimensions": [],
+    "entities": [],
+    "extra_steps": [
+      {
+        "dimension": null,
+        "reason": "Identify which UPI failure codes increased between the two periods.",
+        "tool": "failure_codes"
+      },
+      {
+        "dimension": "issuer_name",
+        "reason": "Check whether specific UPI PSPs or banks drove the drop.",
+        "tool": "breakdown"
+      },
+      {
+        "dimension": null,
+        "reason": "Locate when within the window the decline started.",
+        "tool": "daily_series"
+      }
+    ],
+    "filters": [
+      {
+        "dimension": "method_family",
+        "op": "=",
+        "values": [
+          "upi"
+        ]
+      }
+    ],
+    "metrics": [
+      "attempt_success_rate"
+    ],
+    "needs_custom_sql": false,
+    "question_type": "root_cause",
+    "restatement": "Why attempt success rate for UPI payments dropped in 1-10 September 2026 compared with 22-31 August 2026.",
+    "time_expr": "explicit:2026-09-01..2026-09-10"
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 73,
+    "output_tokens": 388
+  }
+}

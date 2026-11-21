@@ -1,0 +1,141 @@
+{
+  "key": "d3e31b5c88ab870581143aaff053064fe751743812745456b003b87fc566bc33",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "'Success rate' means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "Period compared: 18–31 October 2026 against 4–17 October 2026."
+    ],
+    "caveats": [
+      "Duplicate records on 12 Oct: 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts, +3.0%). Paysight counts each attempt once, keeping the first ingestion.",
+      "Attempt volume in 18–31 Oct was +39% versus the usual weekday level. Sales and data gaps both look like this, so check before comparing raw totals across the two periods. The baseline window is also much smaller (9,945 attempts) than the current one (68,961).",
+      "The success rate depends on the denominator: 86.22% attempt-level, 88.42% order-level and 89.5% technical. Retries and customer drop-offs explain the gap.",
+      "Failure codes are reported per 100 attempts, and some segment-level changes (such as CARD_EMI's own rate) are not statistically significant."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "NovaMart's attempt success rate fell 3.76pp from 89.97% (8,948 of 9,945 attempts) in 4–17 Oct to 86.22% (59,455 of 68,961 attempts) in 18–31 Oct. The change is statistically significant (p = 5.85e-25) and the confidence intervals do not overlap (89.37–90.55% vs 85.96–86.47%)."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "By payment method, the split is -2.76pp from mix (share shifts) and -1.00pp from rate (within-method change). Mix accounts for 73.4% of the fall."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "CARD_EMI's share of NovaMart attempts rose from 2.7% to 29.5%, while UPI's share fell from 55.8% to 16.3%. CREDIT_CARD's share rose from 11.9% to 34.3%."
+      },
+      {
+        "evidence_ids": [
+          "E4",
+          "E9"
+        ],
+        "text": "CARD_EMI contributed -1.86pp of the total change (-1.33pp mix, -0.53pp rate); its own success rate went from 84.8% to 81.5%, a change that is not statistically significant. UPI contributed -1.77pp, almost all mix (-1.82pp), with its own rate flat (92.6% to 92.8%)."
+      },
+      {
+        "evidence_ids": [
+          "E4",
+          "E5",
+          "E9"
+        ],
+        "text": "DEBIT_CARD is the clearest like-for-like decline: its success rate fell 4.31pp from 87.6% to 83.3% (significant), contributing -0.60pp to the overall change."
+      },
+      {
+        "evidence_ids": [
+          "E6"
+        ],
+        "text": "Within the NovaMart | DEBIT_CARD segment, ISSUER_RISK_DECLINE rose from 0.47 to 3.26 per 100 attempts (+2.80). INSUFFICIENT_FUNDS rose from 2.73 to 3.82 per 100 attempts (+1.09)."
+      },
+      {
+        "evidence_ids": [
+          "E5"
+        ],
+        "text": "Harbor Bank | DEBIT_CARD also fell from 86.6% to 76.0%, contributing -0.36pp to the overall change."
+      },
+      {
+        "evidence_ids": [
+          "E10"
+        ],
+        "text": "Across all NovaMart attempts, the biggest failure-code increases per 100 attempts were AUTH_3DS_ABANDONED (0.53 to 1.92), EMI_NOT_ELIGIBLE (0.12 to 1.36) and DO_NOT_HONOR (0.56 to 1.72). UPI_COLLECT_EXPIRED fell from 1.55 to 0.41 per 100 attempts."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "By acquirer, Meridian Bank's rate fell from 90.6% to 85.7%, contributing -1.30pp (34% of the change) on 26% of volume."
+      },
+      {
+        "evidence_ids": [
+          "E1",
+          "E2"
+        ],
+        "text": "Attempt volume rose sharply: 9,945 attempts in the baseline window vs 68,961 in the current window, and +39% versus the usual weekday level over 18–31 Oct."
+      },
+      {
+        "evidence_ids": [
+          "E8"
+        ],
+        "text": "Under different denominators, the 18–31 Oct success rate is 86.22% (attempt-level), 88.42% (order-level) and 89.50% (technical)."
+      }
+    ],
+    "headline": "NovaMart's attempt success rate fell 3.76pp, from 89.97% to 86.22%. About 2.76pp of that is a shift in payment-method mix (a surge in card EMI), and about 1.00pp is a like-for-like rate drop, mainly on debit cards.",
+    "hypotheses": [
+      {
+        "confidence": "med",
+        "how_to_verify": "Check NovaMart's campaign and offer calendar for 18–31 Oct and compare EMI traffic by day and by entry point.",
+        "rationale": "CARD_EMI share jumped from 2.7% to 29.5% and volume was far above normal for the period; EMI's baseline rate (84.8%) is below UPI's (92.6%), so more EMI mechanically lowers the blended rate. EMI_NOT_ELIGIBLE failures also rose sharply.",
+        "text": "A sale or promotion starting around 18 Oct pushed EMI (and credit-card) checkout, shifting NovaMart's mix toward lower-success methods and away from UPI."
+      },
+      {
+        "confidence": "low",
+        "how_to_verify": "Break debit-card ISSUER_RISK_DECLINE by issuer and day, and ask the main issuers (for example Harbor Bank) whether risk rules changed.",
+        "rationale": "ISSUER_RISK_DECLINE per 100 debit-card attempts rose from 0.47 to 3.26, the largest failure-code move in that segment, alongside higher insufficient-funds declines.",
+        "text": "Issuers tightened risk screening on NovaMart debit-card attempts during the high-volume period, driving the debit-card rate drop."
+      },
+      {
+        "confidence": "low",
+        "how_to_verify": "Compare Meridian Bank's rate within each payment method, and review its technical failure codes and latency for the period.",
+        "rationale": "Meridian Bank's rate fell from 90.6% to 85.7% on higher share of volume, though this may overlap with the mix and debit-card effects.",
+        "text": "Meridian Bank's acquiring performance worsened under the higher load."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "A sale or promotion starting around 18 Oct pushed EMI (and credit-card) checkout, shifting NovaMart's mix toward lower-success methods and away from UPI.",
+        "rationale": "Most of the headline fall comes from share shifts, not worse like-for-like performance.",
+        "text": "Confirm with NovaMart whether an EMI-heavy sale ran from 18 Oct, and treat the mix-driven portion (-2.76pp) as expected rather than a performance fault."
+      },
+      {
+        "linked_fact_or_hypothesis": "Issuers tightened risk screening on NovaMart debit-card attempts during the high-volume period, driving the debit-card rate drop.",
+        "rationale": "Debit cards are the one segment with a significant like-for-like drop (-4.31pp), and issuer risk declines rose the most.",
+        "text": "Investigate the NovaMart debit-card decline with issuers, focusing on ISSUER_RISK_DECLINE and Harbor Bank debit cards."
+      },
+      {
+        "linked_fact_or_hypothesis": "Across all NovaMart attempts, the biggest failure-code increases per 100 attempts were AUTH_3DS_ABANDONED (0.53 to 1.92), EMI_NOT_ELIGIBLE (0.12 to 1.36) and DO_NOT_HONOR (0.56 to 1.72). UPI_COLLECT_EXPIRED fell from 1.55 to 0.41 per 100 attempts.",
+        "rationale": "Both failure codes rose by over 1 per 100 attempts across NovaMart and EMI is now 29.5% of volume.",
+        "text": "Review EMI eligibility checks and 3DS flow for EMI traffic to reduce EMI_NOT_ELIGIBLE and AUTH_3DS_ABANDONED failures."
+      },
+      {
+        "linked_fact_or_hypothesis": "Meridian Bank's acquiring performance worsened under the higher load.",
+        "rationale": "Its rate fell 4.9pp on a larger share of volume, but the cause is not yet isolated.",
+        "text": "Compare Meridian Bank's performance within each payment method to separate acquirer issues from mix effects."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 8373,
+    "output_tokens": 2935
+  }
+}

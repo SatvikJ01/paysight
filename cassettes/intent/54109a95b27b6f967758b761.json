@@ -1,0 +1,60 @@
+{
+  "key": "54109a95b27b6f967758b7613fc0f9df7498a6d0524c5400783254b2e74de3d3",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [],
+    "compare_time_expr": "explicit:2026-10-04..2026-10-17",
+    "custom_sql_reason": null,
+    "dimensions": [],
+    "entities": [
+      {
+        "dimension": "merchant_group",
+        "text": "NovaMart"
+      }
+    ],
+    "extra_steps": [
+      {
+        "dimension": "payment_method",
+        "reason": "Check whether the fall is concentrated in a payment method.",
+        "tool": "breakdown"
+      },
+      {
+        "dimension": null,
+        "reason": "Identify which failure codes increased in the later period.",
+        "tool": "failure_codes"
+      },
+      {
+        "dimension": null,
+        "reason": "See when within the period the drop began.",
+        "tool": "daily_series"
+      }
+    ],
+    "filters": [
+      {
+        "dimension": "merchant_group",
+        "op": "=",
+        "values": [
+          "NovaMart"
+        ]
+      }
+    ],
+    "metrics": [
+      "attempt_success_rate"
+    ],
+    "needs_custom_sql": false,
+    "question_type": "root_cause",
+    "restatement": "Why NovaMart's attempt success rate changed between 18-31 October 2026 and 4-17 October 2026.",
+    "time_expr": "explicit:2026-10-18..2026-10-31",
+    "unsafe_reason": null
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 76,
+    "output_tokens": 364
+  }
+}

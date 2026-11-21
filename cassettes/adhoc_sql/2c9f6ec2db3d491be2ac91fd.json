@@ -1,0 +1,18 @@
+{
+  "key": "2c9f6ec2db3d491be2ac91fd75fdabcc1ef202d1cc555b7e3c00b7786fb7ed58",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "explanation": "Average latency of failed attempts by failure category, with the window capped at 400 days (2025-10-02 to 2026-10-31) because the validator rejects the full two-year span.",
+    "sql": "SELECT failure_category, AVG(latency_ms) AS avg_latency_ms, COUNT(*) AS failed_attempts FROM v_attempts_clean WHERE created_at >= TIMESTAMP '2025-10-02' AND created_at < TIMESTAMP '2026-11-01' AND status <> 'SUCCESS' AND failure_category IN ('customer_dropoff', 'issuer_decline', 'technical', 'risk_decline') GROUP BY failure_category ORDER BY failure_category LIMIT 50"
+  },
+  "schema": "AdhocSQL",
+  "template_id": "adhoc_sql",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 1891,
+    "input_tokens": 34,
+    "output_tokens": 254
+  }
+}

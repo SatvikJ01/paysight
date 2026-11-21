@@ -1,0 +1,78 @@
+{
+  "key": "c399be8a564bb333a6b2d3884e0e857eb10382af0088de31b1430f3e9acba4cc",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "'Success rate' means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "Period analysed is 1 October 2026 to 31 October 2026, across all regions."
+    ],
+    "caveats": [
+      "Success rate depends on the denominator: attempt-level 89.2%, order-level 91.6%, technical 92.9%. Retries and drop-offs explain the gap.",
+      "On 12 October, 341 attempts were ingested twice; the duplicates were removed and each attempt is counted once.",
+      "Attempt volume was 39% above normal from 18 to 31 October. This may be a real event such as a sale or a data gap, so check before comparing totals across this period."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The attempt success rate for 1-31 October 2026 is 89.2%, with 384,193 successful attempts out of 430,580 attempts."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "Under other definitions the rate is higher: 91.6% at order level (384,192 of 419,385 orders) and 92.9% technical (384,193 of 413,684). The widest gap between definitions is 3.64pp."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "On 12 October, 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts); these are counted once in the figures."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "Attempt volume ran 39% above the usual level for those weekdays from 18 to 31 October (14 days)."
+      }
+    ],
+    "headline": "This month (October 2026) the attempt-level payment success rate is 89.2%: 384,193 successful attempts out of 430,580.",
+    "hypotheses": [
+      {
+        "confidence": "med",
+        "how_to_verify": "Compare the number of attempts per order and the share of orders that succeed on a retry after an earlier failed attempt.",
+        "rationale": "Attempt-level counts every retry in the denominator, while the order-level rate counts each order once; the order-level denominator is smaller (419,385 vs 430,580).",
+        "text": "The gap between the attempt-level rate (89.2%) and the order-level rate (91.6%) is likely driven by customers retrying failed payments, since each retry counts as a separate attempt."
+      },
+      {
+        "confidence": "low",
+        "how_to_verify": "Check the marketing/sales calendar for 18-31 October and compare with source system volumes.",
+        "rationale": "Both real events and data gaps produce this kind of spike, so the evidence alone cannot distinguish them.",
+        "text": "The late-October volume spike may be a sale or other business event rather than a data gap."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "Success rate under three definitions",
+        "rationale": "The rate ranges from 89.2% to 92.9% depending on the denominator, so mixing definitions would give misleading comparisons.",
+        "text": "State which definition (attempt, order or technical) is being used whenever the success rate is quoted or compared."
+      },
+      {
+        "linked_fact_or_hypothesis": "The late-October volume spike may be a sale or other business event rather than a data gap.",
+        "rationale": "A 39% volume jump can shift mix and totals, and it is not yet confirmed whether it is a real business event.",
+        "text": "Confirm the cause of the 18-31 October volume spike before comparing this month's totals with other periods."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 1142,
+    "output_tokens": 1132
+  }
+}

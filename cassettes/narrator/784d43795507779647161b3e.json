@@ -1,0 +1,50 @@
+{
+  "key": "784d43795507779647161b3e49bc2b825c1a388ec738abde1e47e330f5712637",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "Period analysed is 2026-09-01 to 2026-09-30.",
+      "Ticket size is the average amount per successful payment in the east region, taken from the cleaned attempts data."
+    ],
+    "caveats": [],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The average successful ticket size for east-region merchants in September 2026 was INR 3,780.93."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "This average is based on 47,351 successful payments totalling INR 179,030,792.94 (about INR 17.9 crore)."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "The data-quality scan for the period found 0 issues (no duplicates, missing values, orphan keys or timestamp problems flagged)."
+      }
+    ],
+    "headline": "The average successful ticket size in the east region in September 2026 was about INR 3,781.",
+    "hypotheses": [],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "The average successful ticket size for east-region merchants in September 2026 was INR 3,780.93.",
+        "rationale": "A single-month figure has no benchmark on its own, so a comparison would show whether it is typical.",
+        "text": "If you want to know whether INR 3,781 is high or low, compare it with August 2026 or with other regions using the same definition."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 491,
+    "output_tokens": 429
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "key": "e17a420f6272cda7c6831f403a0562c102983444f68d2d16a1da27d3028e36a0",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "'Success rate' means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "Period analysed: 1 October 2026 to 31 October 2026."
+    ],
+    "caveats": [
+      "Success rate depends on the denominator: attempt-level 89.2%, order-level 91.6%, technical 92.9%. Retries and drop-offs explain the gap.",
+      "341 duplicate attempts on 12 Oct were removed; each attempt is counted once.",
+      "Volume was about 39% above normal from 18 to 31 Oct; check the cause before comparing totals across this period."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Attempt-level success rate for 1–31 October 2026 was 89.2%, from 384,193 successful attempts out of 430,580 total attempts."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "The success rate depends on the denominator: 89.2% by attempt, 91.6% by order and 92.9% by the technical definition. The widest gap between definitions is 3.64pp."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "On 12 Oct, 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts). The duplicates were removed and each attempt is counted once."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "Attempt volume ran about 39% above the usual level for those weekdays from 18 Oct to 31 Oct (14 days)."
+      }
+    ],
+    "headline": "The payment success rate in October 2026 was 89.2%: 384,193 of 430,580 attempts succeeded, with each retry counted as a separate attempt.",
+    "hypotheses": [
+      {
+        "confidence": "low",
+        "how_to_verify": "Check the marketing or sales calendar for 18–31 Oct and compare merchant-level volumes in that period.",
+        "rationale": "A volume spike of this size can come from a sale, but a data gap or backfill looks similar in the daily counts.",
+        "text": "The 18–31 Oct volume spike is likely a real business event such as a sale rather than a data error."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "Success rate under three definitions",
+        "rationale": "The three definitions differ by up to 3.64pp, so mixing them would give misleading comparisons.",
+        "text": "State which definition (attempt, order or technical) is being used whenever the October success rate is quoted or compared."
+      },
+      {
+        "linked_fact_or_hypothesis": "The 18–31 Oct volume spike is likely a real business event such as a sale rather than a data error.",
+        "rationale": "A sale-driven spike can shift payment-method and merchant mix, which affects the overall rate.",
+        "text": "Confirm the cause of the 18–31 Oct volume spike before comparing October totals or rates against other months."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 1141,
+    "output_tokens": 951
+  }
+}

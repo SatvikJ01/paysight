@@ -1,0 +1,53 @@
+{
+  "key": "522b6b8dace1b1cc1cd7e4aee401fe62882e44bf7e648beb390f2e6a2594a4dc",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "Period: 2026-10-01 to 2026-10-31.",
+      "Metric covers payment_method = CREDIT_CARD only."
+    ],
+    "caveats": [
+      "341 attempts on 12 October were ingested twice; they were removed so each attempt is counted once.",
+      "Attempt volume was unusually high from 18 October to 31 October; this is not a data error by itself but is worth checking before comparing totals across the period."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The p95 authorization latency for CREDIT_CARD payments from 1 October to 31 October 2026 was 6,344.6 ms."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "On 12 October, 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts); Paysight counts each attempt once and removed the duplicates in the clean view."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "Attempt volume from 18 October to 31 October was +39% versus the usual level for those weekdays, over 14 days."
+      }
+    ],
+    "headline": "Credit card payments had a p95 authorization latency of about 6,345 ms in October 2026, so the slowest 5 in 100 attempts took longer than that.",
+    "hypotheses": [],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "Attempt volume from 18 October to 31 October was +39% versus the usual level for those weekdays, over 14 days.",
+        "rationale": "A volume spike can come from real business events or from data gaps, so it affects how comparable the period is.",
+        "text": "If you plan to compare this figure with another month, check whether the 18-31 October volume spike reflects a sale or a data gap first."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 2134,
+    "input_tokens": 715,
+    "output_tokens": 564
+  }
+}

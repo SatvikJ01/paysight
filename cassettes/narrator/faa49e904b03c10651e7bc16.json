@@ -1,0 +1,133 @@
+{
+  "key": "faa49e904b03c10651e7bc16aeac5b48e00503d4e56ea8c20dce64d317803db7",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "Success rate means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "The current period is 18 Oct to 31 Oct 2026, compared with 4 Oct to 17 Oct 2026, the immediately preceding period of equal length."
+    ],
+    "caveats": [
+      "Duplicate records on 12 Oct: 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts, +3.0%). Paysight counts each attempt once, keeping the first ingestion.",
+      "Attempt volume from 18 Oct to 31 Oct was about 39% above the usual level for those weekdays. This looks like a sale or other business event rather than a data error, but check before comparing totals across this period.",
+      "The success rate depends on the denominator: attempt-level 88.54%, order-level 90.89% and technical 92.11% for the current period. Retries and customer drop-offs explain the gap.",
+      "Failure codes are shown per 100 attempts, and the Harbor Bank daily series provided covers only the baseline period (4-15 Oct)."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Attempt success rate fell 1.47pp from 90.0% (148,791 of 165,297 attempts) to 88.5% (203,741 of 230,100 attempts). The change is statistically and practically significant."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "By payment-method decomposition, the mix effect is -1.00pp (68% of the drop) and the like-for-like rate effect is -0.47pp."
+      },
+      {
+        "evidence_ids": [
+          "E4",
+          "E3"
+        ],
+        "text": "CARD_EMI's share of attempts rose from 2.9% to 10.9% while its own approval rate stayed flat (81.7% to 81.6%). It accounts for -0.62pp of the change, almost all of it mix. UPI, the highest-approving method, fell from 54.0% to 42.5% of attempts, adding -0.44pp of mix effect."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "NovaMart grew from 6.0% to 30.0% of attempts, and its approval rate fell from 90.0% to 86.2%. It is 18% of volume in the combined period but accounts for -0.96pp (65%) of the -1.47pp change."
+      },
+      {
+        "evidence_ids": [
+          "E5",
+          "E10"
+        ],
+        "text": "On a like-for-like basis, the largest single rate decline is Harbor Bank debit cards: approval fell from 86.2% to 76.7% (-9.44pp), contributing -0.39pp to the overall change. DEBIT_CARD overall fell 2.65pp, from 86.0% to 83.4%. No other payment method moved significantly."
+      },
+      {
+        "evidence_ids": [
+          "E6"
+        ],
+        "text": "For Harbor Bank debit cards, ISSUER_RISK_DECLINE rose from 0.32 to 11.12 per 100 attempts (1,065 failures in the current period vs 22 in the baseline). Other failure codes for this segment moved by less than 0.4 per 100 attempts."
+      },
+      {
+        "evidence_ids": [
+          "E7"
+        ],
+        "text": "Harbor Bank debit daily approval rates stayed between about 84% and 89% across the baseline period (4-15 Oct) with no anomaly flagged. The daily series provided covers only the baseline days."
+      },
+      {
+        "evidence_ids": [
+          "E9"
+        ],
+        "text": "Across all attempts, ISSUER_RISK_DECLINE rose from 0.16 to 0.71 per 100 attempts, AUTH_3DS_ABANDONED from 0.66 to 1.08, and EMI_NOT_ELIGIBLE from 0.14 to 0.50."
+      },
+      {
+        "evidence_ids": [
+          "E11"
+        ],
+        "text": "All four acquirers declined by a similar 1.35pp to 1.58pp, so no single acquirer stands out."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "Enterprise merchants grew from 39.9% to 55.4% of attempts and their approval rate fell from 90.0% to 87.8%, accounting for -1.08pp of the change."
+      }
+    ],
+    "headline": "Approval rate fell 1.47pp, from 90.0% to 88.5%. About two-thirds (-1.00pp) is a mix shift toward lower-approving payment methods, mainly EMI, driven by NovaMart's growth, and about one-third (-0.47pp) is a like-for-like decline, concentrated in Harbor Bank debit cards.",
+    "hypotheses": [
+      {
+        "confidence": "med",
+        "how_to_verify": "Break down NovaMart's attempts by payment method for both periods and confirm with the business team whether a sale or EMI offer ran from 18 Oct.",
+        "rationale": "NovaMart's share rose from 6.0% to 30.0% in the same window that CARD_EMI's share rose from 2.9% to 10.9% and total volume was +39% above the usual weekday level.",
+        "text": "A sale or campaign at NovaMart pushed EMI and credit-card volume up and pulled UPI share down, lowering the blended approval rate."
+      },
+      {
+        "confidence": "med",
+        "how_to_verify": "Ask Harbor Bank whether risk rules or scoring changed around 18 Oct, and check whether the declines cluster on specific merchants (such as NovaMart), BIN ranges or ticket sizes.",
+        "rationale": "Almost the entire drop in this segment is the single failure code ISSUER_RISK_DECLINE, rising from 0.32 to 11.12 per 100 attempts, while other codes were stable.",
+        "text": "Harbor Bank tightened its risk rules on debit cards (or reacted to a fraud pattern), causing the jump in ISSUER_RISK_DECLINE declines."
+      },
+      {
+        "confidence": "low",
+        "how_to_verify": "Cross-tabulate NovaMart attempts by issuer, payment method and failure code for both periods.",
+        "rationale": "NovaMart's decline is large and the EMI_NOT_ELIGIBLE and ISSUER_RISK_DECLINE codes both rose, but the evidence does not link them to NovaMart directly.",
+        "text": "NovaMart's own approval rate decline (90.0% to 86.2%) may partly reflect the Harbor Bank risk declines or EMI-ineligible attempts from sale traffic."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "Harbor Bank tightened its risk rules on debit cards (or reacted to a fraud pattern), causing the jump in ISSUER_RISK_DECLINE declines.",
+        "rationale": "It is the largest like-for-like decline (-9.44pp in that segment) and is driven by one failure code.",
+        "text": "Raise the ISSUER_RISK_DECLINE spike on Harbor Bank debit cards with Harbor Bank and request details of any risk rule change since 18 Oct."
+      },
+      {
+        "linked_fact_or_hypothesis": "By payment-method decomposition, the mix effect is -1.00pp (68% of the drop) and the like-for-like rate effect is -0.47pp.",
+        "rationale": "Most of the drop is mix, so the headline rate overstates any underlying deterioration.",
+        "text": "Report approval rate separately for NovaMart and for the rest of the base, and use payment-method-adjusted rates when comparing periods."
+      },
+      {
+        "linked_fact_or_hypothesis": "Across all attempts, ISSUER_RISK_DECLINE rose from 0.16 to 0.71 per 100 attempts, AUTH_3DS_ABANDONED from 0.66 to 1.08, and EMI_NOT_ELIGIBLE from 0.14 to 0.50.",
+        "rationale": "Both codes rose per 100 attempts as EMI volume grew.",
+        "text": "Review EMI eligibility checks and 3DS flows for sale traffic to reduce EMI_NOT_ELIGIBLE and AUTH_3DS_ABANDONED failures."
+      },
+      {
+        "linked_fact_or_hypothesis": "A sale or campaign at NovaMart pushed EMI and credit-card volume up and pulled UPI share down, lowering the blended approval rate.",
+        "rationale": "This would explain the mix shift and the volume spike as expected rather than a fault.",
+        "text": "Confirm with the business team whether a NovaMart sale or EMI offer started on 18 Oct."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 8605,
+    "output_tokens": 2800
+  }
+}

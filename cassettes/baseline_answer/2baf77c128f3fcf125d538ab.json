@@ -1,0 +1,18 @@
+{
+  "key": "2baf77c128f3fcf125d538abb2bd75b7d72b62d8cb3c3850e3b4e0cdbd52a1c4",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "answer": "I couldn't answer this. The query was blocked because the two-year window (731 days) exceeds the 400-day maximum allowed for time ranges. If you narrow the range to 400 days or fewer, or run it in separate periods, I can calculate the average authorization latency of failed payments for you.",
+    "status": "access_denied"
+  },
+  "schema": "BaselineAnswer",
+  "template_id": "baseline_answer",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 628,
+    "output_tokens": 109
+  }
+}

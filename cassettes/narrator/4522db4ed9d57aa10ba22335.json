@@ -1,0 +1,58 @@
+{
+  "key": "4522db4ed9d57aa10ba22335326ceb6361b60d1113d07ab29cccf29f108464ee",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "Period analysed: 18 October 2026 to 31 October 2026.",
+      "The median covers successful payment attempts for the NovaMart merchant group only."
+    ],
+    "caveats": [
+      "Part of this answer uses custom SQL written by the AI, outside the governed semantic layer. It was validated (read-only, governed views only, role filters applied) before running, but its logic has not been reviewed like the governed metrics.",
+      "Attempt volume was 39% above the usual level for those weekdays over 14 days (18 Oct to 31 Oct). Real business events such as sales and data gaps both look like this, so check before comparing totals across this period. It is not a data error by itself and is flagged for context."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The median successful payment amount for NovaMart from 18 October 2026 to 31 October 2026 was ₹5,651.52."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The median is based on 59,455 successful NovaMart payment attempts in the period."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "Attempt volume during the sale was 39% above the usual level for those weekdays over 14 days."
+      }
+    ],
+    "headline": "The median successful payment at NovaMart during its festive sale (18–31 October 2026) was ₹5,651.52.",
+    "hypotheses": [],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "Attempt volume during the sale was 39% above the usual level for those weekdays over 14 days.",
+        "rationale": "The sale period had unusually high volume, so totals and typical amounts may not be directly comparable to ordinary weeks.",
+        "text": "Before comparing this median with a non-sale period, compute the same median for a normal period with the same method, and read the two side by side."
+      },
+      {
+        "linked_fact_or_hypothesis": "The median successful payment amount for NovaMart from 18 October 2026 to 31 October 2026 was ₹5,651.52.",
+        "rationale": "The median came from AI-written SQL outside the governed semantic layer, which exposes only average ticket size.",
+        "text": "Ask the analytics team to review the custom SQL and, if the median will be used regularly, add it as a governed metric."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 2036,
+    "input_tokens": 857,
+    "output_tokens": 723
+  }
+}

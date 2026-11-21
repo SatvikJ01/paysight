@@ -1,0 +1,18 @@
+{
+  "key": "ef2d4a2eefa10901da119a8d15274e38b77caeca6c97cdf4eac2bbbe97ce0600",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "answer": "I couldn't answer this: the query was blocked by a guardrail because queries over v_attempts_clean must have literal lower and upper bounds on created_at in the WHERE clause, and this one's date bounds were combined in a way the check didn't accept. No data was returned, so I can't yet say why the UPI success rate dropped between 22-31 August and 1-10 September. The query can be rewritten to satisfy the time-window rule, for example by running each period as a separate query with simple literal bounds, and then compared by issuer and acquirer.",
+    "status": "access_denied"
+  },
+  "schema": "BaselineAnswer",
+  "template_id": "baseline_answer",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 935,
+    "output_tokens": 189
+  }
+}

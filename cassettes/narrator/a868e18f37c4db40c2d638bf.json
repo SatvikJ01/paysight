@@ -1,0 +1,87 @@
+{
+  "key": "a868e18f37c4db40c2d638bfff27979e2c6a0fb8cfb4a073d7fb14bc9c377a41",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "The metric was interpreted as average authorization latency of failed payment attempts (the catalog only exposes p95 latency, so the average was computed with custom SQL).",
+      "The requested time window was 2024-10-31 to 2026-10-31, interpreted as 'the past two years'.",
+      "The period actually covered by the data is 2026-08-01 to 2026-10-31."
+    ],
+    "caveats": [
+      "Data starts on 2026-08-01; the requested two-year window was clipped, so results cover only about three months.",
+      "Part of this answer uses custom SQL written by the AI, outside the governed semantic layer. It was validated (read-only, governed views only, role filters applied) before running, but its logic has not been reviewed like the governed metrics.",
+      "Duplicate records on 12 Oct: 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts, +3.0%). Paysight counts each attempt once; the duplicates were removed in the clean view (first ingestion kept).",
+      "Missing issuer IDs: 8.0% of Meridian Bank's card attempts in 2026-08 (2,856 of 35,507) have no issuer_id, where 0% is expected. Issuer-level results for this scope are understated. These rows were kept and shown as '(missing)' issuer.",
+      "Volume spike 18 Oct to 31 Oct: attempt volume was +39% versus the usual level for those weekdays over 14 days. Real business events (sales) and data gaps both look like this, so check before comparing totals across this period."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Technical failures averaged 17,422 ms of authorization latency across 23,887 failed attempts."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Customer drop-offs averaged 12,018 ms across 45,910 failed attempts."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Risk declines averaged 3,204 ms across 12,544 failed attempts."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Issuer declines averaged 2,559 ms across 37,617 failed attempts."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The latency figures were computed by custom SQL over failed attempts only, from the cleaned attempts view."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "The attempt data only begins on 2026-08-01, so the 'past two years' covers about three months (2026-08-01 to 2026-10-31)."
+      }
+    ],
+    "headline": "Failed payments do not share one average authorization time: it depends on why they failed, with technical failures averaging 17,422 ms and customer drop-offs 12,018 ms, versus 3,204 ms for risk declines and 2,559 ms for issuer declines.",
+    "hypotheses": [
+      {
+        "confidence": "low",
+        "how_to_verify": "Look at the latency distribution and timeout rates for technical and customer drop-off failures, and compare against configured timeout thresholds.",
+        "rationale": "Both categories average several times the latency of issuer and risk declines, which are explicit, quick responses.",
+        "text": "Technical failures and customer drop-offs are slow because they involve timeouts or abandoned sessions rather than quick explicit responses."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "Technical failures averaged 17,422 ms of authorization latency across 23,887 failed attempts.",
+        "rationale": "Reducing slow technical failures would shorten checkout waits and could recover some payments.",
+        "text": "Investigate the technical failure category first, since it has both the highest average latency and a sizeable failure count."
+      },
+      {
+        "linked_fact_or_hypothesis": "The attempt data only begins on 2026-08-01, so the 'past two years' covers about three months (2026-08-01 to 2026-10-31).",
+        "rationale": "Only about three months of data exist, and a blended average would hide the large differences between failure types.",
+        "text": "Re-run this analysis once more history is available, and decide whether a single blended average or a per-category view is what you want to track."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 2323,
+    "input_tokens": 1582,
+    "output_tokens": 1333
+  }
+}

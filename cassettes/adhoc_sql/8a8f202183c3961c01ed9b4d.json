@@ -1,0 +1,18 @@
+{
+  "key": "8a8f202183c3961c01ed9b4d72e2ea6f1ffeb4a3bca666b70d9182f64daa8738",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "explanation": "Computes average latency_ms of failed (non-SUCCESS) attempts per failure category over the past two years (2024-10-31 to 2026-10-31), restricted to the resolved failure categories.",
+    "sql": "SELECT failure_category, AVG(latency_ms) AS avg_latency_ms, COUNT(*) AS failed_attempts FROM v_attempts_clean WHERE created_at >= TIMESTAMP '2024-10-31' AND created_at < TIMESTAMP '2026-11-01' AND status <> 'SUCCESS' AND failure_category IN ('customer_dropoff', 'issuer_decline', 'technical', 'risk_decline') GROUP BY failure_category ORDER BY failure_category LIMIT 50"
+  },
+  "schema": "AdhocSQL",
+  "template_id": "adhoc_sql",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 1632,
+    "input_tokens": 34,
+    "output_tokens": 262
+  }
+}

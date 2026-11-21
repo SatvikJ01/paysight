@@ -1,0 +1,18 @@
+{
+  "key": "8986ae67bb39337f9361225d4ba377c2cf704bd54ec492d627644c04a5a93d85",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "note": "Computes the percentage of October 2026 orders with attempt_count greater than 1 from v_orders.",
+    "sql": "SELECT COUNT(*) AS total_orders, SUM(CASE WHEN attempt_count > 1 THEN 1 ELSE 0 END) AS multi_attempt_orders, ROUND(100.0 * SUM(CASE WHEN attempt_count > 1 THEN 1 ELSE 0 END) / COUNT(*), 2) AS multi_attempt_pct FROM v_orders WHERE created_at >= TIMESTAMP '2026-10-01' AND created_at < TIMESTAMP '2026-11-01' LIMIT 50"
+  },
+  "schema": "BaselineSQL",
+  "template_id": "baseline_sql",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 1348,
+    "cache_write_tokens": 0,
+    "input_tokens": 23,
+    "output_tokens": 238
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "key": "684135b55da5cc98a5b66799713c1afc3327be28b6e35026e8919eb4fa1d377f",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "Success rate means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "The period analysed is 1 October 2026 to 31 October 2026, across all regions."
+    ],
+    "caveats": [
+      "The success rate depends on the denominator: attempt-level 89.2%, order-level 91.6%, technical 92.9%. Retries and drop-offs explain the gap.",
+      "Duplicate records on 12 Oct (341 attempts ingested twice) were removed so each attempt is counted once.",
+      "Volume was unusually high from 18 Oct to 31 Oct, so totals should be compared with other periods with care."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The attempt-level success rate for 1-31 October 2026 is 89.2%: 384,193 successful attempts out of 430,580 attempts."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "Under other definitions the success rate is 91.6% at order level (384,192 of 419,385 orders) and 92.9% technical (384,193 of 413,684). The widest gap between definitions is 3.64pp."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "On 12 Oct, 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts). Each attempt is counted once in the figures above."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "Attempt volume from 18 Oct to 31 Oct was 39% higher than the usual level for those weekdays, over 14 days."
+      }
+    ],
+    "headline": "This month (October 2026) the attempt-level payment success rate is 89.2%, with 384,193 successful attempts out of 430,580 total attempts.",
+    "hypotheses": [
+      {
+        "confidence": "med",
+        "how_to_verify": "Compare retry counts per order and the share of orders that succeeded only after a retry.",
+        "rationale": "Attempt-level counts every retry as a separate attempt, while order-level counts each order once; the order-level rate is higher (91.6% vs 89.2%).",
+        "text": "The gap between the attempt-level rate and the order-level rate is likely driven by retries: failed attempts that are later retried successfully count as failures at attempt level but as one success at order level."
+      },
+      {
+        "confidence": "low",
+        "how_to_verify": "Check the campaign and sales calendar and confirm ingestion completeness for those dates.",
+        "rationale": "Volume was 39% above usual weekday levels from 18 Oct to 31 Oct, and both real business events and data gaps look like this.",
+        "text": "The late-October volume spike may reflect a sale or promotional event rather than a data gap."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "The attempt-level, order-level and technical rates differ, with a maximum gap of 3.64pp.",
+        "rationale": "The rate changes by up to 3.64pp depending on the denominator, which can cause confusion between teams.",
+        "text": "Quote the success rate together with its definition (attempt-level 89.2%) whenever it is shared, and show the order-level rate alongside for context."
+      },
+      {
+        "linked_fact_or_hypothesis": "The late-October volume spike may reflect a sale or promotional event rather than a data gap.",
+        "rationale": "A sale or a data gap would affect comparisons differently.",
+        "text": "Check the cause of the 18-31 Oct volume spike before comparing this month's totals with other periods."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 2037,
+    "input_tokens": 1142,
+    "output_tokens": 1145
+  }
+}

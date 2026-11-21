@@ -1,0 +1,18 @@
+{
+  "key": "9f51761b4d0b2e927bc8309f0322866ae5793c881f09e6483ed9ccf9b4593eec",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "answer": "I can't explain the drop in NovaMart's success rate between 4-17 October and 18-31 October because the query returned no rows. That means there is no attempt data for NovaMart in the clean attempts view for 4-31 October 2026, or the merchant name doesn't match exactly (for example, a different spelling or casing). Please confirm the merchant name and date range, or let me check whether NovaMart has data in a different period, and I'll rerun the comparison by payment method, acquirer and failure category.",
+    "status": "failed"
+  },
+  "schema": "BaselineAnswer",
+  "template_id": "baseline_answer",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 856,
+    "output_tokens": 173
+  }
+}

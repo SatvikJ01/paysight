@@ -1,0 +1,18 @@
+{
+  "key": "d06f68fd16fe370bdc9af2a81c7c93fa6b65af79cf9a4642372048cae89f1ec9",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "note": "Hourly card attempt volume and success rate on 2026-09-18 by payment method; the method_family value 'CARD' and status value 'SUCCESS' are assumed, so verify them against the data if results look empty.",
+    "sql": "SELECT hour_of_day, payment_method, COUNT(*) AS attempts, SUM(CASE WHEN status = 'SUCCESS' THEN 1 ELSE 0 END) AS successes, ROUND(100.0 * SUM(CASE WHEN status = 'SUCCESS' THEN 1 ELSE 0 END) / COUNT(*), 2) AS success_rate_pct, SUM(CASE WHEN status <> 'SUCCESS' THEN 1 ELSE 0 END) AS failures FROM v_attempts_clean WHERE created_at >= TIMESTAMP '2026-09-18' AND created_at < TIMESTAMP '2026-09-19' AND method_family = 'CARD' GROUP BY hour_of_day, payment_method ORDER BY hour_of_day, payment_method LIMIT 50"
+  },
+  "schema": "BaselineSQL",
+  "template_id": "baseline_sql",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 1348,
+    "cache_write_tokens": 0,
+    "input_tokens": 19,
+    "output_tokens": 373
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "key": "6831b54ece8d8cee92f92704b40ce87928a8a9da2f433f74b90c6c088572848d",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [],
+    "compare_time_expr": null,
+    "custom_sql_reason": "The catalog has no retry-rate metric; this needs the share of orders with more than one attempt, a conditional order-level calculation the semantic layer cannot express.",
+    "dimensions": [],
+    "entities": [],
+    "extra_steps": [],
+    "filters": [],
+    "metrics": [
+      "orders"
+    ],
+    "needs_custom_sql": true,
+    "question_type": "metric_lookup",
+    "restatement": "Share of orders in October 2026 that needed more than one payment attempt (at least one retry).",
+    "time_expr": "month:2026-10",
+    "unsafe_reason": null
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 62,
+    "output_tokens": 207
+  }
+}

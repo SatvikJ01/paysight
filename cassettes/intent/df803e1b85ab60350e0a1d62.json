@@ -1,0 +1,39 @@
+{
+  "key": "df803e1b85ab60350e0a1d6235631bfef2439520569f09b89db829f37cf67ab5",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [],
+    "compare_time_expr": null,
+    "custom_sql_reason": null,
+    "dimensions": [],
+    "entities": [],
+    "extra_steps": [],
+    "filters": [
+      {
+        "dimension": "region",
+        "op": "=",
+        "values": [
+          "east"
+        ]
+      }
+    ],
+    "metrics": [
+      "avg_ticket_inr"
+    ],
+    "needs_custom_sql": false,
+    "question_type": "metric_lookup",
+    "restatement": "Average successful ticket size (INR) for merchants in the east region in September 2026.",
+    "time_expr": "month:2026-09",
+    "unsafe_reason": null
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 62,
+    "output_tokens": 181
+  }
+}

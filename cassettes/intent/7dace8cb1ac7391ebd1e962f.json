@@ -1,0 +1,52 @@
+{
+  "key": "7dace8cb1ac7391ebd1e962f7bbf4ab3c0ec62a0eb6aabc33aa498cb035844ee",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [],
+    "compare_time_expr": null,
+    "custom_sql_reason": null,
+    "dimensions": [],
+    "entities": [
+      {
+        "dimension": "merchant_group",
+        "text": "NovaMart"
+      }
+    ],
+    "extra_steps": [
+      {
+        "dimension": null,
+        "reason": "Show daily GMV versus settled gross to locate any gap between transactions and settlements.",
+        "tool": "daily_series"
+      }
+    ],
+    "filters": [
+      {
+        "dimension": "merchant_group",
+        "op": "=",
+        "values": [
+          "NovaMart"
+        ]
+      }
+    ],
+    "metrics": [
+      "gmv_inr",
+      "settled_gross_inr",
+      "settled_net_inr"
+    ],
+    "needs_custom_sql": false,
+    "question_type": "reconciliation",
+    "restatement": "Compare NovaMart group's settled gross amount against its transaction GMV for 25-31 October 2026.",
+    "time_expr": "explicit:2026-10-25..2026-10-31",
+    "unsafe_reason": null
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 72,
+    "output_tokens": 296
+  }
+}

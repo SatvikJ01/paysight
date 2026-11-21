@@ -1,0 +1,18 @@
+{
+  "key": "19c2311815cbbc9cfefb512f4fb19b488724ea541679a2fa5023d248ba2acf4c",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "answer": "In August, card declines (all non-successful card attempts) were led by Harbor Bank with 26,638 attempts (about INR 105.5M), followed by Lotus Bank with 24,663 (INR 101.8M), Ridge Bank with 20,590 (INR 85.2M), Indigo Bank with 19,230 (INR 81.3M), Coral Bank with 18,082 (INR 75.6M), and Banyan Bank with 14,880 (INR 60.3M). Another 2,856 declined attempts (INR 12.9M) have no issuer identified. Note this is raw decline volume, not decline rate, so larger issuers will naturally rank higher; also, 'declined' here includes any non-success status.",
+    "status": "answered"
+  },
+  "schema": "BaselineAnswer",
+  "template_id": "baseline_answer",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 1190,
+    "output_tokens": 250
+  }
+}

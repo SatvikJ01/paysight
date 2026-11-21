@@ -1,0 +1,18 @@
+{
+  "key": "84015c6804be3848196dc3cfa17466e390dfd740d15d974f05441a5d538ad4ce",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "answer": "No card BINs had risk declines between October 22 and October 31, 2026. The query returned zero rows, meaning there were no attempts in that window with a risk failure category and a recorded card BIN. This could mean no risk declines occurred, or that the data for this period is not yet loaded or has no BIN populated, so it may be worth confirming the data is complete for those dates.",
+    "status": "answered"
+  },
+  "schema": "BaselineAnswer",
+  "template_id": "baseline_answer",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 651,
+    "output_tokens": 131
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "key": "bfe5dfcf4d1cec111c45e45e45cf0e3e2ad0ae2d46d2aa39a560ba4c1a04321d",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "note": "Compares card success rate between the two weeks broken down by issuer and acquirer (worst deltas first) to locate where the drop is concentrated; assumes status value 'SUCCESS' and method_family value 'card'.",
+    "sql": "WITH base AS (SELECT CASE WHEN created_at >= TIMESTAMP '2026-09-14' AND created_at < TIMESTAMP '2026-09-21' THEN 'W2_14_20_Sep' ELSE 'W1_07_13_Sep' END AS week, issuer_name, acquirer_name, failure_category, status FROM v_attempts_clean WHERE created_at >= TIMESTAMP '2026-09-07' AND created_at < TIMESTAMP '2026-09-21' AND method_family = 'card'), agg AS (SELECT issuer_name, acquirer_name, week, COUNT(*) AS attempts, SUM(CASE WHEN status = 'SUCCESS' THEN 1 ELSE 0 END) AS successes FROM base GROUP BY issuer_name, acquirer_name, week) SELECT issuer_name, acquirer_name, SUM(CASE WHEN week = 'W1_07_13_Sep' THEN attempts ELSE 0 END) AS w1_attempts, SUM(CASE WHEN week = 'W2_14_20_Sep' THEN attempts ELSE 0 END) AS w2_attempts, ROUND(100.0 * SUM(CASE WHEN week = 'W1_07_13_Sep' THEN successes ELSE 0 END) / NULLIF(SUM(CASE WHEN week = 'W1_07_13_Sep' THEN attempts ELSE 0 END), 0), 2) AS w1_success_pct, ROUND(100.0 * SUM(CASE WHEN week = 'W2_14_20_Sep' THEN successes ELSE 0 END) / NULLIF(SUM(CASE WHEN week = 'W2_14_20_Sep' THEN attempts ELSE 0 END), 0), 2) AS w2_success_pct, ROUND(100.0 * SUM(CASE WHEN week = 'W2_14_20_Sep' THEN successes ELSE 0 END) / NULLIF(SUM(CASE WHEN week = 'W2_14_20_Sep' THEN attempts ELSE 0 END), 0) - 100.0 * SUM(CASE WHEN week = 'W1_07_13_Sep' THEN successes ELSE 0 END) / NULLIF(SUM(CASE WHEN week = 'W1_07_13_Sep' THEN attempts ELSE 0 END), 0), 2) AS delta_pct_points FROM agg GROUP BY issuer_name, acquirer_name HAVING SUM(CASE WHEN week = 'W1_07_13_Sep' THEN attempts ELSE 0 END) >= 50 AND SUM(CASE WHEN week = 'W2_14_20_Sep' THEN attempts ELSE 0 END) >= 50 ORDER BY delta_pct_points ASC LIMIT 50"
+  },
+  "schema": "BaselineSQL",
+  "template_id": "baseline_sql",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 1348,
+    "cache_write_tokens": 0,
+    "input_tokens": 32,
+    "output_tokens": 1072
+  }
+}

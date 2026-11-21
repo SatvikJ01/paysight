@@ -1,0 +1,52 @@
+{
+  "key": "84b50d1a27ce8f748b2d8797267f161d494adbbdb31c72e634edf8c3e150db1f",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [],
+    "compare_time_expr": null,
+    "custom_sql_reason": null,
+    "dimensions": [],
+    "entities": [
+      {
+        "dimension": "merchant_name",
+        "text": "Orbit Electronics"
+      }
+    ],
+    "extra_steps": [
+      {
+        "dimension": null,
+        "reason": "Show daily GMV versus settled amounts to locate any mismatched days.",
+        "tool": "daily_series"
+      }
+    ],
+    "filters": [
+      {
+        "dimension": "merchant_name",
+        "op": "=",
+        "values": [
+          "Orbit Electronics"
+        ]
+      }
+    ],
+    "metrics": [
+      "gmv_inr",
+      "settled_gross_inr",
+      "settled_net_inr"
+    ],
+    "needs_custom_sql": false,
+    "question_type": "reconciliation",
+    "restatement": "Whether settled amounts for Orbit Electronics match its transaction GMV for 12-18 October 2026.",
+    "time_expr": "explicit:2026-10-12..2026-10-18",
+    "unsafe_reason": null
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 72,
+    "output_tokens": 299
+  }
+}

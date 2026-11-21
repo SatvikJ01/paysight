@@ -1,0 +1,18 @@
+{
+  "key": "2c0a259584bef26163c9ff3e7107568f7fd95bf5e09ff1a26f8325d0b934d76c",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "note": "Profiles daily October attempt data for duplicates, nulls, invalid amounts/latency, missing failure codes and timestamp inconsistencies; the 'SUCCESS' status literal is an assumption since the schema doesn't list status values.",
+    "sql": "SELECT txn_date, COUNT(*) AS attempts, COUNT(DISTINCT attempt_id) AS distinct_attempts, COUNT(*) - COUNT(DISTINCT attempt_id) AS duplicate_attempt_ids, SUM(CASE WHEN merchant_id IS NULL THEN 1 ELSE 0 END) AS null_merchant, SUM(CASE WHEN acquirer_id IS NULL THEN 1 ELSE 0 END) AS null_acquirer, SUM(CASE WHEN issuer_id IS NULL THEN 1 ELSE 0 END) AS null_issuer, SUM(CASE WHEN payment_method IS NULL THEN 1 ELSE 0 END) AS null_payment_method, SUM(CASE WHEN amount_inr IS NULL OR amount_inr <= 0 THEN 1 ELSE 0 END) AS bad_amount, SUM(CASE WHEN status IS NULL THEN 1 ELSE 0 END) AS null_status, SUM(CASE WHEN status <> 'SUCCESS' AND failure_code IS NULL THEN 1 ELSE 0 END) AS failed_without_code, SUM(CASE WHEN latency_ms IS NULL OR latency_ms < 0 THEN 1 ELSE 0 END) AS bad_latency, SUM(CASE WHEN ingested_at < created_at THEN 1 ELSE 0 END) AS ingested_before_created FROM v_attempts_clean WHERE created_at >= TIMESTAMP '2026-10-01' AND created_at < TIMESTAMP '2026-11-01' GROUP BY txn_date ORDER BY txn_date LIMIT 50"
+  },
+  "schema": "BaselineSQL",
+  "template_id": "baseline_sql",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 1348,
+    "cache_write_tokens": 0,
+    "input_tokens": 22,
+    "output_tokens": 693
+  }
+}

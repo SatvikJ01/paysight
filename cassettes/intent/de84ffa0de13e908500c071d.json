@@ -1,0 +1,41 @@
+{
+  "key": "de84ffa0de13e908500c071dab34e251b8e530df2f4d74d3b63d9548a53419cf",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [
+      {
+        "field": "order_scope",
+        "materiality": "low",
+        "options": [
+          "all orders",
+          "only orders that eventually succeeded"
+        ],
+        "proposed_default": "all orders"
+      }
+    ],
+    "compare_time_expr": null,
+    "custom_sql_reason": "The catalog has no metric for the share of orders with more than one attempt; this needs a custom calculation counting attempts per order and dividing orders with more than one attempt by total orders.",
+    "dimensions": [],
+    "entities": [],
+    "extra_steps": [],
+    "filters": [],
+    "metrics": [
+      "orders"
+    ],
+    "needs_custom_sql": true,
+    "question_type": "metric_lookup",
+    "restatement": "Share of orders in October 2026 that needed more than one payment attempt.",
+    "time_expr": "month:2026-10",
+    "unsafe_reason": null
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 66,
+    "output_tokens": 256
+  }
+}

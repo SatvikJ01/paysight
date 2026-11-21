@@ -1,0 +1,18 @@
+{
+  "key": "eb99687d3be6707936ab2c7ec8b88195d295e50af918cd318c7a456b9a4caea6",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "note": "Attempt-level success rate for October 2026, assuming the status value 'SUCCESS' denotes a successful attempt (adjust if the status label differs).",
+    "sql": "SELECT COUNT(*) AS total_attempts, SUM(CASE WHEN status = 'SUCCESS' THEN 1 ELSE 0 END) AS successful_attempts, ROUND(100.0 * SUM(CASE WHEN status = 'SUCCESS' THEN 1 ELSE 0 END) / COUNT(*), 2) AS success_rate_pct FROM v_attempts_clean WHERE created_at >= TIMESTAMP '2026-10-01' AND created_at < TIMESTAMP '2026-11-01' LIMIT 50"
+  },
+  "schema": "BaselineSQL",
+  "template_id": "baseline_sql",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 1348,
+    "cache_write_tokens": 0,
+    "input_tokens": 15,
+    "output_tokens": 261
+  }
+}

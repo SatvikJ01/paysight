@@ -1,0 +1,18 @@
+{
+  "key": "ab50dbc7d4660bd4595cf9f728bf457851022592addc369806bbf690104af730",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "answer": "The drop is concentrated in one acquirer: Kestrel Bank. Across all six issuers that route through Kestrel (Coral, Banyan, Ridge, Harbor, Lotus, Indigo), card success rate fell by roughly 7 to 11 percentage points week over week (e.g., Coral Bank via Kestrel went from 86.62% to 75.94%, Banyan 86.81% to 76.42%, Ridge 87.73% to 77.77%, Harbor 87.45% to 79.21%, Lotus 87.05% to 79.47%, Indigo 86.17% to 79.26%). Because the decline appears across every issuer on Kestrel, it points to an acquirer-side or routing issue rather than any single issuer. Other acquirer paths were stable: Meridian and Saffron combinations changed by about -1.3 to +1.5 points, and Northstar by about -2.4 to +1.2 points (the largest Northstar dip was Indigo at -2.4). Volumes were similar in both weeks, so this is not a traffic-mix effect. Note this analysis shows where the drop occurred but not why; the failure-category breakdown for Kestrel traffic was not in this result and would be the next thing to check (and Kestrel could be contacted about any incident or change around 14 September).",
+    "status": "answered"
+  },
+  "schema": "BaselineAnswer",
+  "template_id": "baseline_answer",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 4006,
+    "output_tokens": 445
+  }
+}

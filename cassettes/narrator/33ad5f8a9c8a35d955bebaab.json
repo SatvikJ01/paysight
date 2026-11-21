@@ -1,0 +1,83 @@
+{
+  "key": "33ad5f8a9c8a35d955bebaabef547c213a8b017a81ed48459c23c37584a1b622",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "Period analysed is 25-31 Oct 2026 (2026-10-25 to 2026-10-31).",
+      "Scope is the NovaMart merchant group only."
+    ],
+    "caveats": [
+      "Attempt volume was 39% above the usual level for those weekdays over the 7 days. Sales and data gaps both look like this, so check the cause before comparing totals across this period. It is not a data error by itself and is flagged for context only.",
+      "31 Oct GMV settles T+1, after the data cut-off, so the timing difference reflects settlements not yet received rather than missing money."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "NovaMart transaction GMV for 25-31 Oct 2026 was ₹436,684,668.47, and gross settlements were ₹366,716,092.10."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Net settlements, after refunds of ₹4,086,230.59 and fees (MDR) of ₹5,048,761.76, were ₹357,581,099.75."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "GMV of ₹69,968,576.37 from 31 Oct had not yet settled at the data cut-off, because it settles T+1."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Multi-day batches for NovaMart Electronics, Fashion and Grocery covered 25-26 Oct and settled on 28 Oct. They fall fully inside the window, so they have no net effect on the total."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The unexplained residual is ₹0.00 (0.0%), and no batches were flagged."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "Attempt volume over the 7 days was 39% above the usual level for those weekdays."
+      }
+    ],
+    "headline": "NovaMart's transactions and settlements reconcile fully for 25-31 Oct 2026: of ₹43.67 crore in transaction GMV, nothing is unexplained. The gap is timing (31 Oct GMV settles T+1), refunds and fees.",
+    "hypotheses": [
+      {
+        "confidence": "low",
+        "how_to_verify": "Check with the NovaMart team whether a sale or campaign ran 25-31 Oct, and compare daily transaction counts against the ingestion logs.",
+        "rationale": "Spikes of this size are consistent with sales, but the evidence only shows the volume increase, not its cause. Settlements still reconcile with zero residual, which argues against a data gap.",
+        "text": "The 39% volume spike likely reflects a NovaMart sale or promotional event rather than a data gap."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "GMV of ₹69,968,576.37 from 31 Oct had not yet settled at the data cut-off, because it settles T+1.",
+        "rationale": "This is the largest explained difference and depends only on settlement timing.",
+        "text": "Re-run this reconciliation once 31 Oct settlements land (T+1) to confirm the ₹69,968,576.37 timing gap closes."
+      },
+      {
+        "linked_fact_or_hypothesis": "The 39% volume spike likely reflects a NovaMart sale or promotional event rather than a data gap.",
+        "rationale": "The volume spike makes totals for this week not directly comparable with normal weeks.",
+        "text": "Confirm with the NovaMart team whether a sale ran during 25-31 Oct before comparing this week's totals with other periods."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 1070,
+    "output_tokens": 1137
+  }
+}

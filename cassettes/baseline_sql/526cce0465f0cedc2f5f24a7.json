@@ -1,0 +1,18 @@
+{
+  "key": "526cce0465f0cedc2f5f24a792e0b0805302a57feb8027ee63cf29cf7b9fc12f",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "note": "Attempt-level UPI success rate for August 2026 (assumes status value 'SUCCESS' and payment_method value 'UPI'; adjust if the data uses different labels).",
+    "sql": "SELECT COUNT(*) AS total_attempts, SUM(CASE WHEN status = 'SUCCESS' THEN 1 ELSE 0 END) AS successful_attempts, ROUND(100.0 * SUM(CASE WHEN status = 'SUCCESS' THEN 1 ELSE 0 END) / COUNT(*), 2) AS success_rate_pct FROM v_attempts_clean WHERE payment_method = 'UPI' AND created_at >= TIMESTAMP '2026-08-01' AND created_at < TIMESTAMP '2026-09-01' LIMIT 50"
+  },
+  "schema": "BaselineSQL",
+  "template_id": "baseline_sql",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 1348,
+    "cache_write_tokens": 0,
+    "input_tokens": 18,
+    "output_tokens": 281
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "key": "4f8342415e7be603c6213fcf36929a477bf147d297ad9f606435933119c29737",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "answer": "About 2.59% of October orders needed more than one payment attempt: 10,865 out of 419,385 orders.",
+    "status": "answered"
+  },
+  "schema": "BaselineAnswer",
+  "template_id": "baseline_answer",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 740,
+    "output_tokens": 50
+  }
+}

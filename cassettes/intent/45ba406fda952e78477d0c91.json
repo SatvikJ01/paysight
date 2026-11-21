@@ -1,0 +1,44 @@
+{
+  "key": "45ba406fda952e78477d0c9150f805ccdb8c491cbebd62dd278d8065681b9a4e",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [],
+    "compare_time_expr": null,
+    "custom_sql_reason": null,
+    "dimensions": [],
+    "entities": [
+      {
+        "dimension": "merchant_name",
+        "text": "Orbit Electronics"
+      }
+    ],
+    "extra_steps": [],
+    "filters": [
+      {
+        "dimension": "merchant_name",
+        "op": "=",
+        "values": [
+          "Orbit Electronics"
+        ]
+      }
+    ],
+    "metrics": [
+      "orders"
+    ],
+    "needs_custom_sql": false,
+    "question_type": "metric_lookup",
+    "restatement": "Number of orders received by the merchant Orbit Electronics in October 2026.",
+    "time_expr": "month:2026-10",
+    "unsafe_reason": null
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 63,
+    "output_tokens": 210
+  }
+}
