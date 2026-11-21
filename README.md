@@ -20,8 +20,8 @@ _Link to be added._
 
 ## Quickstart (no API key needed)
 
-Needs [uv](https://docs.astral.sh/uv/getting-started/installation/) and Git. Works on Linux,
-macOS and Windows.
+Needs [uv](https://docs.astral.sh/uv/getting-started/installation/) and Git. Tested on Linux
+and Windows (CI).
 
 ```bash
 git clone https://github.com/SatvikJ01/paysight.git
@@ -42,6 +42,9 @@ and checks every planted scenario against the committed answer key.
 docker build -t paysight .
 docker run --rm -p 8501:8501 paysight
 ```
+
+The first build downloads large dependencies (the image is about 2.5 GB) and takes several
+minutes; later builds reuse the cached layers.
 
 **Other commands:**
 
