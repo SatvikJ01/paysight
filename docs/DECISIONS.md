@@ -75,3 +75,56 @@ test rebuilds the full-scale dataset and checks it reproduces the committed hash
 
 Real BIN ranges map to real issuers. Every generated BIN starts with `9`, a range the major card
 networks don't use, so no BIN in the data identifies a real institution.
+
+## D9. Negative filters are NULL-safe
+
+**Context.** `merchant_group <> 'StellarFuel'` is NULL, and therefore false, for every merchant
+without a group. On the settlements data it kept 722 of 35,523 batches. A user asking for
+"everything except StellarFuel" would silently lose 98% of the data.
+
+**Decision.** The compiler emits `IS DISTINCT FROM` for `!=` and `(NOT col IN (...) OR col IS NULL)`
+for `not_in`. A regression test checks that "all minus StellarFuel" equals "everything minus
+StellarFuel".
+
+## D10. What counts as a valid time-window predicate
+
+Every SELECT scope that reads `v_attempts_clean` or `v_orders` directly needs literal lower and
+upper bounds on that source's `created_at`. The bounds must be top-level `AND` conjuncts of the
+scope's own WHERE clause: `>=`/`>`, `<`/`<=`, `BETWEEN` or `=`, against a string or `CAST`
+literal. The span may be at most 400 days. This is deliberately strict:
+
+- a bound inside an `OR` does not count;
+- a bound computed with `now()` does not count;
+- a bound in an outer query does not cover a subquery that reads the view again.
+
+The compiler satisfies the rule by emitting an envelope predicate even for comparison queries.
+`v_settlements` is not a fact view and needs no time predicate.
+
+## D11. Comparison windows compile to a single query
+
+A `QuerySpec` with `compare_window` compiles to one SELECT with a `comparison_window` column
+(`baseline` / `current`). The WHERE clause holds an envelope over both windows, plus an `OR` of
+the two windows when they are not adjacent. Every segment's numerator and denominator for both
+windows therefore come from one validated query, which is exactly what the Kitagawa
+decomposition and the z-tests need.
+
+## D12. Validator details
+
+- **Check order.** The report lists checks in spec order. The time-window check is computed on
+  the query *before* the row-level rewrite, so the user's own predicate is what gets checked.
+- **Read-only allowlist.** Only `SELECT` and set operations are allowed at the root, and a
+  denylist of dangerous node types applies anywhere in the tree. Statements sqlglot cannot type
+  (it parses `LOAD`/`RESET`/`VACUUM` as `Command`, and a bare `CHECKPOINT` as a column) are
+  rejected by the allowlist. Statements it cannot parse (`EXPORT`/`IMPORT DATABASE`) fail the
+  parse check.
+- **Case-insensitive names.** Table names are matched case-insensitively, as DuckDB does.
+  CTE names may not shadow real tables or views.
+- **No governed view.** A query that reads no governed view (for example `SELECT * FROM
+  range(3)`) passes. It can reveal nothing.
+- **Joins.** `NATURAL JOIN` is rejected even though its condition is implicit. Every join must
+  state its condition.
+- **Hardening is verified, not assumed.** All in-process connections to one DuckDB file share a
+  database instance, so the engine checks that `enable_external_access` is off and
+  `lock_configuration` is on. If not, it refuses to start.
+- **Raw tables.** The raw tables are never reachable through the validator. The data-quality
+  tool (M3) runs fixed, reviewed SQL through a separate internal path.
