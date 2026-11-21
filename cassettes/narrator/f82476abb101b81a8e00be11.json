@@ -1,0 +1,89 @@
+{
+  "key": "f82476abb101b81a8e00be1117ca9d35fb78a15bd40865ae4c6bae83be6c44c3",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "Metric: assumed p95_latency_ms.",
+      "Time: assumed explicit:2024-10-31..2026-10-31.",
+      "Period: 2026-08-01..2026-10-31."
+    ],
+    "caveats": [
+      "Data starts on 2026-08-01; the requested window was clipped from 2024-10-31, so a true two-year view is not available.",
+      "The custom SQL window was also capped at 400 days because the validator rejects the full two-year span.",
+      "Part of this answer uses custom SQL written by the AI, outside the governed semantic layer. It was validated (read-only, governed views only, role filters applied) before running, but its logic has not been reviewed like the governed metrics.",
+      "Duplicate records on 12 Oct: 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts, +3.0%). Paysight counts each attempt once; duplicates were removed in the clean view (first ingestion kept).",
+      "Missing issuer IDs: 8.0% of Meridian Bank's card attempts in 2026-08 (2,856 of 35,507) have no issuer_id; expected 0%. Issuer-level results for this scope are understated. These rows were not corrected and are shown as '(missing)' issuer.",
+      "Volume spike 18 Oct–31 Oct: attempt volume was +39% versus the usual level for those weekdays over 14 days. This may be a real business event or a data gap; it is flagged for context, not treated as an error by itself.",
+      "No single overall average across all failed payments was produced; results are shown by failure category only."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Customer drop-off failures averaged 12,017.6 ms authorization latency across 45,910 failed attempts."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Issuer declines averaged 2,558.8 ms authorization latency across 37,617 failed attempts."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Risk declines averaged 3,204.3 ms authorization latency across 12,544 failed attempts."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Technical failures averaged 17,422.5 ms authorization latency across 23,887 failed attempts."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The custom SQL window was capped at 400 days (2025-10-02 to 2026-10-31), not the full two years requested."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "The data-quality scan covers 2026-08-01 to 2026-10-31 and found 3 findings: duplicate records on 12 Oct, missing issuer IDs for Meridian Bank card attempts in 2026-08, and a volume spike from 18 Oct to 31 Oct."
+      }
+    ],
+    "headline": "The data only supports a partial answer: failed payments averaged very different authorization latencies by failure type (about 2.6 seconds for issuer declines up to about 17.4 seconds for technical failures), and no single blended average or full two-year figure was produced.",
+    "hypotheses": [
+      {
+        "confidence": "med",
+        "how_to_verify": "Check the latency distribution for technical and customer drop-off failures and see whether it clusters around fixed timeout values; review the failure reason codes behind these categories.",
+        "rationale": "Technical and drop-off categories have latencies several times higher than issuer and risk declines, which is consistent with waiting on a timeout or a user who never completes the step.",
+        "text": "Technical failures and customer drop-offs are slow mainly because they involve timeouts or abandoned sessions, while issuer and risk declines return quickly because a decision is made promptly."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "Technical failures averaged 17,422.5 ms authorization latency across 23,887 failed attempts.",
+        "rationale": "Slow failures delay customers and may point to timeouts that could be shortened or fixed.",
+        "text": "Investigate the technical failure category first, since it has the highest average latency (17,422.5 ms)."
+      },
+      {
+        "linked_fact_or_hypothesis": "The custom SQL window was capped at 400 days (2025-10-02 to 2026-10-31), not the full two years requested.",
+        "rationale": "The catalog only exposes p95 latency, so the average had to come from AI-written SQL that has not been reviewed like governed metrics.",
+        "text": "Add a governed average-latency metric (and a failed-attempts filter) to the semantic layer so this question does not need custom SQL."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 1573,
+    "output_tokens": 1475
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "key": "319ffaa0cf56be7c2b6c604f1ce285121cc7e01b0f99dbdcfa332c5972ea08b6",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "'Success rate' means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "Metric assumed to be attempt_success_rate.",
+      "Period compared: 1–10 September 2026 against 22–31 August 2026."
+    ],
+    "caveats": [
+      "Missing issuer IDs: 8.1% of Meridian Bank's card attempts in August 2026 (931 of 11,537) have no issuer ID, where 0% is expected. Issuer-level results for that scope are understated. These rows were kept and shown as '(missing)' issuer, not corrected. This sits in card data, not UPI, so the UPI conclusions are unlikely to be affected, but issuer-level cuts should be read with care.",
+      "Success rate depends on the denominator: for 1–10 Sep it is 92.1% at attempt level, 94.9% at order level and 95.78% on a technical basis. Retries and customer drop-offs explain the gap, so quote the definition alongside any figure.",
+      "Failure codes are reported per 100 attempts, so they are not directly comparable to counts when volumes differ."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "UPI attempt success rate fell 0.87pp, from 93.0% (60,069 of 64,606 attempts) to 92.1% (58,146 of 63,131 attempts). The change is statistically significant (p-value 2.78e-09) and the confidence intervals do not overlap (92.78%–93.17% before vs 91.89%–92.31% after)."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "The change is entirely a rate effect: -0.87pp from within-segment rates, 0.0pp from mix. UPI is 100% of volume in both windows, so no payment-method mix shift is involved."
+      },
+      {
+        "evidence_ids": [
+          "E3",
+          "E5",
+          "E10"
+        ],
+        "text": "Issuer is the strongest driver. Zephyr is about 30% of UPI volume, but its success rate fell 3.84pp, from 93.4% to 89.6%, contributing -1.16pp, which is more than the whole -0.87pp change. Orchid (+0.66pp), PayNest (+0.38pp) and Tezra (+0.27pp) moved slightly up, but not significantly."
+      },
+      {
+        "evidence_ids": [
+          "E6"
+        ],
+        "text": "Among Zephyr UPI attempts, UPI_PSP_TIMEOUT rose from 0.28 to 3.89 per 100 attempts (745 failures in the current window vs 53 before), an increase of 3.61 per 100 attempts. No other Zephyr failure code moved by more than 0.21 per 100 attempts."
+      },
+      {
+        "evidence_ids": [
+          "E9"
+        ],
+        "text": "Across all UPI, UPI_PSP_TIMEOUT rose from 0.29 to 1.39 per 100 attempts (879 failures in the current window vs 189 before), an increase of 1.10 per 100 attempts. UPI_COLLECT_EXPIRED fell 0.15 per 100 attempts, from 2.50 to 2.35, and USER_CANCELLED rose 0.11, from 1.38 to 1.49."
+      },
+      {
+        "evidence_ids": [
+          "E7",
+          "E11"
+        ],
+        "text": "Zephyr's daily UPI success rate dropped from about 93–94% in late August to 89.9% on 1 Sep and 88.3% on 2 Sep. Overall UPI daily rate was 93.25% on 31 Aug, 92.6% on 1 Sep and 91.77% on 2 Sep. No anomaly window was flagged by the automated check."
+      },
+      {
+        "evidence_ids": [
+          "E3",
+          "E5"
+        ],
+        "text": "Smaller rate declines also appear in the no-merchant-group segment (-0.87pp, 93.0% to 92.0%), Saffron Bank (93.5% to 92.3%), Meridian Bank (92.8% to 91.6%) and the west region (92.9% to 92.1%). The no-merchant-group segment is 91% of volume, so its decline mirrors the overall one rather than isolating a cause."
+      }
+    ],
+    "headline": "UPI attempt success rate fell 0.87pp, from 93.0% (22–31 Aug) to 92.1% (1–10 Sep). There was no payment-method mix shift (mix effect 0.0pp), so the drop is a like-for-like decline, concentrated in the Zephyr issuer, where UPI PSP timeouts jumped.",
+    "hypotheses": [
+      {
+        "confidence": "med",
+        "how_to_verify": "Check Zephyr PSP status and incident logs for 1 Sep onward, look at PSP timeout latency percentiles by hour, and compare timeouts across acquirers and VPAs/handles for Zephyr traffic.",
+        "rationale": "Zephyr's rate fell 3.84pp while other issuers were flat or up, and the Zephyr drop coincides with a roughly 14x rise in UPI_PSP_TIMEOUT per 100 attempts (0.28 to 3.89). The timeout code is technical, not customer or issuer-decline driven.",
+        "text": "A Zephyr PSP-side timeout problem (degraded connectivity or capacity on the Zephyr UPI path) caused most of the drop."
+      },
+      {
+        "confidence": "low",
+        "how_to_verify": "Review deployment, routing and configuration change logs for 31 Aug–2 Sep and test whether timeouts are concentrated in specific acquirers or routes.",
+        "rationale": "The decline appears from the first day of the current window (1 Sep) rather than gradually, which is consistent with a step change, but the evidence does not identify what changed.",
+        "text": "Something changed on or around 1 Sep, such as a routing, timeout-setting or release change, that increased PSP timeouts for Zephyr traffic."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "A Zephyr PSP-side timeout problem (degraded connectivity or capacity on the Zephyr UPI path) caused most of the drop.",
+        "rationale": "Zephyr alone accounts for more than the entire overall decline, and the timeout code explains the move in its failures.",
+        "text": "Raise the Zephyr UPI_PSP_TIMEOUT spike with the Zephyr/PSP and your gateway team, and ask for incident details and timeline since 1 Sep."
+      },
+      {
+        "linked_fact_or_hypothesis": "Zephyr's daily UPI success rate dropped from about 93–94% in late August to 89.9% on 1 Sep and 88.3% on 2 Sep.",
+        "rationale": "Zephyr's rate was 88.3% on 2 Sep versus about 93–94% before, so mitigation could recover part of the 0.87pp loss.",
+        "text": "Consider routing or retry fallbacks for Zephyr UPI traffic while the timeouts persist, and monitor Zephyr daily success rate and timeouts per 100 attempts as an alert."
+      },
+      {
+        "linked_fact_or_hypothesis": "Something changed on or around 1 Sep, such as a routing, timeout-setting or release change, that increased PSP timeouts for Zephyr traffic.",
+        "rationale": "A step change at the window boundary suggests a possible internal trigger worth ruling out.",
+        "text": "Review change logs around 1 Sep for routing or timeout configuration changes affecting UPI."
+      },
+      {
+        "linked_fact_or_hypothesis": "Smaller rate declines also appear in the no-merchant-group segment (-0.87pp, 93.0% to 92.0%), Saffron Bank (93.5% to 92.3%), Meridian Bank (92.8% to 91.6%) and the west region (92.9% to 92.1%). The no-merchant-group segment is 91% of volume, so its decline mirrors the overall one rather than isolating a cause.",
+        "rationale": "They are statistically detectable but small (about -0.3pp contribution each) and may be noise or secondary effects.",
+        "text": "Track the smaller declines at Saffron Bank, Meridian Bank and the west region to see whether they persist once Zephyr is addressed."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 7381,
+    "output_tokens": 2695
+  }
+}

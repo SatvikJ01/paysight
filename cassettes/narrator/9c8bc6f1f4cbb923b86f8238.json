@@ -1,0 +1,153 @@
+{
+  "key": "9c8bc6f1f4cbb923b86f823800209994a9ebdd79ee2c8f8b4d9fcde7db12b352",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "Success rate means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "The comparison is 18-31 October 2026 against 4-17 October 2026."
+    ],
+    "caveats": [
+      "Duplicate records on 12 Oct: 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts, +3.0%). Paysight counts each attempt once, keeping the first ingestion.",
+      "Attempt volume in 18-31 Oct was about 39% above the usual level for those weekdays. Real business events such as sales and data gaps both look like this, so check before comparing totals across the period. The spike is not a data error by itself.",
+      "The success rate depends on the denominator: 86.22% at attempt level, 88.42% at order level and 89.5% technical. Retries and drop-offs explain the gap.",
+      "The baseline window has far fewer attempts (9,945) than the current window (68,961), so the baseline rates have wider uncertainty.",
+      "Failure-code rates are per 100 attempts, and the per-segment checks cover only the segments listed in the evidence."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "NovaMart's attempt success rate fell 3.76pp from 90.0% (89.97%) in 4-17 Oct to 86.2% (86.22%) in 18-31 Oct. The drop is statistically significant (p = 5.85e-25), and the confidence intervals do not overlap (89.4%-90.6% vs 86.0%-86.5%)."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Attempt volume grew from 9,945 to 68,961 attempts between the two windows."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "Of the 3.76pp fall, -2.76pp is a mix effect (a change in the share of each payment method) and -1.00pp is a rate effect (lower success within payment methods). Mix accounts for 73.4% of the change."
+      },
+      {
+        "evidence_ids": [
+          "E3",
+          "E4"
+        ],
+        "text": "CARD_EMI grew from 2.7% to 29.5% of NovaMart attempts, while its own success rate moved from 84.8% to 81.5%. It contributes -1.86pp of the total change (49%), of which -1.33pp is mix and -0.53pp is rate."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "UPI's share of attempts fell from 55.8% to 16.3%, while its success rate was flat (92.6% to 92.8%). This contributes -1.77pp, almost all from mix (-1.82pp)."
+      },
+      {
+        "evidence_ids": [
+          "E4",
+          "E5",
+          "E9"
+        ],
+        "text": "The largest like-for-like decline is NovaMart DEBIT_CARD, where the success rate fell 4.31pp from 87.6% to 83.3% (-0.60pp contribution to the total). This is the only payment method with a statistically significant decline."
+      },
+      {
+        "evidence_ids": [
+          "E5"
+        ],
+        "text": "Harbor Bank DEBIT_CARD also fell, from 86.6% to 76.0%, contributing -0.36pp to the total."
+      },
+      {
+        "evidence_ids": [
+          "E6"
+        ],
+        "text": "On NovaMart debit cards, ISSUER_RISK_DECLINE rose from 0.47 to 3.26 per 100 attempts (+2.80). INSUFFICIENT_FUNDS rose from 2.73 to 3.82 per 100 attempts (+1.09)."
+      },
+      {
+        "evidence_ids": [
+          "E10"
+        ],
+        "text": "Across all NovaMart attempts, the largest increases per 100 attempts were AUTH_3DS_ABANDONED (0.53 to 1.92), EMI_NOT_ELIGIBLE (0.12 to 1.36) and DO_NOT_HONOR (0.56 to 1.72)."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "Among acquirers, Meridian Bank's rate fell from 90.6% to 85.7%, contributing -1.30pp (34% of the change)."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "By dimension, payment method ranks as the strongest driver of the change. Region, category and acquirer effects are almost entirely rate rather than mix."
+      },
+      {
+        "evidence_ids": [
+          "E8"
+        ],
+        "text": "The same period shows 86.2% on an attempt basis, 88.4% on an order basis and 89.5% on a technical basis."
+      }
+    ],
+    "headline": "NovaMart's attempt success rate fell 3.76pp, from 90.0% to 86.2%. About 2.76pp of that is a shift in payment-method mix (far more EMI), and about 1.00pp is a like-for-like rate decline, mostly on debit cards.",
+    "hypotheses": [
+      {
+        "confidence": "high",
+        "how_to_verify": "Check NovaMart's campaign calendar for EMI offers and sale dates starting 18 Oct, and confirm EMI attempt volume by day.",
+        "rationale": "EMI share jumped from 2.7% to 29.5% while UPI share fell from 55.8% to 16.3%. EMI succeeds less often than UPI (81.5% vs 92.8%), and volume was about 39% above the usual level over the period.",
+        "text": "A sale or EMI promotion in 18-31 Oct pushed many more customers to EMI (and away from UPI), pulling the blended success rate down through mix."
+      },
+      {
+        "confidence": "med",
+        "how_to_verify": "Break ISSUER_RISK_DECLINE by issuer and by day, and ask the main debit-card issuers whether risk rules changed or reacted to the traffic surge.",
+        "rationale": "ISSUER_RISK_DECLINE rose from 0.47 to 3.26 per 100 debit-card attempts, the largest failure-code increase for that segment. INSUFFICIENT_FUNDS also rose.",
+        "text": "Issuers are risk-declining more NovaMart debit-card transactions, causing the like-for-like debit-card decline."
+      },
+      {
+        "confidence": "low",
+        "how_to_verify": "Review EMI_NOT_ELIGIBLE failures by issuer and card BIN, and check whether the eligibility checks or EMI offer rules changed.",
+        "rationale": "EMI_NOT_ELIGIBLE failures rose from 0.12 to 1.36 per 100 attempts across NovaMart, in step with the EMI volume surge. EMI's own rate decline was not statistically significant.",
+        "text": "EMI eligibility problems are lowering the EMI success rate and adding failures."
+      },
+      {
+        "confidence": "low",
+        "how_to_verify": "Compare Meridian Bank's failure codes and daily trend against other acquirers for NovaMart, and check with the acquirer for incidents or routing changes.",
+        "rationale": "Meridian Bank's rate fell from 90.6% to 85.7% and it contributes -1.30pp, though the evidence does not show a cause.",
+        "text": "Issues at Meridian Bank may be contributing to the like-for-like decline."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "Hypothesis: sale or EMI promotion shifted the mix",
+        "rationale": "73% of the drop (-2.76pp) is from mix, driven by EMI growth and UPI shrinkage, not by a broad decline in rates.",
+        "text": "Treat most of the fall as a payment-mix effect and avoid a merchant-wide fix. Monitor success rate by payment method rather than only in total."
+      },
+      {
+        "linked_fact_or_hypothesis": "Hypothesis: issuers risk-declining more debit-card transactions",
+        "rationale": "This is the one significant like-for-like decline (87.6% to 83.3%), and risk declines are the largest failure-code increase there.",
+        "text": "Investigate NovaMart debit-card declines with the top issuers, starting with ISSUER_RISK_DECLINE."
+      },
+      {
+        "linked_fact_or_hypothesis": "Hypothesis: EMI eligibility problems are lowering the EMI success rate",
+        "rationale": "EMI is now 29.5% of volume, so even small success-rate losses there carry weight, and both failure codes rose.",
+        "text": "Review EMI eligibility and the EMI checkout flow, including EMI_NOT_ELIGIBLE and 3DS abandonment."
+      },
+      {
+        "linked_fact_or_hypothesis": "Hypothesis: issues at Meridian Bank may be contributing",
+        "rationale": "Meridian Bank contributes -1.30pp, and Harbor Bank debit cards fell from 86.6% to 76.0%.",
+        "text": "Open a conversation with Meridian Bank and Harbor Bank about their drop in success rate."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 8364,
+    "output_tokens": 2884
+  }
+}

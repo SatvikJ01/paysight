@@ -1,0 +1,58 @@
+{
+  "key": "92e0439b6e25919664f7cc047c831bb27523b091b46f013bb8ef171eacdb2a11",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "The period analysed is 18 October 2026 to 31 October 2026, inclusive.",
+      "The figure covers the NovaMart merchant group only, and only successful payment attempts."
+    ],
+    "caveats": [
+      "Part of this answer uses custom SQL written by the AI, outside the governed semantic layer. It was validated (read-only, governed views only, role filters applied) before running, but its logic has not been reviewed like the governed metrics.",
+      "Attempt volume was 39% above the usual level for those weekdays across the 14 days from 18 to 31 October. Real business events (sales) and data gaps both look like this, so check before comparing totals across this period. It is not a data error by itself and is flagged for context."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The median amount across successful NovaMart payment attempts during the festive sale was ₹5,651.52."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The median is based on 59,455 successful NovaMart payment attempts."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "Attempt volume during the sale period was 39% above the usual level for those weekdays."
+      }
+    ],
+    "headline": "The median successful payment at NovaMart during its festive sale was ₹5,651.52.",
+    "hypotheses": [],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "Attempt volume during the sale period was 39% above the usual level for those weekdays.",
+        "rationale": "The volume spike means sale-period figures may not be directly comparable to normal weeks, and a like-for-like baseline is needed to judge whether ₹5,651.52 is unusual.",
+        "text": "Before comparing this median with a non-sale period, compute the median for the same merchant group over a comparable non-sale window using the same method."
+      },
+      {
+        "linked_fact_or_hypothesis": "The median amount across successful NovaMart payment attempts during the festive sale was ₹5,651.52.",
+        "rationale": "The calculation sits outside the governed semantic layer, so its logic has not had the same review as governed metrics.",
+        "text": "Have the analytics team review the custom SQL logic if this median will be reused in reporting."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 2039,
+    "input_tokens": 847,
+    "output_tokens": 705
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "key": "c69fbe7ca969b74ba0272483a8076bb153a9be61ffae4337d88e7abbb8de27d7",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "The requested metric was interpreted as average latency of failed attempts, computed by custom SQL because the catalog only exposes p95 latency (assumed p95_latency_ms as the governed metric).",
+      "The time window assumed was 2024-10-31 to 2026-10-31, but available data starts 2026-08-01.",
+      "Period analysed for data-quality checks: 2026-08-01 to 2026-10-31."
+    ],
+    "caveats": [
+      "The data covers only 1 August 2026 onwards, so the two-year window requested could not be answered in full; the custom query was also capped at a shorter window than two years because the validator rejected the full span.",
+      "Part of this answer uses custom SQL written by the AI, outside the governed semantic layer. It was validated (read-only, governed views only, role filters applied) before running, but its logic has not been reviewed like the governed metrics.",
+      "Duplicate records on 12 Oct: 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts, +3.0%). Paysight counts each attempt once, keeping the first ingestion.",
+      "Missing issuer IDs: 8.0% of Meridian Bank's card attempts in 2026-08 (2,856 of 35,507) have no issuer_id; expected 0%. Issuer-level results for this scope are understated. Rows are kept and shown as '(missing)' issuer.",
+      "Attempt volume spiked +39% versus the usual level for 18 Oct to 31 Oct (14 days). Real sales events and data gaps both look like this; check before comparing totals across this period."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Average authorization latency of failed attempts was 2,558.80 ms for issuer declines (37,617 failed attempts)."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Average authorization latency of failed attempts was 3,204.29 ms for risk declines (12,544 failed attempts)."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Average authorization latency of failed attempts was 12,017.64 ms for customer drop-offs (45,910 failed attempts)."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Average authorization latency of failed attempts was 17,422.49 ms for technical failures (23,887 failed attempts)."
+      }
+    ],
+    "headline": "The data only supports a partial answer: failed payments have no single average latency, and it varies widely by failure type, from about 2,559 ms for issuer declines to 17,422 ms for technical failures.",
+    "hypotheses": [
+      {
+        "confidence": "low",
+        "how_to_verify": "Look at the latency distribution (median and percentiles) for these categories and check how many attempts sit at timeout thresholds.",
+        "rationale": "Technical failures and customer drop-offs show far higher averages than issuer or risk declines, which are decisive responses that return quickly.",
+        "text": "The long latencies for technical failures and customer drop-offs may reflect timeouts or abandoned sessions rather than genuine authorization processing time."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "Average authorization latency of failed attempts was 17,422.49 ms for technical failures (23,887 failed attempts).",
+        "rationale": "The categories differ by several times, so a single average would be dominated by technical failures and customer drop-offs.",
+        "text": "Report latency by failure category (or use median/percentiles) instead of one blended average for failed payments."
+      },
+      {
+        "linked_fact_or_hypothesis": "The long latencies for technical failures and customer drop-offs may reflect timeouts or abandoned sessions rather than genuine authorization processing time.",
+        "rationale": "They have the highest average latency of any failure type.",
+        "text": "Investigate technical failures first, checking for timeouts at specific acquirers or payment methods."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 2284,
+    "input_tokens": 1573,
+    "output_tokens": 1252
+  }
+}

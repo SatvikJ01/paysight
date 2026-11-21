@@ -1,0 +1,58 @@
+{
+  "key": "f9268b2b16b9fc7e63133fbf5e4e61795c5e5e72ec65c8497c058db01185d782",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "Period analysed is 18 October 2026 to 31 October 2026, inclusive.",
+      "Only successful payment attempts for the NovaMart merchant group are included."
+    ],
+    "caveats": [
+      "Part of this answer uses custom SQL written by the AI, outside the governed semantic layer. It was validated (read-only, governed views only, role filters applied) before running, but its logic has not been reviewed like the governed metrics.",
+      "Attempt volume was +39% versus the usual level for those weekdays over the 14 days from 18 to 31 October. Real business events (sales) and data gaps both look like this, so check before comparing totals across this period. It is not a data error by itself and is flagged for context."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The median amount across successful NovaMart payment attempts from 18 to 31 October 2026 was ₹5,651.52."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The median is based on 59,455 successful attempts."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "Attempt volume during 18-31 October was +39% versus the usual level for those weekdays, which is consistent with a sale period."
+      }
+    ],
+    "headline": "The median successful payment at NovaMart during its 18-31 October 2026 festive sale was about ₹5,651.52.",
+    "hypotheses": [],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "Attempt volume during 18-31 October was +39% versus the usual level for those weekdays, which is consistent with a sale period.",
+        "rationale": "The sale period had much higher volume, so totals and typical ticket sizes may not be comparable to normal days without a like-for-like baseline.",
+        "text": "If you need to compare this median with a non-sale period, run the same median calculation for a matching baseline window before drawing conclusions."
+      },
+      {
+        "linked_fact_or_hypothesis": "The median successful payment was computed via custom SQL (E1).",
+        "rationale": "The answer relies on AI-written custom SQL outside the governed metrics, so a review would make the number repeatable and trusted.",
+        "text": "Have the custom median logic reviewed if this figure will be reported regularly."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 847,
+    "output_tokens": 714
+  }
+}

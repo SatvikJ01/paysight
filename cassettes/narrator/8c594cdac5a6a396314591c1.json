@@ -1,0 +1,72 @@
+{
+  "key": "8c594cdac5a6a396314591c1128cf345146a5e7b8e52e990a008aab926d4aba1",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "Period: 2026-10-01 to 2026-10-31.",
+      "A retried order is an order with more than one payment attempt; the share is retried orders divided by total orders."
+    ],
+    "caveats": [
+      "Part of this answer uses custom SQL written by the AI, outside the governed semantic layer. It was validated (read-only, governed views only, role filters applied) before running, but its logic has not been reviewed like the governed metrics.",
+      "Duplicate records on 12 Oct: 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts, +3.0%). Paysight counts each attempt once, keeping the first ingestion.",
+      "Volume spike 18 Oct–31 Oct: attempt volume was +39% versus the usual level for those weekdays over 14 days. Real business events (sales) and data gaps both look like this, so check before comparing totals across this period. It is not treated as a data error by itself."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "10,865 orders in October 2026 had more than one payment attempt, out of 419,385 total orders."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "That works out to a retried-order share of 2.6% (0.0259 as a fraction)."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "On 12 Oct, 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts); these duplicates were removed in the clean view."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "Attempt volume from 18 Oct to 31 Oct was 39% above the usual level for those weekdays."
+      }
+    ],
+    "headline": "About 2.6% of October 2026 orders needed at least one retry: 10,865 of 419,385 orders.",
+    "hypotheses": [
+      {
+        "confidence": "low",
+        "how_to_verify": "Compute the retried-order share separately for 1–17 Oct and 18–31 Oct and compare.",
+        "rationale": "Volume was +39% for 14 days, and busy periods often change payment failure and retry behaviour, but the evidence does not break retries down by period.",
+        "text": "The late-October volume spike (likely a sale or similar event) may have shifted the retry share, up or down, relative to a normal month."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "The late-October volume spike (likely a sale or similar event) may have shifted the retry share, up or down, relative to a normal month.",
+        "rationale": "The volume spike could distort the month-level figure.",
+        "text": "Split the retry share by week or by before/after 18 Oct to see whether the sale period behaved differently."
+      },
+      {
+        "linked_fact_or_hypothesis": "10,865 orders in October 2026 had more than one payment attempt, out of 419,385 total orders.",
+        "rationale": "The catalog has no retry metric, so this answer relied on custom SQL outside the governed layer.",
+        "text": "Have the data team review the AI-written SQL and consider adding a governed retry-rate metric to the semantic layer."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 1070,
+    "output_tokens": 995
+  }
+}

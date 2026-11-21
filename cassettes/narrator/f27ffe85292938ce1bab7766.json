@@ -1,0 +1,126 @@
+{
+  "key": "f27ffe85292938ce1bab7766a21de2e42f6c35e48c08be50f68ee0f698e0dc99",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "'Success rate' means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "The period analysed is 18-31 Oct 2026 compared with 4-17 Oct 2026, the immediately preceding period of equal length."
+    ],
+    "caveats": [
+      "Duplicate records on 12 Oct: 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts, +3.0%). Paysight counts each attempt once and keeps the first ingestion, so figures here are de-duplicated.",
+      "Attempt volume from 18 Oct to 31 Oct was 39% above the usual level for those weekdays. This can reflect a real sale or a data gap, so be careful comparing totals across this period.",
+      "Success rate depends on the denominator: for 18-31 Oct it is 88.5% by attempts, 90.9% by orders and 92.1% on a technical basis. Retries and customer drop-offs explain the gap.",
+      "Failure codes are quoted per 100 attempts, not as shares of failures.",
+      "Mix and rate effects are split using payment method as the lens; splitting by merchant group would give different mix/rate proportions."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Attempt success rate fell 1.47pp from 90.0% (148,791 of 165,297 attempts) to 88.5% (203,741 of 230,100 attempts). The change is statistically and practically significant."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "By payment method, the split is -1.00pp from mix (shifts in share) and -0.47pp from rate (within-method changes); mix is 68.0% of the change."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "CARD_EMI grew from 2.9% to 10.9% of attempts while its own rate stayed flat (81.7% to 81.6%), contributing -0.62pp. UPI's share fell from 54.0% to 42.5% at a steady rate of about 93.0%, contributing -0.44pp."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "NovaMart's share of attempts rose from 6.0% to 30.0%, and its rate fell from 90.0% to 86.2%. NovaMart accounts for -0.96pp (65%) of the -1.47pp change."
+      },
+      {
+        "evidence_ids": [
+          "E9"
+        ],
+        "text": "Among payment methods, only DEBIT_CARD shows a significant like-for-like drop: 86.0% to 83.4% (-2.65pp). Other methods show no significant change."
+      },
+      {
+        "evidence_ids": [
+          "E5"
+        ],
+        "text": "Harbor Bank debit cards fell from 86.2% to 76.7% (-9.44pp), contributing -0.39pp, the largest single rate-effect segment."
+      },
+      {
+        "evidence_ids": [
+          "E6"
+        ],
+        "text": "For Harbor Bank debit cards, ISSUER_RISK_DECLINE rose from 0.32 to 11.12 per 100 attempts (22 to 1,065 failures). No other failure code moved by more than about 0.3 per 100 attempts."
+      },
+      {
+        "evidence_ids": [
+          "E10"
+        ],
+        "text": "Across all attempts, ISSUER_RISK_DECLINE rose from 0.16 to 0.71 per 100 attempts, AUTH_3DS_ABANDONED from 0.66 to 1.08, and EMI_NOT_ELIGIBLE from 0.14 to 0.50."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "Overall attempt volume was 39% above the usual level for these weekdays from 18 Oct to 31 Oct."
+      }
+    ],
+    "headline": "Attempt success rate fell 1.47pp, from 90.0% to 88.5%. About two-thirds of that (-1.00pp) is a mix shift toward lower-success payment methods (mainly card EMI) driven by NovaMart's surge in volume, and the remaining -0.47pp is a like-for-like drop concentrated in Harbor Bank debit cards.",
+    "hypotheses": [
+      {
+        "confidence": "med",
+        "how_to_verify": "Check NovaMart's payment-method mix by day and confirm the timing of any campaign or EMI offer against the volume spike starting 18 Oct.",
+        "rationale": "NovaMart's share jumped from 6.0% to 30.0% at the same time as CARD_EMI share rose from 2.9% to 10.9% and overall volume spiked 39%, while EMI's own rate was flat.",
+        "text": "A sale or campaign at NovaMart pushed a large volume of EMI-heavy traffic, which lowered the blended success rate through mix rather than because any method got worse."
+      },
+      {
+        "confidence": "med",
+        "how_to_verify": "Ask Harbor Bank whether risk rules or thresholds changed, and compare the risk-decline rate for NovaMart vs other merchants within Harbor Bank debit.",
+        "rationale": "Harbor Bank debit-card risk declines went from 0.32 to 11.12 per 100 attempts, which explains most of the 9.4pp rate drop in that segment.",
+        "text": "Harbor Bank tightened its risk rules for debit cards (or the new traffic looks riskier to it), producing a sharp rise in risk declines."
+      },
+      {
+        "confidence": "low",
+        "how_to_verify": "Break NovaMart's attempts down by issuer and payment method and compare each cell's rate against the baseline period.",
+        "rationale": "NovaMart is the top merchant driver and the Harbor Bank and EMI segments grew in the same period, but the evidence does not cross these dimensions directly.",
+        "text": "Part of the NovaMart rate decline (90.0% to 86.2%) may be due to its mix of issuers and methods, such as Harbor Bank debit and EMI, rather than a problem specific to NovaMart."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "Harbor Bank tightened its risk rules for debit cards (or the new traffic looks riskier to it), producing a sharp rise in risk declines.",
+        "rationale": "This is the largest like-for-like drop (-9.44pp) and is driven by a single failure code.",
+        "text": "Open a risk-rule review with Harbor Bank on debit-card declines since 18 Oct, sharing the ISSUER_RISK_DECLINE spike."
+      },
+      {
+        "linked_fact_or_hypothesis": "A sale or campaign at NovaMart pushed a large volume of EMI-heavy traffic, which lowered the blended success rate through mix rather than because any method got worse.",
+        "rationale": "About two-thirds of the drop is mix, which may not need a fix but should be explained and monitored.",
+        "text": "Confirm with the NovaMart account team what promotion or EMI offer started around 18 Oct, and treat the mix effect as expected if it is a planned sale."
+      },
+      {
+        "linked_fact_or_hypothesis": "CARD_EMI grew from 2.9% to 10.9% of attempts while its own rate stayed flat (81.7% to 81.6%), contributing -0.62pp. UPI's share fell from 54.0% to 42.5% at a steady rate of about 93.0%, contributing -0.44pp.",
+        "rationale": "The blended rate fell 1.47pp even though most methods, including EMI and UPI, held steady.",
+        "text": "Report success rate by payment method and by merchant group alongside the blended number during the sale period, so mix shifts are not read as performance declines."
+      },
+      {
+        "linked_fact_or_hypothesis": "Across all attempts, ISSUER_RISK_DECLINE rose from 0.16 to 0.71 per 100 attempts, AUTH_3DS_ABANDONED from 0.66 to 1.08, and EMI_NOT_ELIGIBLE from 0.14 to 0.50.",
+        "rationale": "Both rose across all traffic (AUTH_3DS_ABANDONED 0.66 to 1.08, EMI_NOT_ELIGIBLE 0.14 to 0.50 per 100 attempts) and may point to checkout friction on EMI flows.",
+        "text": "Look into the rise in 3DS abandonment and EMI eligibility failures as a secondary item."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 8709,
+    "output_tokens": 2731
+  }
+}

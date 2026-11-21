@@ -1,0 +1,96 @@
+{
+  "key": "567f3a8683cd736c44b810f6b99c174ba7616fce5b14d1f9fcb6206a6ea4433d",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "'Success rate' means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "The comparison is 25–31 Oct 2026 versus 18–24 Oct 2026, the immediately preceding period of equal length, since no period was specified."
+    ],
+    "caveats": [
+      "Attempt volume was about 39% above the usual level for these weekdays across 18–31 Oct. This could reflect a sale or a data gap; it is not an error by itself, but check before comparing totals across this period.",
+      "Success rate depends on the denominator: attempt-level is 88.5%, order-level is 90.7% and technical is 92.0%. Retries and customer drop-offs explain the gap.",
+      "Failure codes are quoted per 100 attempts for Harbor Bank debit cards only, so they describe that segment, not the whole business."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Attempt success rate fell 0.18pp from 88.6% (102,154 of 115,254 attempts) to 88.5% (101,587 of 114,846 attempts). The p-value is 0.178, so the change is neither statistically nor practically significant."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "Payment-method mix explains essentially none of the change: the mix effect is about 0.00pp and the rate (like-for-like) effect is -0.18pp."
+      },
+      {
+        "evidence_ids": [
+          "E4",
+          "E3"
+        ],
+        "text": "Debit card is 16.4% of volume but accounts for -0.23pp of the change; its own success rate fell from 84.0% to 82.7%. Other payment methods moved by 0.06pp or less in either direction."
+      },
+      {
+        "evidence_ids": [
+          "E5"
+        ],
+        "text": "Within debit cards, Harbor Bank is where the drop is concentrated: its debit-card success rate fell 3.89pp from 78.6% to 74.7%, contributing -0.16pp to the overall change (q-value 0.00069)."
+      },
+      {
+        "evidence_ids": [
+          "E6"
+        ],
+        "text": "For Harbor Bank debit cards, ISSUER_RISK_DECLINE rose from 8.42 to 13.86 failures per 100 attempts (+5.44), the largest shift. 3DS abandonment, DO_NOT_HONOR and invalid CVV each fell, partly offsetting it."
+      },
+      {
+        "evidence_ids": [
+          "E7"
+        ],
+        "text": "Harbor Bank debit daily success rate sat at 83.7%–86.3% on 18–20 Oct, then dropped to 73.3% on 21 Oct and stayed around 72.6%–75.2% through 29 Oct."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "Other dimensions show no meaningful movement: merchant group, channel, region and merchant tier have like-for-like effects that are small or offsetting (for example NovaMart +0.14pp)."
+      }
+    ],
+    "headline": "Success rate barely moved: it fell 0.18pp from 88.6% to 88.5%, which is not statistically significant. Payment-method mix did not change; the small dip is a like-for-like rate drop concentrated in Harbor Bank debit cards.",
+    "hypotheses": [
+      {
+        "confidence": "med",
+        "how_to_verify": "Ask Harbor Bank or the acquirer whether risk or fraud rules changed around 21 Oct, and check whether declines cluster on specific amounts, merchants or BIN ranges.",
+        "rationale": "The step change on 21 Oct is sharp and sustained, and the increase is almost entirely in ISSUER_RISK_DECLINE, an issuer-side risk code, while technical and customer-drop-off codes did not rise.",
+        "text": "Harbor Bank tightened its risk rules for debit cards around 21 Oct, causing more risk declines."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "Harbor Bank tightened its risk rules for debit cards around 21 Oct, causing more risk declines.",
+        "rationale": "This single segment accounts for most of the overall dip, and the shift started on one specific date.",
+        "text": "Raise the Harbor Bank debit-card risk-decline increase with the issuer through the acquirer and ask for the rule change and any whitelisting options."
+      },
+      {
+        "linked_fact_or_hypothesis": "For Harbor Bank debit cards, ISSUER_RISK_DECLINE rose from 8.42 to 13.86 failures per 100 attempts (+5.44), the largest shift.",
+        "rationale": "Pinpointing the affected traffic helps target a fix and confirms whether the shift persists.",
+        "text": "Break down Harbor Bank debit risk declines by merchant, ticket size and BIN to see whether specific traffic is being blocked, and monitor this segment daily."
+      },
+      {
+        "linked_fact_or_hypothesis": "Attempt success rate fell 0.18pp from 88.6% to 88.5%; the p-value is 0.178, so the change is not significant.",
+        "rationale": "The overall change is within normal statistical noise.",
+        "text": "Do not treat the overall 0.18pp dip as an incident on its own; track it for another week before escalating broadly."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 5854,
+    "output_tokens": 1713
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "key": "3120ca0c894d7128e973dbf5112f1c955a1c0da2c41b510e021a90184550e58e",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "All orders are in scope (no filter on order type or merchant).",
+      "The period is 1 Oct 2026 to 31 Oct 2026."
+    ],
+    "caveats": [
+      "Part of this answer uses custom SQL written by the AI, outside the governed semantic layer. It was validated (read-only, governed views only, role filters applied) before running, but its logic has not been reviewed like the governed metrics.",
+      "Duplicate records on 12 Oct: 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts, +3.0%). Paysight counts each attempt once, keeping the first ingestion.",
+      "Volume spike 18 Oct–31 Oct: attempt volume was +39% versus the usual level for those weekdays over 14 days. Real business events (sales) and data gaps both look like this; check before comparing totals across this period."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "There were 419,385 orders in October 2026, of which 10,865 needed more than one payment attempt."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The share of orders with more than one attempt was 2.59% (shown as 2.6% in the headline)."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "On 12 Oct, 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts); duplicates were removed in the clean view, keeping the first ingestion."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "Attempt volume from 18 Oct to 31 Oct was +39% versus the usual level for those weekdays over 14 days."
+      }
+    ],
+    "headline": "In October 2026, 2.6% of orders (10,865 of 419,385) needed more than one payment attempt to complete payment.",
+    "hypotheses": [],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "The share of orders with more than one attempt was 2.59%",
+        "rationale": "The figure currently comes from custom AI-written SQL whose logic has not been reviewed like governed metrics.",
+        "text": "Have the multi-attempt order share reviewed and added as a governed metric in the semantic layer so it can be tracked like other metrics."
+      },
+      {
+        "linked_fact_or_hypothesis": "Attempt volume from 18 Oct to 31 Oct was +39% versus the usual level",
+        "rationale": "A volume spike can change order and attempt mix, so comparisons across this period may be misleading without context.",
+        "text": "Before comparing this figure with other months, check whether the 18–31 Oct volume spike reflects a real sale or a data gap."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 1093,
+    "output_tokens": 859
+  }
+}
