@@ -65,6 +65,25 @@ class AnalysisSettings(_Frozen):
     reconcile_unexplained_flag_pct: float
 
 
+class TokenPrice(_Frozen):
+    """USD per million tokens."""
+
+    input: float
+    output: float
+
+
+class LLMSettings(_Frozen):
+    """LLM provider defaults, robustness and the price table."""
+
+    default_provider: str
+    models: dict[str, str]
+    temperature: float
+    max_attempts: int
+    request_timeout_s: float
+    cassette_dir: Path
+    prices_per_million_tokens: dict[str, TokenPrice]
+
+
 class Settings(_Frozen):
     """Top-level settings object."""
 
@@ -72,6 +91,7 @@ class Settings(_Frozen):
     data: DataSettings
     limits: LimitSettings
     analysis: AnalysisSettings
+    llm: LLMSettings
 
     def path(self, relative: Path | str) -> Path:
         """Resolve a repository-relative path against the project root."""
@@ -82,6 +102,11 @@ class Settings(_Frozen):
     def duckdb_path(self) -> Path:
         """Absolute path of the generated DuckDB database."""
         return self.path(self.data.duckdb_path)
+
+    @property
+    def cassette_dir(self) -> Path:
+        """Absolute path of the recorded LLM responses."""
+        return self.path(self.llm.cassette_dir)
 
     @property
     def ground_truth_path(self) -> Path:

@@ -25,3 +25,22 @@ analysis:
   denominator_divergence_pp: 1.0  # show a sensitivity note when SR definitions differ by this much
   anomaly_z_threshold: 3.5        # robust z-score (median/MAD) threshold
   reconcile_unexplained_flag_pct: 0.5  # flag unexplained reconciliation residuals at or above this %
+
+llm:
+  default_provider: gemini        # overridden by LLM_PROVIDER
+  # Default model per provider (overridden by LLM_MODEL). Model names live only here and in
+  # .env.example.
+  models:
+    gemini: gemini-3.8-flash
+    anthropic: claude-sonnet-5-5
+    openai: gpt-5-mini
+  temperature: 0.0
+  max_attempts: 4                 # tenacity: retries on 429 / 5xx / timeouts, with jittered backoff
+  request_timeout_s: 60
+  cassette_dir: cassettes
+  # USD per 1M tokens. Fill in from your provider's price page; 0 means "not tracked".
+  prices_per_million_tokens:
+    gemini: {input: 0.0, output: 0.0}
+    anthropic: {input: 0.0, output: 0.0}
+    openai: {input: 0.0, output: 0.0}
+    fake: {input: 0.0, output: 0.0}
