@@ -264,3 +264,22 @@ def test_ledger_persists_across_instances(tmp_path: Path) -> None:
     )
     SpendLedger(tmp_path / "s.json", 4.0).add(usage)
     assert SpendLedger(tmp_path / "s.json", 4.0).total_usd == pytest.approx(0.5)
+
+
+def test_rerecord_replaces_only_other_models_cassettes(tmp_path: Path, monkeypatch) -> None:
+    prompt = parse_prompt(PROMPT_TEXT)
+    _client(tmp_path, "record", lambda s, u, sc: {"label": "first", "score": 1}).complete(
+        prompt, Answer, question="q"
+    )
+    monkeypatch.setenv("PAYSIGHT_RERECORD", "1")
+    same_model = _client(tmp_path, "record", lambda s, u, sc: {"label": "second", "score": 2})
+    assert same_model.complete(prompt, Answer, question="q")[0].label == "first"
+    provider = FakeProvider(lambda s, u, sc: {"label": "new", "score": 3}, model="another-model")
+    other = LLMClient(
+        mode="record",
+        cassette_dir=tmp_path,
+        provider_name="fake",
+        model="another-model",
+        llm=StructuredLLM(provider, wait_max_s=0, max_attempts=1),
+    )
+    assert other.complete(prompt, Answer, question="q")[0].label == "new"

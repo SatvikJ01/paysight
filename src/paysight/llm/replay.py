@@ -2,8 +2,8 @@
 
 * ``live``: call the provider. If it is unavailable and a cassette exists, use the cassette.
 * ``record``: call the provider and save the response as a cassette. A prompt that already has
-  a cassette is replayed instead, so re-recording spends API quota only on new prompts; set
-  ``PAYSIGHT_RERECORD=1`` to force fresh responses.
+  a cassette is replayed instead, so re-recording spends API quota only on new prompts. With
+  ``PAYSIGHT_RERECORD=1``, cassettes recorded by a different model are replaced.
 * ``replay``: cassettes only. A miss raises :class:`ReplayMissError`, which says how to record.
 
 Cassette key: ``sha256(template_id + template_version + rendered prompt + schema name)``. It does
@@ -87,6 +87,16 @@ class LLMClient:
         self.ledger = ledger
         self.rerecord = os.environ.get("PAYSIGHT_RERECORD", "0") == "1"
 
+    def _stale(self, path: Path) -> bool:
+        """With PAYSIGHT_RERECORD=1, a cassette from a different model is replaced.
+
+        A cassette from the current model is always reused, even when re-recording: separate
+        runs in one recording session then share the same responses (see DECISIONS.md D30).
+        """
+        if not self.rerecord:
+            return False
+        return json.loads(path.read_text(encoding="utf-8")).get("model") != self.info.model
+
     def _path(self, prompt: PromptTemplate, key: str) -> Path:
         return self.cassette_dir / prompt.template_id / f"{key[:24]}.json"
 
@@ -134,7 +144,7 @@ class LLMClient:
         if self.mode == "replay":
             return self._replay(path, key, prompt, schema, "replay")
 
-        if self.mode == "record" and path.exists() and not self.rerecord:
+        if self.mode == "record" and path.exists() and not self._stale(path):
             return self._replay(path, key, prompt, schema, "replay")  # keep, don't spend quota
         assert self._llm is not None
         if self.ledger is not None:
