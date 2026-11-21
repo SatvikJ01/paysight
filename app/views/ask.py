@@ -69,3 +69,12 @@ if result is not None:
     )
     if result.evidence:
         render_tabs(result)
+else:
+    st.markdown(
+        "**How it works:** 1. plans the analysis → 2. runs validated SQL on governed data → "
+        "3. answers with every number grounded in an executed query."
+    )
+    hero = EXAMPLES["Root cause"][0]
+    if st.button("Try the hero question"):
+        ask(hero.question, hero.role)
+        st.rerun()
