@@ -16,8 +16,11 @@ All banks, PSPs, wallets and merchants in the data are fictional.
 
 ```bash
 uv sync
-uv run paysight --help
+uv run paysight data generate      # builds data/paysight.duckdb (~15s) and checks every planted scenario
 ```
+
+The data is synthetic, deterministic and fictional. See [docs/DATA_DICTIONARY.md](docs/DATA_DICTIONARY.md)
+for the schema and the planted-scenario answer key.
 
 ## License
 

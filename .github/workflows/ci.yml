@@ -27,5 +27,9 @@ jobs:
       - name: Format check
         run: uv run ruff format --check .
 
+      - name: Generate data (scale 0.1)
+        # Writes the ground truth to runs/ so the committed full-scale file is untouched.
+        run: uv run paysight data generate --scale 0.1 --ground-truth runs/ci_ground_truth.yaml
+
       - name: Tests
         run: uv run pytest -q
