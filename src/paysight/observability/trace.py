@@ -82,7 +82,10 @@ class Trace(BaseModel):
     @staticmethod
     def add_usage(record: TraceStep, usage: Usage) -> None:
         """Attach LLM usage to a step."""
-        record.input_tokens += usage.input_tokens
+        # All prompt tokens (uncached + cache writes + cache reads); cost prices them separately.
+        record.input_tokens += (
+            usage.input_tokens + usage.cache_write_tokens + usage.cache_read_tokens
+        )
         record.output_tokens += usage.output_tokens
         record.cost_usd += usage.cost_usd
         record.llm_source = usage.source
