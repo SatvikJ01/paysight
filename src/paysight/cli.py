@@ -12,6 +12,7 @@ import typer
 
 from paysight import __version__
 from paysight.config import get_settings
+from paysight.orchestrator.models import AskResult
 
 app = typer.Typer(
     name="paysight",
@@ -131,9 +132,13 @@ def debug_hero(
     ).window
 
     head, _ = compare_periods(
-        engine, policy, metric="attempt_success_rate", current=current, baseline=baseline,
+        engine,
+        policy,
+        metric="attempt_success_rate",
+        current=current,
+        baseline=baseline,
         settings=a,
-    )  # fmt: skip
+    )
     typer.echo(f"Role: {policy.label}.  Current {current.label()} vs baseline {baseline.label()}")
     typer.echo(
         f"Attempt SR {head.rate0:.2%} [{head.ci0[0]:.2%}, {head.ci0[1]:.2%}] -> "
@@ -150,8 +155,10 @@ def debug_hero(
         f"\nKitagawa by payment_method: mix {method.mix_effect * 100:+.2f}pp, "
         f"rate {method.rate_effect * 100:+.2f}pp, mix share {method.mix_share:.0%}"
     )
-    typer.echo(f"  {'segment':<12} {'share0':>7} {'share1':>7} {'rate0':>7} {'rate1':>7} "
-               f"{'mix(c)':>8} {'rate':>8}")  # fmt: skip
+    typer.echo(
+        f"  {'segment':<12} {'share0':>7} {'share1':>7} {'rate0':>7} {'rate1':>7} "
+        f"{'mix(c)':>8} {'rate':>8}"
+    )
     for seg in method.segments:
         typer.echo(
             f"  {seg.segment:<12} {seg.share0:>7.1%} {seg.share1:>7.1%} {seg.rate0:>7.1%} "
@@ -176,14 +183,21 @@ def debug_hero(
         issuer, method_name = local.top_rate_segments[0].segment.split(" | ")
         dim_name = local.top_rate_segments[0].dimension.split(" x ")[0]
         codes, _ = failure_code_shift(
-            engine, policy, current=current, baseline=baseline,
-            filters=[Filter(dimension=dim_name, op="=", values=[issuer]),
-                     Filter(dimension="payment_method", op="=", values=[method_name])],
-        )  # fmt: skip
+            engine,
+            policy,
+            current=current,
+            baseline=baseline,
+            filters=[
+                Filter(dimension=dim_name, op="=", values=[issuer]),
+                Filter(dimension="payment_method", op="=", values=[method_name]),
+            ],
+        )
         typer.echo(f"\nFailure-code shift for {issuer} {method_name} (per 100 attempts):")
         for c in codes[:3]:
-            typer.echo(f"  {c.failure_code:<22} {c.per100_0:5.2f} -> {c.per100_1:5.2f} "
-                       f"({c.delta_per100:+.2f})")  # fmt: skip
+            typer.echo(
+                f"  {c.failure_code:<22} {c.per100_0:5.2f} -> {c.per100_1:5.2f} "
+                f"({c.delta_per100:+.2f})"
+            )
 
     sens, _ = denominator_sensitivity(engine, policy, window=current, settings=a)
     typer.echo("\nDenominator sensitivity (current window):")
@@ -191,6 +205,85 @@ def debug_hero(
         typer.echo(f"  {v.metric:<24} {v.rate:.2%}  ({v.numerator:,.0f} / {v.denominator:,.0f})")
     typer.echo(f"  max divergence {sens.max_divergence_pp:.2f}pp; note needed: {sens.note_needed}")
     engine.close()
+
+
+def render_answer(result: AskResult) -> str:
+    """Plain-text rendering of an answer for the terminal."""
+    out = [f"Run {result.run_id}  [{result.llm_mode}]  role: {result.role}"]
+    if result.restatement:
+        out.append(f"I understood: {result.restatement}")
+    if result.kind != "answer":
+        out.append(f"\n[{result.kind.upper()}] {result.message}")
+        if result.suggestion:
+            out.append(f"Suggestion: {result.suggestion}")
+        for o in result.options:
+            out.append(f"  option --choice {o.id}: {o.label}")
+    a = result.answer
+    if a is not None:
+        out.append(f"\n{a.headline}")
+        if result.confidence:
+            out.append(f"Confidence: {result.confidence.summary()}")
+        out.append("\nFacts")
+        out += [f"  - {f.text} [{', '.join(f.evidence_ids)}]" for f in a.facts]
+        if a.hypotheses:
+            out.append("Hypotheses")
+            out += [
+                f"  - ({h.confidence}) {h.text} Verify: {h.how_to_verify}" for h in a.hypotheses
+            ]
+        if a.recommendations:
+            out.append("Recommendations")
+            out += [f"  - {r.text}" for r in a.recommendations]
+    if result.caveats or result.assumptions:
+        out.append("Caveats & assumptions")
+        out += [f"  - {c}" for c in result.caveats]
+        out += [f"  - Assumption: {x}" for x in result.assumptions]
+    if result.removed_claims:
+        out.append("Unverified claims (removed)")
+        out += [f"  - {r.text}  <- {r.reason}" for r in result.removed_claims]
+    if result.evidence:
+        out.append("Evidence")
+        for e in result.evidence:
+            checks = "all checks passed" if all(v.passed for v in e.validation) else "see report"
+            tag = " [LLM-suggested]" if e.llm_suggested else ""
+            out.append(
+                f"  {e.id} {e.title}{tag}: {len(e.sql)} query(ies), {checks}, {e.time_window}"
+            )
+    if result.plan:
+        out.append(
+            "Plan: " + " -> ".join(s.name + ("*" if s.llm_suggested else "") for s in result.plan)
+        )
+    if result.grounding_score is not None:
+        out.append(
+            f"Grounding score: {result.grounding_score:.0%}; queries executed: "
+            f"{result.queries_executed}"
+        )
+    if result.trace_path:
+        out.append(f"Trace: {result.trace_path}")
+    return "\n".join(out)
+
+
+@app.command()
+def ask(
+    question: Annotated[str, typer.Argument(help="A business question in plain English.")],
+    role: Annotated[
+        str, typer.Option(help="leadership | analyst_north | risk_analyst")
+    ] = "leadership",
+    choice: Annotated[str | None, typer.Option(help="Clarification option id to apply.")] = None,
+    mode: Annotated[
+        str | None, typer.Option(help="live | record | replay (default: auto).")
+    ] = None,
+    as_json: Annotated[bool, typer.Option("--json", help="Print the full result as JSON.")] = False,
+) -> None:
+    """Ask Paysight a question."""
+    from paysight.observability.trace import configure_logging
+    from paysight.orchestrator.pipeline import build_paysight
+
+    configure_logging()
+    app_ = build_paysight(get_settings(), mode=mode)
+    if role not in app_.policies:
+        raise typer.BadParameter(f"unknown role {role!r}; use {', '.join(app_.policies)}")
+    result = app_.ask(question, role, choice=choice)
+    typer.echo(result.model_dump_json(indent=2) if as_json else render_answer(result))
 
 
 if __name__ == "__main__":
