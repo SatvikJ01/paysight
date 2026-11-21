@@ -194,3 +194,86 @@ def test_reconcile_respects_row_filters(small_engine, policies) -> None:
         settings=A,
     )
     assert rec.txn_gmv_inr == 0 and rec.settled_gross_inr == 0 and rec.batches == []
+
+
+# ---- review finding 1: reconciliation must apply the question's filters to both sides ----
+
+
+def _reconcile_ctx(full_dataset):
+    from paysight.orchestrator.playbooks import RunContext
+    from paysight.safety.access import get_policies
+
+    settings = get_settings()
+    engine = Engine(full_dataset.path, layer=get_semantic_layer(), limits=settings.limits)
+    ctx = RunContext(
+        engine=engine,
+        role=get_policies()["leadership"],
+        settings=settings,
+        layer=get_semantic_layer(),
+    )
+    return engine, ctx
+
+
+def _scope(filters):
+    from paysight.orchestrator.playbooks import Scope
+
+    return Scope(
+        question_type="reconciliation",
+        metrics=[],
+        dimensions=[],
+        filters=filters,
+        current=TimeWindow(start=date(2026, 10, 25), end=date(2026, 10, 31)),
+        baseline=None,
+    )
+
+
+def test_reconciliation_applies_region_to_transactions_and_settlements(full_dataset) -> None:
+    """Leadership, NovaMart in the north, 25-31 Oct: ₹3.99 crore, not the ₹43.67 crore total."""
+    from paysight.orchestrator.playbooks import run_reconciliation
+    from paysight.semantic.models import Filter
+
+    engine, ctx = _reconcile_ctx(full_dataset)
+    try:
+        run_reconciliation(
+            ctx,
+            _scope(
+                [
+                    Filter(dimension="merchant_group", op="=", values=["NovaMart"]),
+                    Filter(dimension="region", op="=", values=["north"]),
+                ]
+            ),
+        )
+        k = ctx.evidence[0].key_numbers
+        assert k["txn_gmv_inr"] == pytest.approx(39_864_177.00, abs=0.01)
+        north_gross = engine.run_internal(
+            "SELECT SUM(gross_amount_inr) FROM v_settlements WHERE merchant_group = 'NovaMart' "
+            "AND region = 'north' AND covered_to >= DATE '2026-10-25' "
+            "AND covered_from <= DATE '2026-10-31'",
+            [],
+            purpose="test",
+        ).frame.iloc[0, 0]
+        assert k["settled_gross_inr"] == pytest.approx(float(north_gross), abs=0.01)
+        assert ctx.evidence[0].filters == ["merchant_group = NovaMart", "region = north"]
+    finally:
+        engine.close()
+
+
+def test_reconciliation_refuses_a_filter_settlements_cannot_apply(full_dataset) -> None:
+    from paysight.orchestrator.playbooks import PlanError, run_reconciliation
+    from paysight.semantic.models import Filter
+
+    engine, ctx = _reconcile_ctx(full_dataset)
+    try:
+        with pytest.raises(PlanError, match="payment_method"):
+            run_reconciliation(
+                ctx,
+                _scope(
+                    [
+                        Filter(dimension="merchant_group", op="=", values=["NovaMart"]),
+                        Filter(dimension="payment_method", op="=", values=["UPI"]),
+                    ]
+                ),
+            )
+        assert ctx.queries == 0 and ctx.evidence == []  # refused before computing anything
+    finally:
+        engine.close()

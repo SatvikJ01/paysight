@@ -30,6 +30,7 @@ from paysight.analysis.compare import require_ok
 from paysight.config import AnalysisSettings
 from paysight.execution.engine import Engine, QueryResult
 from paysight.safety.access import RolePolicy
+from paysight.semantic.compiler import filter_condition
 from paysight.semantic.models import Filter, QuerySpec, TimeWindow
 
 SETTLEMENT_LAG_DAYS = 1
@@ -100,7 +101,13 @@ class Reconciliation(BaseModel):
         return [b for b in self.batches if b.flagged]
 
 
-def _batches_sql(scope_column: str, scope_values: list[str], lo: date, hi: date) -> str:
+def _batches_sql(
+    scope_column: str,
+    scope_values: list[str],
+    lo: date,
+    hi: date,
+    extra: list[exp.Expression] | None = None,
+) -> str:
     """Batch-level settlement rows, built with sqlglot literals (no string interpolation)."""
     query = (
         exp.select(
@@ -129,6 +136,7 @@ def _batches_sql(scope_column: str, scope_values: list[str], lo: date, hi: date)
                     this=exp.column("covered_from"),
                     expression=exp.cast(exp.Literal.string(hi.isoformat()), "DATE"),
                 ),
+                *(extra or []),
             )
         )
         .order_by("covered_from", "merchant_name")
@@ -145,9 +153,16 @@ def reconcile(
     data_start: date,
     merchant_group: str | None = None,
     merchant_names: list[str] | None = None,
+    filters: list[Filter] | None = None,
+    settlement_columns: dict[str, str] | None = None,
     settings: AnalysisSettings,
 ) -> tuple[Reconciliation, list[QueryResult]]:
-    """Reconcile transaction GMV with settlements for a merchant group or named merchants."""
+    """Reconcile transaction GMV with settlements for a merchant group or named merchants.
+
+    ``filters`` (e.g. ``region = north``) narrow both sides: the GMV query and the settlement
+    batches. ``settlement_columns`` maps each filter's dimension to its settlements column;
+    the caller checks that every filter exists on both datasets before calling.
+    """
     if (merchant_group is None) == (not merchant_names):
         raise ValueError("pass exactly one of merchant_group or merchant_names")
     column, values = (
@@ -160,8 +175,11 @@ def reconcile(
     threshold = settings.reconcile_unexplained_flag_pct
 
     # Batches overlapping the window, and GMV for every date they cover.
+    filters = filters or []
+    columns = settlement_columns or {}
+    extra = [filter_condition(columns[f.dimension], f) for f in filters]
     batch_result = engine.run_sql(
-        _batches_sql(column, list(values), window.start, window.end), role
+        _batches_sql(column, list(values), window.start, window.end, extra), role
     )
     require_ok(batch_result, "settlement batches")
     batches = batch_result.frame
@@ -173,7 +191,7 @@ def reconcile(
         QuerySpec(
             metrics=["gmv_inr"],
             dimensions=["merchant_name", "date"],
-            filters=[Filter(dimension=column, op="in", values=list(values))],
+            filters=[Filter(dimension=column, op="in", values=list(values)), *filters],
             time_window=gmv_window,
         ),
         role,

@@ -75,7 +75,8 @@ def _window_condition(column: str, window: TimeWindow, timestamp: bool) -> exp.E
     )
 
 
-def _filter_condition(column: str, f: Filter) -> exp.Expression:
+def filter_condition(column: str, f: Filter) -> exp.Expression:
+    """A typed, NULL-safe predicate for ``f`` on ``column`` (also used by reconciliation)."""
     col = exp.column(column)
     values = [_literal(v) for v in f.values]
     if f.op == "=":
@@ -197,7 +198,7 @@ def compile_query(spec: QuerySpec, layer: SemanticLayer) -> CompiledQuery:
         column = column_for(f.dimension)
         if f.op not in layer.dimension(f.dimension).allowed_ops:
             raise CompileError(f"operator {f.op!r} is not allowed on {f.dimension!r}")
-        conditions.append(_filter_condition(column, f))
+        conditions.append(filter_condition(column, f))
 
     query = exp.select(*projections).from_(exp.to_table(view)).where(exp.and_(*conditions))
     if group_by:

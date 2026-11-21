@@ -1359,6 +1359,17 @@ def run_reconciliation(ctx: RunContext, scope: Scope) -> None:
     names = next((f.values for f in scope.filters if f.dimension == "merchant_name"), None)
     if not group and not names:
         raise PlanError("name a merchant or merchant group to reconcile (e.g. NovaMart)")
+    scope_dim = "merchant_group" if group else "merchant_name"
+    extra = [f for f in scope.filters if f.dimension != scope_dim]
+    # Every other filter must narrow both sides, or the two totals describe different things.
+    for f in extra:
+        sources = ctx.layer.dimension(f.dimension).sources
+        if not {"v_attempts_clean", "v_settlements"} <= set(sources):
+            raise PlanError(
+                f"a {f.dimension} filter cannot be applied to settlements (they have no "
+                f"{f.dimension}), so transactions and settlements would not be comparable; "
+                "reconcile without it"
+            )
     d = ctx.settings.data
     rec, results = reconcile(
         ctx.engine,
@@ -1368,6 +1379,10 @@ def run_reconciliation(ctx: RunContext, scope: Scope) -> None:
         data_start=d.start_date,
         merchant_group=str(group[0]) if group else None,
         merchant_names=None if group else [str(n) for n in names or []],
+        filters=extra,
+        settlement_columns={
+            f.dimension: ctx.layer.dimension(f.dimension).sources["v_settlements"] for f in extra
+        },
         settings=ctx.settings.analysis,
     )
     if rec.flagged:
