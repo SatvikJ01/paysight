@@ -1,0 +1,251 @@
+# Realized ground truth for the planted scenarios (SPEC §6.4).
+# Written by `paysight data generate` from the generated data. Do not edit by hand.
+meta:
+  seed: 42
+  scale: 1.0
+  content_hash: b4f504639156b60df2a05e20ec1e3a801816c73292594fd40d8d8b2a6e31a02c
+  note: Realized values measured from the generated data, not scenario parameters.
+dataset:
+  raw_rows: 1151814
+  clean_rows: 1151473
+  orders: 1120189
+  merchants: 400
+  first_date: '2026-08-01'
+  last_date: '2026-10-31'
+  online_share: 0.645703
+  method_mix:
+    CARD_EMI: 0.045239
+    CREDIT_CARD: 0.159397
+    DEBIT_CARD: 0.166777
+    NETBANKING: 0.054679
+    UPI: 0.51616
+    WALLET: 0.057749
+  checks:
+    raw_rows_per_unit_scale_in_1.0M_1.3M:
+      value: 1151814.0
+      expected: '[1000000.0, 1300000.0]'
+      passed: true
+    online_share_near_65pct:
+      value: 0.6457
+      expected: '[0.62, 0.68]'
+      passed: true
+S1_acquirer_outage:
+  window: 2026-09-17 10:00 to 2026-09-18 22:00
+  kestrel_card_attempts_in_window: 2240
+  kestrel_card_sr_in_window: 0.546875
+  kestrel_card_sr_baseline_0903_0916: 0.868842
+  acq_timeout_failures_in_window: 803
+  excess_failed_attempts: 721
+  overall_daily_sr_0917: 0.872858
+  trailing_7d_median_daily_sr: 0.90315
+  daily_sr_gap_pp: 3.029
+  checks:
+    kestrel_card_sr_below_0.65:
+      value: 0.5469
+      expected: '[, 0.65]'
+      passed: true
+    daily_sr_0917_at_least_2pp_below_median:
+      value: 3.0292
+      expected: '[2.0, ]'
+      passed: true
+S2_mix_shift:
+  window_0: 2026-10-04..2026-10-17
+  window_1: 2026-10-18..2026-10-31
+  attempt_sr_w0: 0.900143
+  attempt_sr_w1: 0.885445
+  attempt_sr_delta_pp: -1.47
+  order_sr_w0: 0.924254
+  order_sr_w1: 0.908932
+  kitagawa_by_payment_method:
+    mix_effect_pp: -0.999
+    rate_effect_pp: -0.47
+    mix_share: 0.68
+    segments:
+      UPI:
+        share0: 0.5397
+        share1: 0.4253
+        rate0: 0.9306
+        rate1: 0.9303
+        mix_pp: -10.645
+        rate_pp: -0.014
+      CARD_EMI:
+        share0: 0.0291
+        share1: 0.109
+        rate0: 0.8166
+        rate1: 0.816
+        mix_pp: 6.525
+        rate_pp: -0.004
+      CREDIT_CARD:
+        share0: 0.1472
+        share1: 0.2075
+        rate0: 0.8874
+        rate1: 0.884
+        mix_pp: 5.343
+        rate_pp: -0.06
+      WALLET:
+        share0: 0.0601
+        share1: 0.0475
+        rate0: 0.917
+        rate1: 0.9187
+        mix_pp: -1.149
+        rate_pp: 0.009
+      NETBANKING:
+        share0: 0.0568
+        share1: 0.0469
+        rate0: 0.7872
+        rate1: 0.7944
+        mix_pp: -0.779
+        rate_pp: 0.037
+      DEBIT_CARD:
+        share0: 0.1672
+        share1: 0.1637
+        rate0: 0.86
+        rate1: 0.8335
+        mix_pp: -0.295
+        rate_pp: -0.439
+  novamart_share_w0: 0.0602
+  novamart_share_w1: 0.2997
+  novamart_method_mix_w1:
+    CREDIT_CARD: 0.3432
+    CARD_EMI: 0.2951
+    UPI: 0.1632
+    DEBIT_CARD: 0.1484
+    NETBANKING: 0.0304
+    WALLET: 0.0198
+  checks:
+    attempt_sr_drop_1.2_to_2.5pp:
+      value: -1.4698
+      expected: '[-2.5, -1.2]'
+      passed: true
+    mix_share_60_to_85pct:
+      value: 0.68
+      expected: '[0.6, 0.85]'
+      passed: true
+    novamart_share_w1_near_30pct:
+      value: 0.2997
+      expected: '[0.27, 0.33]'
+      passed: true
+    novamart_share_w0_near_6pct:
+      value: 0.0602
+      expected: '[0.04, 0.08]'
+      passed: true
+S3_issuer_risk_declines:
+  harbor_debit_sr_1004_1020: 0.858023
+  harbor_debit_sr_1021_1031: 0.745488
+  harbor_debit_attempts_before: 8924
+  harbor_debit_attempts_after: 7536
+  harbor_debit_sr_drop_pp: 11.253
+  issuer_x_method_rate_effect_pp: -0.468
+  harbor_debit_rate_contribution_pp: -0.393
+  harbor_debit_share_of_rate_effect: 0.8408
+  checks:
+    harbor_debit_sr_drop_at_least_10pp:
+      value: 11.2535
+      expected: '[10.0, ]'
+      passed: true
+    harbor_debit_is_bulk_of_rate_effect:
+      value: 0.8408
+      expected: '[0.5, ]'
+      passed: true
+S4_psp_evening_degradation:
+  zephyr_upi_evening_sr_in_window: 0.821849
+  zephyr_upi_evening_sr_reference: 0.935433
+  zephyr_upi_evening_attempts_in_window: 5776
+  evening_drop_pp: 11.358
+  zephyr_upi_daytime_sr_in_window: 0.927824
+  zephyr_upi_daytime_sr_reference: 0.932898
+  daytime_diff_pp: 0.507
+  checks:
+    evening_drop_at_least_7pp:
+      value: 11.3584
+      expected: '[7.0, ]'
+      passed: true
+    daytime_unaffected_within_2pp:
+      value: 0.5074
+      expected: '[, 2.0]'
+      passed: true
+S5_duplicate_ingestion:
+  date: '2026-10-12'
+  raw_attempts: 11704
+  clean_attempts: 11363
+  duplicate_rows: 341
+  duplicate_rows_whole_dataset: 341
+  raw_inflation_pct: 3.001
+  checks:
+    raw_inflated_about_3pct:
+      value: 3.001
+      expected: '[2.5, 3.5]'
+      passed: true
+    duplicates_only_on_that_day:
+      value: true
+      expected: true
+      passed: true
+    clean_view_removes_duplicates:
+      value: true
+      expected: true
+      passed: true
+S6_missing_issuer_ids:
+  scope: Meridian Bank card attempts, August 2026
+  attempts_in_scope: 35507
+  null_issuer_rate: 0.0804
+  null_issuer_rows_outside_scope: 0
+  checks:
+    null_rate_near_8pct:
+      value: 0.0804
+      expected: '[0.06, 0.1]'
+      passed: true
+    no_nulls_outside_scope:
+      value: true
+      expected: true
+      passed: true
+S7_source_disagreement:
+  novamart_last_week:
+    window: 2026-10-25..2026-10-31
+    txn_gmv_inr: 436684668.47
+    settled_gross_inr: 366716092.1
+    refunds_inr: 4086230.59
+    fees_inr: 5048761.76
+    net_inr: 357581099.75
+    unsettled_txn_dates:
+    - '2026-10-31'
+    unsettled_gmv_inr: 69968576.37
+    combined_batches:
+    - covered: 2026-10-25..2026-10-26
+      settlement_date: '2026-10-28'
+  orbit_shortfall:
+    merchant: Orbit Electronics
+    txn_date: '2026-10-14'
+    txn_gmv_inr: 622185.79
+    settled_gross_inr: 610986.45
+    shortfall_pct: 1.8
+  single_day_batches_with_gross_mismatch: 1
+  checks:
+    novamart_combined_batch_present:
+      value: true
+      expected: true
+      passed: true
+    orbit_shortfall_near_1.8pct:
+      value: 1.8
+      expected: '[1.7, 1.9]'
+      passed: true
+    only_orbit_batch_mismatches:
+      value: true
+      expected: true
+      passed: true
+S8_denominator_gap:
+  full_period:
+    attempt_sr: 0.895822
+    order_sr: 0.92084
+    technical_sr: 0.933022
+    order_minus_attempt_pp: 2.502
+  october:
+    attempt_sr: 0.892269
+    order_sr: 0.916084
+    technical_sr: 0.928711
+    order_minus_attempt_pp: 2.382
+  orders_with_retries_share: 0.0271
+  checks:
+    order_sr_several_pp_above_attempt_sr:
+      value: 2.5018
+      expected: '[2.0, ]'
+      passed: true
