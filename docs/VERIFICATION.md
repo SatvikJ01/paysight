@@ -1,57 +1,57 @@
-# Submission checklist (SPEC §18.3)
+# Verification log
 
-Checked on 21 Nov 2026 against commit `HEAD` of `main`. Each item lists how it was verified.
+How Paysight was checked, and the evidence for each check. The checks follow SPEC §18.3; they
+were last run on 21–22 Nov 2026.
 
-- [x] **A fresh clone, following the README Quickstart exactly, works with no API key.**
-  Cloned into an empty temporary directory, with no `.env` and no key in the environment.
-  Then, in the clone: `uv sync`; `uv run paysight data generate` (14 s, all scenario checks
-  PASS, working tree still clean afterwards); `uv run streamlit run app/streamlit_app.py`.
-  Headless Chrome opened all 15 Appendix B cases (B1–B12 plus the three B3 choices) on that
-  server and found the expected content in each. The other README commands also ran in the
-  clone: `paysight ask` (hero answer, replay), `paysight debug hero`,
-  `paysight eval run --mode replay` (identical to the committed report apart from timestamp and
-  latency), and `pytest`. The author repeated the fresh clone from GitHub independently (see
-  Manual verification below).
-- [x] **Docker works with no API key.** `docker build -t paysight .` builds (the build runs
+## Scripted checks
+
+- **Fresh clone, no API key: passed.** Cloned into an empty temporary directory, with no
+  `.env` and no key in the environment. Then, in the clone: `uv sync`;
+  `uv run paysight data generate` (14 s, all scenario checks PASS, working tree still clean
+  afterwards); `uv run streamlit run app/streamlit_app.py`. Headless Chrome opened all 15
+  Appendix B cases (B1–B12 plus the three B3 choices) on that server and found the expected
+  content in each. The other README commands also ran in the clone: `paysight ask` (hero
+  answer, replay), `paysight debug hero`, `paysight eval run --mode replay` (identical to the
+  committed report apart from timestamp and latency), and `pytest`. The author repeated the
+  fresh clone independently (see Manual verification below).
+- **Docker, no API key: passed.** `docker build -t paysight .` builds (the build runs
   `paysight data generate`, and every scenario check passes). `docker run --rm -p 8501:8501
   paysight` has no `.env` and no key in the environment, reports `healthy` through its
   `HEALTHCHECK`, and passes the same headless check: 15 of 15 Appendix B cases render.
-  `docker exec … paysight ask` answers in replay mode. The final check rebuilt the image from
-  a fresh clone at commit `335301d` and repeated these checks with the same results. The image
-  is 2.5 GB, mostly pyarrow, scipy and the three LLM SDKs.
-- [ ] **CI is green. All tests pass. ruff is clean.** Locally on Ubuntu 24.04: `pytest -q`
-  gives 327 passed; `ruff check .` and `ruff format --check .` are clean. CI
-  (`.github/workflows/ci.yml`) runs the same steps on Ubuntu and Windows on push. The CI result
-  for the latest push, and the Windows run in particular, has not been confirmed here.
-- [x] **No secrets in the repo or its git history.** `.env` has never been committed
-  (`git log --all -- .env` is empty). A scan of every diff in all 56 commits finds no
+  `docker exec … paysight ask` answers in replay mode. The image was rebuilt from a fresh
+  clone at commit `335301d` and the checks repeated with the same results. The image is 2.5 GB,
+  mostly pyarrow, scipy and the three LLM SDKs.
+- **Tests and lint: passed locally.** On Ubuntu 24.04: `pytest -q` gives 327 passed;
+  `ruff check .` and `ruff format --check .` are clean. CI (`.github/workflows/ci.yml`) runs the
+  same steps on Ubuntu and Windows; its latest result, the Windows run in particular, is not
+  recorded here.
+- **No secrets in the repository or its history: passed.** `.env` has never been committed
+  (`git log --all -- .env` is empty). A scan of every diff in all 72 commits finds no
   Anthropic, Google, OpenAI or GitHub key patterns and no private keys, and neither local key's
   prefix appears anywhere in history.
-- [x] **Every Appendix B question works in replay mode in the UI.** 15 of 15 cases pass the
+- **Every Appendix B question works in replay mode in the UI: passed.** 15 of 15 cases pass the
   headless UI check above. `tests/test_replay.py` also replays all of them in CI, with the
   grounding guarantee asserted on every answer.
-- [x] **Every core requirement and failure scenario appears in the README coverage tables.**
-  All 7 core and 6 stretch requirements from Appendix A, and all 6 failure scenarios, each with
-  its implementation, a test and a demo question.
-- [x] **The eval report is committed and embedded.** `eval/reports/latest.md` and `.json` are
-  committed and reproduce from cassettes. The README's Evaluation section embeds the summary
-  table, states the limits, and links the full report.
-- [x] **Screenshots are present. The README renders correctly on GitHub, including Mermaid.**
-  Eight 1600px-wide captures in `docs/images/`, taken with headless Chrome after Streamlit
-  finished rendering. Every relative link and image in the README and docs resolves. Both
-  Mermaid diagrams parse and render with Mermaid 11. GitHub's own rendering can only be checked
-  after the push.
+- **Coverage tables: complete.** The README maps all 7 core and 6 stretch requirements from
+  Appendix A, and all 6 failure scenarios, to their implementation, a test and a demo question.
+- **Evaluation report reproduces: passed.** `eval/reports/latest.md` and `.json` reproduce from
+  the cassettes; two consecutive replays are identical apart from timestamp and latency. The
+  README's Evaluation section embeds the summary table and states the limits.
+- **Screenshots and rendering: passed locally.** Eight 1600px-wide captures in `docs/images/`,
+  taken with headless Chrome after Streamlit finished rendering. Every relative link, anchor
+  and image in the README and docs resolves. Both Mermaid diagrams parse and render with
+  Mermaid 11; GitHub's own rendering is not recorded here.
 
 ## Manual verification (21 Nov 2026, by the author)
 
 Trace files for every run are in `runs/<run id>.json`.
 
-**Reviewer path (passed).** A fresh clone from GitHub into an empty temporary directory, with no `.env` and
-no key: `uv sync`, `paysight data generate` and `streamlit run` all worked, and the badge
-showed REPLAY. Every Appendix B example (B1–B12, plus a B3 choice) behaved as expected, each
-with the confidence badge and the Governed / Ad-hoc SQL badge. The Data health, Eval scorecard
-and Semantic catalog pages loaded cleanly. In the main folder, `git status` was clean and up to
-date with `origin/main`, and `git check-ignore .env` printed `.env`.
+**Reviewer path (passed).** A fresh clone from GitHub into an empty temporary directory, with
+no `.env` and no key: `uv sync`, `paysight data generate` and `streamlit run` all worked, and
+the badge showed REPLAY. Every Appendix B example (B1–B12, plus a B3 choice) behaved as
+expected, each with the confidence badge and the Governed / Ad-hoc SQL badge. The Data health,
+Eval scorecard and Semantic catalog pages loaded cleanly. `git check-ignore .env` printed
+`.env`.
 
 **Live tests with `claude-sonnet-5-5`:**
 

@@ -283,7 +283,7 @@ app/                      Streamlit UI: Ask, Data health, Eval scorecard, Semant
 cassettes/                recorded LLM responses (replay mode)
 config/                   settings, semantic layer, access policies
 data/ground_truth.yaml    measured answer key for the planted scenarios
-docs/                     SPEC, ARCHITECTURE, DECISIONS, LIMITATIONS, DATA_DICTIONARY
+docs/                     SPEC, ARCHITECTURE, DECISIONS, LIMITATIONS, DATA_DICTIONARY, VERIFICATION
 eval/                     questions, gold SQL, reports
 src/paysight/
   data/                   deterministic generator and scenarios
@@ -311,7 +311,7 @@ check enforced in code. I used AI coding assistants for the implementation, unde
 and reviewed each milestone before moving on ([SPEC §17](docs/SPEC.md#17-milestones)). I
 verified the result by hand: the fresh-clone reviewer path with no API key, live unscripted
 questions, and two planner bugs that this testing found and that were fixed with tests and new
-eval cases ([Manual verification](docs/SUBMISSION_CHECKLIST.md#manual-verification-21-nov-2026-by-the-author)).
+eval cases ([Manual verification](docs/VERIFICATION.md#manual-verification-21-nov-2026-by-the-author)).
 
 ## License
 

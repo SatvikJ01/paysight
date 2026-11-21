@@ -185,7 +185,7 @@ paysight/
 ├── runs/                           # traces (gitignored)
 ├── docs/
 │   ├── SPEC.md, ARCHITECTURE.md, DATA_DICTIONARY.md
-│   ├── DECISIONS.md, LIMITATIONS.md
+│   ├── DECISIONS.md, LIMITATIONS.md, VERIFICATION.md
 │   └── images/
 └── tests/
 ```
@@ -1096,7 +1096,7 @@ commit. Milestones marked **(review)** end with a review of the results before w
 | M5 (review) | Orchestrator + `paysight ask` | Intent, clarification, pre-check, playbooks, narration, grounding, confidence, traces. Record cassettes for all Appendix B questions. The full CLI output for B1, B3, B5, B7 and B9 is reviewed. |
 | M6 | Streamlit UI | All pages working. Every Appendix B question works in replay mode from the sidebar buttons. Screenshots saved to `docs/images/`. |
 | M7 | Evaluation + baseline | `eval/reports/latest.{md,json}` generated, with the scorecard page rendering it. |
-| M8 (review) | Docs, Docker, polish | README and all docs complete, Docker verified, final checklist (§18.3) passes. |
+| M8 (review) | Docs, Docker, polish | README and all docs complete, Docker verified, final checklist (§18.3) passes, with the evidence in `docs/VERIFICATION.md`. |
 
 **Stretch ideas beyond M0–M8 (not implemented):**
 
@@ -1140,8 +1140,12 @@ The README is the most important document. Reviewers skim it, so keep it scannab
 - **DECISIONS.md**: short ADR-style entries. Why DuckDB. Why a semantic layer before free-form
   SQL. Why deterministic confidence. Why replay. Why Kitagawa.
 - **LIMITATIONS.md**: honest limitations.
+- **VERIFICATION.md**: the verification log: evidence for each §18.3 check, plus manual and
+  live testing and the bugs it found.
 
 ### 18.3 Final checklist (M8)
+
+The evidence for each item is logged in [VERIFICATION.md](VERIFICATION.md).
 
 - [ ] A fresh clone, following the README Quickstart exactly, works with no API key.
 - [ ] Docker works with no API key.
