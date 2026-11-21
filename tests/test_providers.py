@@ -52,22 +52,55 @@ def test_gemini_retry_classification() -> None:
     assert not provider.is_retryable(ValueError("x"))
 
 
-def test_anthropic_forced_tool_call() -> None:
-    provider = AnthropicProvider(**KW)
-    seen = {}
+def _anthropic_response(**over):
+    usage = SimpleNamespace(
+        input_tokens=5, output_tokens=2, cache_creation_input_tokens=900, cache_read_input_tokens=0
+    )
+    base = {
+        "content": [SimpleNamespace(type="text", text='{"label": "a"}')],
+        "usage": usage,
+        "stop_reason": "end_turn",
+        "stop_details": None,
+    }
+    return SimpleNamespace(**{**base, **over})
 
-    def create(**kwargs):
-        seen.update(kwargs)
-        block = SimpleNamespace(type="tool_use", input={"label": "a"})
-        return SimpleNamespace(
-            content=[block], usage=SimpleNamespace(input_tokens=5, output_tokens=2)
-        )
 
-    provider._client = SimpleNamespace(messages=SimpleNamespace(create=create))
+def test_anthropic_uses_structured_outputs_caching_and_no_temperature() -> None:
+    provider = AnthropicProvider(**{**KW, "model": "claude-sonnet-5-5"})
+    request = provider.build_request("sys", "user", Answer)
+    assert "tools" not in request and "tool_choice" not in request
+    assert "temperature" not in request
+    fmt = request["output_config"]["format"]
+    assert fmt["type"] == "json_schema" and fmt["schema"]["additionalProperties"] is False
+    assert request["system"][0]["cache_control"] == {"type": "ephemeral"}
+    assert request["thinking"] == {"type": "between_tools"}
+
+
+def test_anthropic_thinking_per_model() -> None:
+    haiku = AnthropicProvider(**{**KW, "model": "claude-haiku-5-5"}).build_request("s", "u", Answer)
+    opus = AnthropicProvider(**{**KW, "model": "claude-opus-5-5"}).build_request("s", "u", Answer)
+    assert haiku["thinking"] == {"type": "disabled"}
+    assert "thinking" not in opus and opus["output_config"]["effort"] == "low"
+
+
+def test_anthropic_reads_json_text_and_cache_usage() -> None:
+    provider = AnthropicProvider(**{**KW, "model": "claude-sonnet-5-5"})
+    provider._client = SimpleNamespace(
+        messages=SimpleNamespace(create=lambda **kwargs: _anthropic_response())
+    )
     raw = provider.raw_json("sys", "user", Answer)
     assert raw.text == '{"label": "a"}' and raw.input_tokens == 5
-    assert seen["tool_choice"] == {"type": "tool", "name": "Answer"}
-    assert seen["tools"][0]["input_schema"] == Answer.model_json_schema()
+    assert raw.cache_write_tokens == 900 and raw.cache_read_tokens == 0
+
+
+@pytest.mark.parametrize("stop", ["refusal", "max_tokens"])
+def test_anthropic_refusal_and_truncation_are_errors(stop: str) -> None:
+    provider = AnthropicProvider(**{**KW, "model": "claude-sonnet-5-5"})
+    provider._client = SimpleNamespace(
+        messages=SimpleNamespace(create=lambda **kwargs: _anthropic_response(stop_reason=stop))
+    )
+    with pytest.raises(Exception, match=r"declined|max_tokens"):
+        provider.raw_json("sys", "user", Answer)
 
 
 def test_anthropic_retry_classification() -> None:
