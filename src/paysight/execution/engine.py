@@ -136,8 +136,13 @@ class Engine:
             sql, role=role, layer=self.layer, catalog=self.catalog, limits=self.limits
         )
 
-        def done(status: RunStatus, frame: pd.DataFrame | None = None, *, hit: bool = False,
-                 error: str | None = None) -> QueryResult:  # fmt: skip
+        def done(
+            status: RunStatus,
+            frame: pd.DataFrame | None = None,
+            *,
+            hit: bool = False,
+            error: str | None = None,
+        ) -> QueryResult:
             return QueryResult(
                 status=status,
                 report=report,
@@ -199,11 +204,12 @@ class Engine:
         return done("ok", frame)
 
     def run_internal(self, sql: str, params: list[object], *, purpose: str) -> QueryResult:
-        """Run fixed, reviewed SQL from the data-quality tool, which may read raw tables.
+        """Run fixed, reviewed SQL that may read raw tables.
 
-        This path exists only because the data-quality checks must see duplicates that the
-        governed views remove. It is never given LLM- or user-written SQL: callers pass
-        module-level SQL constants, and every value is a bound parameter. The connection is the
+        Used by the data-quality checks (which must see duplicates the governed views remove)
+        and by the catalog lookup of dimension values for entity resolution. It is never given
+        LLM- or user-written SQL: callers pass module-level SQL constants, and every value is a
+        bound parameter. The connection is the
         same hardened, read-only one, and the timeout still applies.
         """
         t0 = time.perf_counter()
