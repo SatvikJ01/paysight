@@ -13,6 +13,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from datetime import timedelta
 
@@ -279,3 +280,78 @@ def standard_assumptions(intent: IntentResult) -> list[str]:
         if amb.proposed_default:
             out.append(f"{amb.field.capitalize()}: assumed {amb.proposed_default}.")
     return out
+
+
+_HIGH = {"highest", "best", "top", "most", "largest", "biggest", "greatest", "maximum"}
+_LOW = {"lowest", "worst", "bottom", "least", "fewest", "smallest", "minimum", "poorest"}
+_NUMBERS = {
+    w: i
+    for i, w in enumerate(
+        [
+            "zero",
+            "one",
+            "two",
+            "three",
+            "four",
+            "five",
+            "six",
+            "seven",
+            "eight",
+            "nine",
+            "ten",
+            "eleven",
+            "twelve",
+        ]
+    )
+}
+_COUNT = r"(\d{1,2}|" + "|".join(_NUMBERS) + r")"
+_COUNT_PATTERNS = [
+    re.compile(rf"\b(?:top|bottom|highest|lowest|best|worst|first)\s+{_COUNT}\b"),
+    re.compile(rf"\b{_COUNT}\s+(?:highest|lowest|best|worst|top|bottom|largest|smallest)\b"),
+    re.compile(
+        rf"\b(?:which|the|top|bottom)\s+{_COUNT}\s+(?!days?\b|weeks?\b|months?\b|hours?\b)"
+        r"[a-z]+"
+    ),
+]
+_FAILURE_RATE = re.compile(r"\b(?:failure|failed|decline|declined|error)s?\s+rates?\b")
+
+
+@dataclass(frozen=True)
+class RankingRequest:
+    """Direction (``None`` = the metric's default) and count (``None`` = 10) of a ranking."""
+
+    descending: bool | None
+    count: int | None
+
+
+def ranking_request(question: str, metric: str) -> RankingRequest:
+    """Read the direction and count of a ranking from the question, deterministically.
+
+    The intent schema has no direction or limit fields, and changing it would change every
+    recorded prompt, so the question text decides: "highest/best/top/most" vs
+    "lowest/worst/bottom/least/fewest", and counts such as "top 3" or "three highest". For a
+    success rate, "highest failure rate" means the lowest success rate (D38).
+    """
+    text = question.lower()
+    words = set(re.findall(r"[a-z]+", text))
+    low, high = bool(words & _LOW), bool(words & (_HIGH - {"top"}))
+    if low and high:
+        descending = None  # contradictory wording: keep the metric's default
+    elif low:
+        descending = False
+    elif high or "top" in words:
+        descending = True
+    else:
+        descending = None
+    if descending is not None and metric in SR_METRICS and _FAILURE_RATE.search(text):
+        descending = not descending
+    count = None
+    for pattern in _COUNT_PATTERNS:
+        m = pattern.search(text)
+        if m:
+            raw = m.group(1)
+            count = int(raw) if raw.isdigit() else _NUMBERS[raw]
+            break
+    if count is not None and not 1 <= count <= 50:
+        count = None
+    return RankingRequest(descending=descending, count=count)

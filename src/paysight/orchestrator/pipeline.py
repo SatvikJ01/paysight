@@ -245,6 +245,7 @@ class Paysight:
             current=windows.current,
             baseline=windows.baseline,
             extra_steps=extras,
+            question=question,
         )
         ctx = RunContext(engine=self.engine, role=policy, settings=settings, layer=self.layer)
         ctx.caveats.extend(windows.notes)

@@ -36,6 +36,7 @@ from paysight.analysis.stats import two_proportion_z_test, wilson_interval
 from paysight.config import Settings
 from paysight.execution.engine import Engine, QueryResult
 from paysight.orchestrator.models import ChartKind, Evidence, EvidenceKind, ExtraStep, PlanStep
+from paysight.orchestrator.planner import ranking_request
 from paysight.safety.access import RolePolicy
 from paysight.semantic.compiler import CompileError
 from paysight.semantic.models import Filter, OrderBy, QuerySpec, SemanticLayer, TimeWindow
@@ -140,6 +141,7 @@ class Scope:
     current: TimeWindow
     baseline: TimeWindow | None
     extra_steps: list[ExtraStep] = field(default_factory=list)
+    question: str = ""  # the user's words; rankings read direction and count from them
 
 
 @dataclass
@@ -1251,13 +1253,17 @@ def run_ranking(ctx: RunContext, scope: Scope) -> None:
         for c in ctx.layer.dimension(d).context
         if c not in scope.dimensions and ctx.layer.dimension(c).sensitivity not in denied
     ]
+    m0 = metrics[0]
+    request = ranking_request(scope.question, m0)
+    default_desc = m0 not in RATE_METRICS  # counts: largest first; rates: worst first
+    descending = default_desc if request.descending is None else request.descending
     spec = QuerySpec(
         metrics=metrics[:2],
         dimensions=[*scope.dimensions, *dict.fromkeys(context)],
         filters=scope.filters,
         time_window=scope.current,
-        order_by=[OrderBy(field=metrics[0], descending=metrics[0] not in RATE_METRICS)],
-        limit=10,
+        order_by=[OrderBy(field=m0, descending=descending)],
+        limit=request.count or 10,
     )
     _, top = ctx.engine.run_spec(spec, ctx.role)
     total_spec = spec.model_copy(update={"dimensions": [], "order_by": [], "limit": None})
@@ -1265,7 +1271,6 @@ def run_ranking(ctx: RunContext, scope: Scope) -> None:
     for r in (top, total):
         if not r.ok:
             raise PlanError("; ".join(c.detail for c in r.report.failures) or str(r.error))
-    m0 = metrics[0]
     grand = float(total.frame[m0].iloc[0] or 0) if m0 not in RATE_METRICS else None
     rows = top.frame.to_dict("records")
     for row in rows:
@@ -1289,7 +1294,8 @@ def run_ranking(ctx: RunContext, scope: Scope) -> None:
         if "failure_rate_pct" in rows[0]:
             key["top_segment_failure_rate_pct"] = rows[0]["failure_rate_pct"]
     ctx.add(
-        title=f"Top {len(rows)} by {m0}",
+        # The title states the order used: "Highest/Lowest" for rates, "Top/Bottom" for counts.
+        title=f"{_rank_word(m0, descending)} {len(rows)} by {m0}",
         kind="ranking",
         purpose=purpose,
         results=results,
@@ -1303,6 +1309,12 @@ def run_ranking(ctx: RunContext, scope: Scope) -> None:
     if rows and focus and pd.notna(rows[0][focus]) and _timing_requested(scope):
         _timing_drilldown(ctx, scope, focus, rows[0][focus])
     dq_step(ctx, scope.current, metrics, scope.dimensions)
+
+
+def _rank_word(metric: str, descending: bool) -> str:
+    if metric in RATE_METRICS:
+        return "Highest" if descending else "Lowest"
+    return "Top" if descending else "Bottom"
 
 
 TIME_DIMENSIONS = {"date", "hour_of_day", "day_of_week"}
