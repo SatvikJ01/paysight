@@ -14,10 +14,11 @@ ENV UV_COMPILE_BYTECODE=1 \
 
 WORKDIR /app
 
-# Dependencies first, so code changes do not reinstall them.
-COPY pyproject.toml uv.lock README.md ./
+# Dependencies first, so code and docs changes do not reinstall them.
+COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-dev --no-install-project
 
+COPY README.md ./
 COPY src ./src
 COPY config ./config
 COPY app ./app
