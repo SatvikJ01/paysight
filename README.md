@@ -33,8 +33,9 @@ uv run streamlit run app/streamlit_app.py
 
 Open <http://localhost:8501>. With no API key, Paysight runs in **replay mode**: every LLM
 response comes from the recorded cassettes in `cassettes/`, so all demo questions and the
-evaluation reproduce exactly. `data generate` builds `data/paysight.duckdb` (about 15 seconds)
-and checks every planted scenario against the committed answer key.
+evaluation reproduce exactly. Replay mode can answer the example questions (sidebar); add an
+API key to `.env` to ask your own questions. `data generate` builds `data/paysight.duckdb`
+(about 15 seconds) and checks every planted scenario against the committed answer key.
 
 **Docker:**
 
