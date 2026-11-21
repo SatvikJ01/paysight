@@ -793,6 +793,24 @@ def _explain_drop(
 # --------------------------------------------------------------------------------------------
 
 
+def _dims_for(ctx: RunContext, metric: str, dims: tuple[str, ...]) -> tuple[str, ...]:
+    """The dimensions that exist on the metric's view (orders have no issuer or acquirer)."""
+    view = ctx.layer.metric(metric).view
+    return tuple(d for d in dims if view in ctx.layer.dimension(d).sources)
+
+
+def _check_decompositions(decomps: list[Decomposition], comp: RateComparison) -> None:
+    """Invariant: every decomposition explains exactly the headline change (same metric,
+    population and windows), so its mix and rate parts add up to the headline delta."""
+    delta = comp.rate1 - comp.rate0
+    for d in decomps:
+        if abs(d.delta - delta) > 1e-9 or abs(d.mix_effect + d.rate_effect - delta) > 1e-9:
+            raise PlanError(
+                f"the {d.dimension} decomposition does not add up to the headline change "
+                f"({d.delta * 100:.2f}pp vs {delta * 100:.2f}pp); not shown"
+            )
+
+
 def run_root_cause(ctx: RunContext, scope: Scope) -> None:
     """Why did the success rate change between two windows?"""
     assert scope.baseline is not None
@@ -800,7 +818,7 @@ def run_root_cause(ctx: RunContext, scope: Scope) -> None:
     a = ctx.settings.analysis
     label = _window_label(cur, base)
     metric = next((m for m in scope.metrics if m in RATE_METRICS), SR)
-    headline_step(ctx, metric, cur, base, flt)
+    comp = headline_step(ctx, metric, cur, base, flt)
     dq_step(
         ctx,
         TimeWindow(start=base.start, end=cur.end),
@@ -809,10 +827,18 @@ def run_root_cause(ctx: RunContext, scope: Scope) -> None:
     )
 
     fixed = {f.dimension for f in flt if f.op == "=" or (f.op == "in" and len(f.values) == 1)}
-    dims = tuple(d for d in ROOT_CAUSE_DIMENSIONS if d not in fixed)
+    dims = _dims_for(ctx, metric, tuple(d for d in ROOT_CAUSE_DIMENSIONS if d not in fixed))
     ranking, decomps, results = scan_drivers(
-        ctx.engine, ctx.role, current=cur, baseline=base, filters=flt, dimensions=dims, settings=a
+        ctx.engine,
+        ctx.role,
+        current=cur,
+        baseline=base,
+        filters=flt,
+        dimensions=dims,
+        settings=a,
+        metric=metric,
     )
+    _check_decompositions(decomps, comp)
     ctx.add(
         title="Driver ranking across dimensions",
         kind="drivers",
@@ -859,6 +885,11 @@ def run_root_cause(ctx: RunContext, scope: Scope) -> None:
         decomposition, result = by_dim[dim]
         _decomposition_evidence(ctx, decomposition, flt, label, [result])
 
+    if metric != SR:
+        ctx.caveats.append(
+            "The rate localization, failure codes and daily series are attempt-level "
+            f"diagnostics; the headline, driver ranking and decomposition use {metric}."
+        )
     local, local_results = localize_rate_effect(
         ctx.engine, ctx.role, current=cur, baseline=base, filters=flt, settings=a
     )
@@ -1063,19 +1094,27 @@ def run_comparison(ctx: RunContext, scope: Scope) -> None:
     if metric is None:
         run_lookup(ctx, scope, compare=True)
         return
-    headline_step(ctx, metric, cur, base, flt)
-    dims = tuple(scope.dimensions) or ROOT_CAUSE_DIMENSIONS
-    _, decomps, results = scan_drivers(
-        ctx.engine,
-        ctx.role,
-        current=cur,
-        baseline=base,
-        filters=flt,
-        dimensions=dims,
-        settings=ctx.settings.analysis,
-    )
-    for d, result in list(zip(decomps, results, strict=True))[:3]:
-        _decomposition_evidence(ctx, d, flt, _window_label(cur, base), [result])
+    comp = headline_step(ctx, metric, cur, base, flt)
+    dims = _dims_for(ctx, metric, tuple(scope.dimensions) or ROOT_CAUSE_DIMENSIONS)
+    if not dims:
+        ctx.caveats.append(
+            f"{metric} cannot be split by the requested dimensions, so only the verified "
+            "comparison is shown."
+        )
+    else:
+        _, decomps, results = scan_drivers(
+            ctx.engine,
+            ctx.role,
+            current=cur,
+            baseline=base,
+            filters=flt,
+            dimensions=dims,
+            settings=ctx.settings.analysis,
+            metric=metric,
+        )
+        _check_decompositions(decomps, comp)
+        for d, result in list(zip(decomps, results, strict=True))[:3]:
+            _decomposition_evidence(ctx, d, flt, _window_label(cur, base), [result])
     dq_step(ctx, TimeWindow(start=base.start, end=cur.end), [metric], list(dims))
     sensitivity_step(ctx, cur, flt)
     _extras(ctx, scope, flt, cur, base)

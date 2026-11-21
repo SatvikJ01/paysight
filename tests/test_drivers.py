@@ -157,3 +157,32 @@ def test_regional_analyst_scan_sees_only_north(small_engine, policies) -> None:
     )
     assert [s.segment for s in decomps[0].segments] == ["north"]
     assert ranking.dimensions[0].dimension == "region"
+
+
+def test_decompositions_must_add_up_to_the_headline_of_the_same_metric(
+    small_engine, policies
+) -> None:
+    """Review finding 2: an order-SR headline must not be explained by an attempt-SR split."""
+    from paysight.orchestrator.playbooks import PlanError, _check_decompositions
+
+    a = get_settings().analysis
+    role = policies["leadership"]
+    comp, _ = compare_periods(
+        small_engine,
+        role,
+        metric="order_success_rate",
+        current=CURRENT,
+        baseline=BASELINE,
+        settings=a,
+    )
+    kw = {
+        "current": CURRENT,
+        "baseline": BASELINE,
+        "dimensions": ("payment_method",),
+        "settings": a,
+    }
+    _, attempt_split, _ = scan_drivers(small_engine, role, **kw)
+    with pytest.raises(PlanError, match="does not add up"):
+        _check_decompositions(attempt_split, comp)
+    _, order_split, _ = scan_drivers(small_engine, role, metric="order_success_rate", **kw)
+    _check_decompositions(order_split, comp)  # the same metric adds up exactly

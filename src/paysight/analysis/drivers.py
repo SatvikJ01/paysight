@@ -275,13 +275,20 @@ def scan_drivers(
     filters: list[Filter] | None = None,
     dimensions: tuple[str, ...] = ROOT_CAUSE_DIMENSIONS,
     settings: AnalysisSettings,
+    metric: str = "attempt_success_rate",
 ) -> tuple[DriverRanking, list[Decomposition], list[QueryResult]]:
-    """Decompose the change across ``dimensions`` and rank them."""
+    """Decompose the change in ``metric`` across ``dimensions`` and rank them."""
     decompositions: list[Decomposition] = []
     results: list[QueryResult] = []
     for dim in dimensions:
         counts, result = segment_counts(
-            engine, role, dimension=dim, current=current, baseline=baseline, filters=filters
+            engine,
+            role,
+            dimension=dim,
+            current=current,
+            baseline=baseline,
+            filters=filters,
+            metric=metric,
         )
         results.append(result)
         decompositions.append(
