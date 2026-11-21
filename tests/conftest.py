@@ -65,3 +65,10 @@ def small_engine(small_dataset: GenerationResult) -> Iterator[Engine]:
 def policies() -> dict[str, RolePolicy]:
     """Role policies keyed by role name."""
     return get_policies()
+
+
+@pytest.fixture(scope="session")
+def full_dataset(tmp_path_factory: pytest.TempPathFactory) -> GenerationResult:
+    """The full-scale (1.0) dataset: needed wherever results must match committed artifacts
+    (the content hash, and replay cassettes whose prompts contain real evidence numbers)."""
+    return build_dataset(tmp_path_factory.mktemp("full") / "paysight.duckdb", scale=1.0)

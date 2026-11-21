@@ -1,0 +1,38 @@
+{
+  "key": "e7ff0a849fa890e775e9fde729e5e164c32d82150105b0e0eb45c64b385d4b3d",
+  "model": "gemini-3.8-flash",
+  "provider": "gemini",
+  "response": {
+    "ambiguities": [],
+    "compare_time_expr": null,
+    "dimensions": [],
+    "entities": [],
+    "extra_steps": [
+      {
+        "dimension": null,
+        "reason": "Examine success rate fluctuations across hours of the day.",
+        "tool": "hourly_profile"
+      },
+      {
+        "dimension": null,
+        "reason": "Identify the top decline and error codes driving failures.",
+        "tool": "failure_codes"
+      }
+    ],
+    "filters": [],
+    "metrics": [
+      "attempt_success_rate"
+    ],
+    "question_type": "anomaly_explain",
+    "restatement": "Analysis of attempt success rate and failure patterns on 17 September 2026.",
+    "time_expr": "day:2026-09-17",
+    "unsafe_reason": null
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "1",
+  "usage": {
+    "input_tokens": 2632,
+    "output_tokens": 587
+  }
+}

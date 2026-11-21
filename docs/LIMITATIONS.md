@@ -13,3 +13,10 @@ Honest limitations of Paysight. Every `TODO` in the code has a matching entry he
   1.8pp (seed 3, target ≥2pp), and S2's mix share was 0.91 (seed 1, target ≤0.85). The tests
   pin seed 42, which passes at both scales. The committed ground truth is always measured at
   full scale.
+
+## Recording status (temporary)
+
+- Cassettes exist for B1, B2 and the B3 clarification; B9 needs none. The remaining Appendix B
+  questions and the B3 choice narrations still have to be recorded. The Gemini free tier
+  stopped recording at 20 requests per day. Until they are recorded, those questions fail in
+  replay with a "No recorded response" message, and one replay test is skipped.

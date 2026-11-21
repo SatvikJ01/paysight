@@ -185,6 +185,9 @@ class Paysight:
             result.options = planner.TIME_OPTIONS
             return
 
+        if chosen is not None and chosen.time_expr:
+            # Display only: the narrator still receives the parsed restatement.
+            result.restatement = f"{intent.restatement} Period chosen: {chosen.label}."
         qtype = intent.question_type
         result.plan = plan_steps(qtype, extras, intent.metrics)
         result.assumptions = [

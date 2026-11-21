@@ -106,7 +106,7 @@ def test_retries_stop_after_max_attempts() -> None:
 
 def test_non_retryable_errors_are_not_retried() -> None:
     llm, provider = _llm(lambda s, u, sc: ValueError("bad request"))
-    with pytest.raises(ValueError):
+    with pytest.raises(LLMUnavailableError, match="bad request"):
         llm.complete_structured("sys", "user", Answer, template_id="t")
     assert len(provider.calls) == 1
 
@@ -205,3 +205,13 @@ def test_total_usage_sums_records(tmp_path: Path) -> None:
     assert totals.calls == 2
     assert totals.input_tokens == sum(r.input_tokens for r in records)
     assert totals.cost_usd == pytest.approx(sum(r.cost_usd for r in records))
+
+
+def test_record_mode_reuses_existing_cassettes(tmp_path: Path) -> None:
+    prompt = parse_prompt(PROMPT_TEXT)
+    _client(tmp_path, "record", lambda s, u, sc: {"label": "first", "score": 1}).complete(
+        prompt, Answer, question="q"
+    )
+    again = _client(tmp_path, "record", lambda s, u, sc: {"label": "second", "score": 2})
+    parsed, usage = again.complete(prompt, Answer, question="q")
+    assert parsed.label == "first" and usage.source == "replay"

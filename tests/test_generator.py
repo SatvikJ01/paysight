@@ -58,12 +58,11 @@ def test_committed_ground_truth_passes_all_checks() -> None:
 
 
 @pytest.mark.slow
-def test_full_scale_regeneration_matches_committed_hash(tmp_path: Path) -> None:
+def test_full_scale_regeneration_matches_committed_hash(full_dataset: GenerationResult) -> None:
     """A fresh full-scale build reproduces the committed ground truth exactly."""
     truth = load_ground_truth(get_settings().ground_truth_path)
-    result = build_dataset(tmp_path / "full.duckdb", scale=1.0)
-    assert result.content_hash == truth["meta"]["content_hash"]
-    assert result.seconds < 60
+    assert full_dataset.content_hash == truth["meta"]["content_hash"]
+    assert full_dataset.seconds < 60
 
 
 def test_clean_view_has_unique_attempts(small_con: duckdb.DuckDBPyConnection) -> None:

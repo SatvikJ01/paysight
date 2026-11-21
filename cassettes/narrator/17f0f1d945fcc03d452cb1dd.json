@@ -1,0 +1,72 @@
+{
+  "key": "17f0f1d945fcc03d452cb1ddfd432f1e6ab8f2578327d6f340332af605ca37da",
+  "model": "gemini-3.8-flash",
+  "provider": "gemini",
+  "response": {
+    "assumptions": [
+      "'Success rate' means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "Period: 2026-09-17..2026-09-17."
+    ],
+    "caveats": [],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "Overall attempt success rate fell 3.1pp from 90.1% to 87.0% between the baseline period (83,268 attempts) and the 17-18 September window (22,790 attempts)."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "The performance drop concentrated heavily in Kestrel Bank, which recorded a success rate of 78.5% compared to 90.0% in the baseline window, contributing -3.11pp to the total change."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "Within Kestrel Bank, declines were isolated to card channels: debit card success rate fell 30.11pp from 86.4% to 56.3%, credit card fell 28.71pp from 88.6% to 59.9%, and card EMI fell 23.87pp from 80.7% to 56.8%."
+      },
+      {
+        "evidence_ids": [
+          "E5"
+        ],
+        "text": "For Kestrel Bank card transactions, technical timeout failure ACQ_TIMEOUT rose by 32.02 per 100 attempts, climbing from 0.26 to 32.27 per 100 attempts and totaling 803 failures."
+      },
+      {
+        "evidence_ids": [
+          "E7"
+        ],
+        "text": "A data-quality audit identified 0 findings across attempt records, dimensions, and timestamps."
+      }
+    ],
+    "headline": "Overall attempt success rate fell 3.1pp from 90.1% to 87.0% on 17-18 September, driven by sharp declines across card payment methods processed via Kestrel Bank.",
+    "hypotheses": [
+      {
+        "confidence": "high",
+        "how_to_verify": "Examine gateway latency records and request error logs with Kestrel Bank's technical support team for the period covering 17-18 September.",
+        "rationale": "The failure surge was concentrated entirely within card transactions on Kestrel Bank and dominated by ACQ_TIMEOUT, which increased by 32.02 per 100 attempts.",
+        "text": "Kestrel Bank experienced severe technical latency or an outage on its card acquiring processing infrastructure."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "Kestrel Bank experienced severe technical latency or an outage on its card acquiring processing infrastructure.",
+        "rationale": "ACQ_TIMEOUT accounted for 803 failed card attempts during the disruption.",
+        "text": "Raise an incident ticket with Kestrel Bank to review gateway timeout errors on card endpoints."
+      },
+      {
+        "linked_fact_or_hypothesis": "Within Kestrel Bank, declines were isolated to card channels: debit card success rate fell 30.11pp from 86.4% to 56.3%, credit card fell 28.71pp from 88.6% to 59.9%, and card EMI fell 23.87pp from 80.7% to 56.8%.",
+        "rationale": "Debit card and credit card success rates dropped by 30.11pp and 28.71pp respectively during the affected period.",
+        "text": "Adjust routing logic to dynamically direct card traffic away from Kestrel Bank when acquirer timeout rates spike."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "2",
+  "usage": {
+    "input_tokens": 5900,
+    "output_tokens": 4809
+  }
+}

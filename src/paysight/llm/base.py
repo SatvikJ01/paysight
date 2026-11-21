@@ -126,6 +126,12 @@ class StructuredLLM:
             raise LLMUnavailableError(
                 f"{self.provider.name} failed after {self._max_attempts} attempts: {cause}"
             ) from cause
+        except LLMError:
+            raise
+        except Exception as exc:
+            # Non-retryable provider errors (bad request, daily quota, auth) must not crash
+            # callers; they surface as an unavailable LLM so the pipeline degrades gracefully.
+            raise LLMUnavailableError(f"{self.provider.name} error: {exc}") from exc
 
     def cost(self, input_tokens: int, output_tokens: int) -> float:
         """Estimated USD cost from the configured price table."""

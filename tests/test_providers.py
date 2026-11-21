@@ -46,6 +46,8 @@ def test_gemini_retry_classification() -> None:
     assert provider.is_retryable(errors.APIError(429, {"error": {"message": "slow down"}}))
     assert provider.is_retryable(errors.APIError(503, {"error": {"message": "unavailable"}}))
     assert not provider.is_retryable(errors.APIError(400, {"error": {"message": "bad"}}))
+    daily = errors.APIError(429, {"error": {"message": "quota GenerateRequestsPerDayPerProject"}})
+    assert not provider.is_retryable(daily)
     assert provider.is_retryable(httpx.ReadTimeout("t"))
     assert not provider.is_retryable(ValueError("x"))
 

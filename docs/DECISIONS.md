@@ -198,3 +198,78 @@ covers a date and none is due) is reported as explained but marked for follow-up
   They are set only in `config/settings.yaml` and documented in `.env.example`.
 - **Cassette fallback.** In live mode, if the provider is unavailable after its retries and a
   cassette exists for the exact prompt, the cassette is used and labelled `replay-fallback`.
+
+## D19. Two LLM calls per question; extra steps ride on the intent call
+
+The spec allows the LLM to append up to 3 plan steps. Instead of a separate planning call, the
+intent schema has an `extra_steps` field. The planner validates it: steps come from a fixed tool
+list, PII dimensions are dropped, and at most 3 are kept. Each kept step is marked
+"LLM-suggested". A normal question costs two calls (intent and narration). A third happens only
+when the first narration fails grounding.
+
+## D20. Unsafe requests: deterministic guard first, LLM second
+
+A regex guard (DML or deletion of rows/tables, "ignore your instructions", requests for system
+prompts or keys) refuses before any LLM call or query. The LLM's `unsafe_request` class catches
+what the patterns miss. B9 is refused by the guard, so it needs no cassette. The patterns are
+deliberately narrow: "why did success rate *drop*" is not caught.
+
+## D21. Clarification options are fixed, not generated
+
+A why/compare/trend/anomaly question without a period gets three fixed options (last 7 vs
+previous 7, last 14 vs previous 14, October vs September). Choosing one applies a structured
+override to the same parsed intent. No new LLM call is needed, so every button replays from the
+same cassette set. Unresolved entity names produce "did you mean" options from fuzzy matching
+against real dimension values.
+
+## D22. Few-shot examples are paraphrases of the demo questions
+
+The spec asks for few-shot examples taken from the demo questions. Using them verbatim would
+leak the evaluation set into the prompt, so the examples teach the same output shapes with
+different wording and values (three weeks instead of two, "orders" instead of "attempts", and
+so on).
+
+## D23. Grounding rules in practice
+
+- **Display precision sets the tolerance.** A claim matches if it is within half a unit of its
+  last displayed digit: "88.5%" matches 88.54, but "88.50%" does not.
+- **What counts as a claim.** Bare decimals are claims. Small bare whole numbers under 100
+  ("top 5"), clock times and unit phrases ("per 100 attempts") are not. The first live run
+  showed "per 100 attempts" being read as a count of 100.
+- **Facts must cite.** A fact must cite evidence, and its numbers must be in *that* evidence.
+  The headline may draw on any evidence.
+- **One regeneration.** After a failure the narrator is re-asked once with the specific
+  failures. Whatever still fails is removed and listed as "Unverified claims (removed)". An
+  unverifiable headline is replaced by the first verified fact.
+- **Display units.** Rates go to the narrator as percentages with two decimals, so it copies
+  rather than converts.
+
+## D24. Confidence wording
+
+Confidence starts at High, and each concern caps it, adding a reason. Concerns are: small
+samples, a change that is not significant (statistically or practically), an unstable mix
+split, data-quality findings in scope, ad-hoc SQL, assumed defaults, and removed claims.
+Warning-level data-quality findings that Paysight corrects (duplicates removed) still cap at
+Medium, as in the spec's example. Info-level findings, such as a volume spike during a sale,
+do not cap.
+
+## D25. `record` mode never overwrites an existing cassette
+
+**Context.** LLM output is not perfectly deterministic, even at temperature 0. While recording
+Appendix B, the B3 question and each of its clarification choices called Gemini live for the
+same intent prompt. Each call returned a slightly different restatement and overwrote the one
+intent cassette. The narrator cassettes recorded for the earlier intents were orphaned: their
+prompts no longer occur on replay.
+
+**Decision.** In `record` mode, a prompt that already has a cassette is replayed rather than
+re-requested, so a recording session is internally consistent and spends quota only on new
+prompts. `PAYSIGHT_RERECORD=1` forces fresh responses, for example after a prompt change.
+This deviates from the spec's "record: call live and save" only for prompts that are already
+recorded.
+
+## D26. Provider errors never escape the LLM layer
+
+Non-retryable provider errors (bad requests, auth failures, an exhausted daily quota) are
+wrapped as `LLMUnavailableError`, like exhausted retries. The pipeline therefore reports which
+step failed and still shows the evidence computed so far, instead of crashing (SPEC §12.2).
+A daily-quota 429 is not retried, because it cannot recover within the retry window.

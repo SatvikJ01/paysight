@@ -67,5 +67,7 @@ class GeminiProvider(Provider):
         from google.genai import errors
 
         if isinstance(exc, errors.APIError):
+            if exc.code == 429 and "PerDay" in str(exc):
+                return False  # a daily quota will not recover within the retry window
             return exc.code == 429 or (exc.code or 0) >= 500
         return isinstance(exc, _transport_errors())

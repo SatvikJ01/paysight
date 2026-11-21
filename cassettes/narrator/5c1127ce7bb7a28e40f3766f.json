@@ -1,0 +1,78 @@
+{
+  "key": "5c1127ce7bb7a28e40f3766f67993936f4d60f28fd97b4c91056b1c4aa2f501b",
+  "model": "gemini-3.8-flash",
+  "provider": "gemini",
+  "response": {
+    "assumptions": [
+      "'Success rate' means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "Period: 2026-09-17..2026-09-17."
+    ],
+    "caveats": [],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "Overall attempt success rate fell 3.1pp from 90.1% (75,001 successes out of 83,268 attempts) in the 10–16 September baseline to 87.0% (19,822 successes out of 22,790 attempts) during 17–18 September."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "The performance drop was heavily concentrated in Kestrel Bank, where success rate fell 11.5pp from 90.0% to 78.5%."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "Within Kestrel Bank, card payment methods experienced sharp declines: DEBIT_CARD fell 30.1pp from 86.4% to 56.3%, CREDIT_CARD fell 28.7pp from 88.6% to 59.9%, and CARD_EMI fell 23.9pp from 80.7% to 56.8%, while UPI and NETBANKING remained stable."
+      },
+      {
+        "evidence_ids": [
+          "E5"
+        ],
+        "text": "For card methods on Kestrel Bank, ACQ_TIMEOUT failures increased by 32.02 per 100 attempts, rising from 0.3 per 100 attempts to 32.3 per 100 attempts (803 failures)."
+      },
+      {
+        "evidence_ids": [
+          "E9"
+        ],
+        "text": "Across the entire platform, ACQ_TIMEOUT rose by 3.49 per 100 attempts from 0.1 to 3.6 per 100 attempts, totaling 815 failures during the period."
+      },
+      {
+        "evidence_ids": [
+          "E7"
+        ],
+        "text": "A data quality scan across acquirer, issuer, merchant, and attempt datasets identified 0 issues."
+      }
+    ],
+    "headline": "Overall attempt success rate fell 3.1pp from 90.1% to 87.0% across 17–18 September, driven by a like-for-like drop in card payments on Kestrel Bank due to acquirer timeouts.",
+    "hypotheses": [
+      {
+        "confidence": "high",
+        "how_to_verify": "Examine Kestrel Bank card gateway response latency metrics, error logs, and downstream switch communications during the outage window.",
+        "rationale": "Non-card payment methods on Kestrel Bank like UPI and NETBANKING saw steady performance, while DEBIT_CARD, CREDIT_CARD, and CARD_EMI plummeted with ACQ_TIMEOUT jumping to 32.3 per 100 attempts.",
+        "text": "Kestrel Bank experienced gateway degradation or infrastructure timeout issues specifically affecting its card processing pipelines on 17–18 September."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "Kestrel Bank experienced gateway degradation or infrastructure timeout issues specifically affecting its card processing pipelines on 17–18 September.",
+        "rationale": "ACQ_TIMEOUT accounted for 32.3 failures per 100 card attempts on Kestrel Bank during 17–18 September.",
+        "text": "Engage Kestrel Bank's technical account team with incident failure logs showing the 803 ACQ_TIMEOUT card failures to confirm root-cause remediation."
+      },
+      {
+        "linked_fact_or_hypothesis": "Within Kestrel Bank, card payment methods experienced sharp declines: DEBIT_CARD fell 30.1pp from 86.4% to 56.3%, CREDIT_CARD fell 28.7pp from 88.6% to 59.9%, and CARD_EMI fell 23.9pp from 80.7% to 56.8%, while UPI and NETBANKING remained stable.",
+        "rationale": "Card success rates on Kestrel Bank dropped below 60.0%, driving an overall system success rate reduction of 3.1pp.",
+        "text": "Implement automated routing failover rules to route card traffic away from Kestrel Bank when acquirer timeout rates cross defined thresholds."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "2",
+  "usage": {
+    "input_tokens": 5821,
+    "output_tokens": 3106
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "key": "843a58d7dfa03b13fe350310c853f65c4da62c39845ee3466edd84c6ce98acfc",
+  "model": "gemini-3.8-flash",
+  "provider": "gemini",
+  "response": {
+    "ambiguities": [
+      {
+        "field": "time",
+        "materiality": "high",
+        "options": [
+          "last 7 days vs previous 7",
+          "last 14 days vs previous 14",
+          "last 30 days vs previous 30"
+        ],
+        "proposed_default": null
+      }
+    ],
+    "compare_time_expr": null,
+    "dimensions": [],
+    "entities": [],
+    "extra_steps": [
+      {
+        "reason": "Examine error codes contributing to the decline in success rate.",
+        "tool": "failure_codes"
+      },
+      {
+        "dimension": "payment_method",
+        "reason": "Identify if the drop is concentrated in a specific payment method.",
+        "tool": "breakdown"
+      }
+    ],
+    "filters": [],
+    "metrics": [
+      "attempt_success_rate"
+    ],
+    "question_type": "root_cause",
+    "restatement": "Investigating why attempt success rate decreased, with no time period specified.",
+    "time_expr": null,
+    "unsafe_reason": null
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "1",
+  "usage": {
+    "input_tokens": 2627,
+    "output_tokens": 690
+  }
+}
