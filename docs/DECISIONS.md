@@ -318,3 +318,63 @@ confidence at Medium. A caveat says the SQL was AI-written and validated, but no
 **The repair eval case.** It asks for "the past two years". The prompt states the time-bound
 rules but not the validator's 400-day maximum, so a natural first SQL fails validation and must
 be repaired. The prompt does not withhold any rule in order to force failures.
+
+## D30. `PAYSIGHT_RERECORD=1` replaces only another model's cassettes
+
+Forcing fresh responses for every prompt re-created the D25 problem. Each CLI run in one
+recording session re-requested the shared B3 intent, got a slightly different restatement and
+overwrote it, which orphaned the narrations recorded against the earlier versions.
+`PAYSIGHT_RERECORD=1` now means "replace cassettes recorded by a different model". A cassette
+from the current model is always reused, so separate runs stay consistent with each other.
+
+## D31. Grounding reads numbers in code-generated evidence text; confidence levels are not claims
+
+The first Sonnet recordings had true claims removed.
+- **Text cells.** The numbers sat in deterministic evidence text: driver reasons ("share 39.9% →
+  55.4%") and data-quality details ("+39%", "expected 0%"). Numbers inside string cells of the
+  cited evidence now count as evidence.
+- **Confidence levels.** Phrases such as "95% confidence interval" are not data claims, and are
+  excluded.
+
+Claims that really are absent from the evidence are still removed. Examples from the recordings:
+a derived "less than 0.4 per 100 attempts", and an invented "6,100".
+
+## D32. Root-cause answers report the mix/rate split by payment method only
+
+With both a merchant-group and a payment-method decomposition in the evidence, the narrator led
+with the merchant-group split ("0.4pp mix, 1.07pp rate concentrated in NovaMart"), even after a
+prompt rule told it not to. That split is misleading. NovaMart's own success rate falls because
+its sale shifts its payment-method mix to EMI, which is mix, not a like-for-like decline. The
+playbook therefore emits decomposition evidence for payment method only. Merchant-group
+drivers stay visible in the ranking evidence (NovaMart is 6% → 30% of volume and 65% of the
+change), and the like-for-like effect comes from the rate-localization evidence (Harbor Bank
+debit). This matches the intended B1 story.
+
+**Why payment method is the main lens (D32, continued).** Success rate differs by payment method
+by design: UPI, cards, EMI and netbanking have structurally different approval rates (from about
+79% to about 93% here), because of how each method authenticates and fails. A change in the
+method mix therefore moves the overall rate even when nothing is broken, which is the trap the
+case calls out. Payment method is the dimension along which "mix" has a stable meaning. Merchant
+group answers a different question: who caused the mix change. Paysight shows it in that role,
+through the driver ranking (NovaMart's share of attempts and its share of the change), not as a
+second mix/rate split. Two splits of the same change along different dimensions are not
+additive, and reading them side by side misled the narrator.
+
+**Scope check.** Restricting the decomposition evidence does not restrict the search. The driver
+ranking still scans every candidate dimension:
+
+| Playbook | Dimensions scanned |
+|---|---|
+| Root cause | All 8 |
+| Anomaly | 7 |
+| Trend | 6 |
+| Comparison | All 8 by default (it was 3 before this change) |
+
+Dimensions already fixed by a filter are excluded in each case. Rate localization scans issuer,
+acquirer, merchant group and region within each payment method.
+
+**Not tuned to the hero question.** An eval case asks "Why did card success rate drop in 14–20
+September compared with 7–13 September?" The deterministic analysis attributes it to a rate
+effect, not mix: −2.54pp with a 0.00pp mix effect. Acquirer is the top driver (strength 0.74;
+Kestrel Bank is 30% of volume but 104% of the change), and the rate-effect sources are Kestrel
+debit and credit. That matches planted scenario S1.
