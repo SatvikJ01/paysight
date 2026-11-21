@@ -258,11 +258,15 @@ def reconcile(
                 label="Late or combined batch",
                 kind="explained",
                 amount_inr=spill,
-                detail="Multi-day batch(es): " + "; ".join(combined_notes)
-                + (". Part of the batch covers dates outside the window." if spill else
-                   ". Fully inside the window, so no net effect on the total."),
+                detail="Multi-day batch(es): "
+                + "; ".join(combined_notes)
+                + (
+                    ". Part of the batch covers dates outside the window."
+                    if spill
+                    else ". Fully inside the window, so no net effect on the total."
+                ),
             )
-        )  # fmt: skip
+        )
     if missing:
         components.append(
             Component(

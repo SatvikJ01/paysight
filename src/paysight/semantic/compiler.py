@@ -143,10 +143,12 @@ def compile_query(spec: QuerySpec, layer: SemanticLayer) -> CompiledQuery:
     if spec.compare_window:
         window_case = (
             exp.Case()
-            .when(_window_condition(view_def.time_column, spec.time_window, timestamp),
-                  exp.Literal.string(CURRENT))
+            .when(
+                _window_condition(view_def.time_column, spec.time_window, timestamp),
+                exp.Literal.string(CURRENT),
+            )
             .else_(exp.Literal.string(BASELINE))
-        )  # fmt: skip
+        )
         projections.append(exp.alias_(window_case, "comparison_window"))
         group_by.append(window_case.copy())
         default_order.append(exp.Ordered(this=exp.column("comparison_window")))

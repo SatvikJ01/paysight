@@ -356,8 +356,11 @@ def data_quality_report(
     vol["weekday"] = [d.weekday() for d in vol["day"]]
     vol["ratio"] = vol["attempts"] / vol.groupby("weekday")["attempts"].transform("median")
     vol["z"] = robust_z(vol["ratio"].to_numpy())
-    flagged = vol[(vol["z"].abs() >= settings.anomaly_z_threshold) & (vol["day"] >= window.start)
-                  & (vol["day"] <= window.end)]  # fmt: skip
+    flagged = vol[
+        (vol["z"].abs() >= settings.anomaly_z_threshold)
+        & (vol["day"] >= window.start)
+        & (vol["day"] <= window.end)
+    ]
     for direction, part in (
         ("spike", flagged[flagged["z"] > 0]),
         ("drop", flagged[flagged["z"] < 0]),
