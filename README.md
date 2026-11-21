@@ -67,7 +67,7 @@ To use a live model, copy `.env.example` to `.env` and set one key (`ANTHROPIC_A
   compiled or AI-written, passes a 9-check AST validator, role-based row filters injected into
   the AST, and a hardened read-only DuckDB connection with timeouts and row caps.
 - **Evaluated against planted truth.** The synthetic data has eight planted scenarios with a
-  measured answer key. 36 questions score Paysight against a naive text-to-SQL baseline that
+  measured answer key. 39 questions score Paysight against a naive text-to-SQL baseline that
   uses the same model and the same validator.
 - **Deterministic and reviewable.** Seeded data, a fixed `AS_OF_DATE` and recorded LLM
   responses mean a reviewer with no key sees exactly what we saw. Each answer shows its plan,
@@ -126,7 +126,7 @@ Every core and stretch requirement from the case (SPEC Appendix A):
 | Requirement | Where it is implemented | How it is demonstrated |
 |---|---|---|
 | At least two related datasets | `src/paysight/data/schema.sql`: attempt and settlement facts, merchant, issuer, acquirer and payment-method dimensions, three governed views | [DATA_DICTIONARY](docs/DATA_DICTIONARY.md); Semantic catalog page |
-| Natural-language questions on metrics and trends | `orchestrator/intent.py`, `planner.py`, `playbooks.py` | All 12 Appendix B questions; 36 eval questions |
+| Natural-language questions on metrics and trends | `orchestrator/intent.py`, `planner.py`, `playbooks.py` | All 12 Appendix B questions; 39 eval questions |
 | Generate and execute SQL or structured analysis | `semantic/compiler.py` (governed), `orchestrator/adhoc.py` (validated fallback), `execution/engine.py` | Evidence tab shows the SQL; `test_compiled_sql_passes_validator_and_runs` |
 | Show the query or analysis steps | Plan, Evidence and Trace tabs; `runs/<run_id>.json` | Every answer; `paysight ask` prints the plan |
 | Charts or tables for key findings | `app/components/charts.py`: waterfall, driver bars, daily lines, heatmap, reconciliation | Hero charts above; Data health page |
@@ -134,7 +134,7 @@ Every core and stretch requirement from the case (SPEC Appendix A):
 | Separate facts, hypotheses and recommendations | `AnswerDraft` schema; grounding applies to facts | Answer layout; `test_unverifiable_headline_is_replaced` |
 | *Stretch:* role-based access and query restrictions | `safety/access.py`, `safety/rewrite.py`, `config/access_policies.yaml` | B5, B6 denied, B10 allowed; `test_row_filter_cannot_be_bypassed_by_asking_for_south` |
 | *Stretch:* data-quality checks and missing-data warnings | `analysis/quality.py` | B7, B12; Data health page; `test_each_planted_issue_is_found` |
-| *Stretch:* cohort comparison and drill-down | `analysis/compare.py`, `drivers.py`, `drilldown.py` | B1, B4; `test_hero_rate_effect_localized_to_harbor_debit` |
+| *Stretch:* cohort comparison and drill-down | `analysis/compare.py`, `drivers.py`, `drilldown.py`; segment comparisons and the ranking drill-down in `orchestrator/playbooks.py` | B1, B4, "Compare UPI and card success rates in August"; `test_hero_rate_effect_localized_to_harbor_debit`, `test_segment_comparison_compares_segments_within_one_period` |
 | *Stretch:* cost/timeout controls and caching | Validator row limits and window cap, EXPLAIN cardinality guard, `con.interrupt()` timeout, LRU cache | `test_timeout_interrupts_long_query`, `test_cardinality_guard_blocks_huge_estimates`, `test_repeat_query_hits_cache` |
 | *Stretch:* evaluate queries against known answers | `src/paysight/evaluation/`, `eval/questions.yaml`, `eval/gold/` | [Evaluation](#evaluation) below; Eval scorecard page |
 | *Stretch:* confidence and uncertainty | `orchestrator/confidence.py` (deterministic rules), Wilson intervals, significance tests | Confidence badge with reasons; `test_confidence_high_and_low` |
@@ -149,7 +149,7 @@ The case's six failure scenarios:
 | Data outside the user's access scope | Pre-check before any query; row filters injected into the SQL AST; PII columns per role | `test_regional_denial_executes_nothing`, `test_row_filter_cannot_be_bypassed_by_asking_for_south` | B5 (region), B6 (BINs) |
 | Two sources disagree on a metric | Reconciliation splits the gap into timing, combined batches, refunds and fees, and flags unexplained batches | `test_reconcile_novamart_last_week`, `test_reconcile_flags_orbit_unexplained_shortfall` | B8 |
 | Decline explained by a mix shift | Kitagawa decomposition by payment method; rate effect localized separately | `test_hero_mix_share_by_method_is_majority`, `test_mixed_case_sums_exactly` | B1 |
-| Ambiguous time period or denominator | Fixed clarification options for time; default attempt-level SR stated as an assumption, with order-level and technical SR alongside | `test_clarification_flow_then_choice`, `test_denominator_sensitivity_flags_gap` | B3, B11 |
+| Ambiguous time period or denominator | Fixed clarification options when no period is given; options that keep a stated period when its comparison falls outside the data; default attempt-level SR stated as an assumption, with order-level and technical SR alongside | `test_clarification_flow_then_choice`, `test_clarification_keeps_the_period_the_user_stated`, `test_denominator_sensitivity_flags_gap` | B3, B11 |
 | Expensive or unsafe query | Deterministic guard plus LLM refusal; 9-check validator; cardinality guard, timeout, row caps; ad-hoc SQL gets one repair, then fails safely | 59-case attack corpus (`test_attack_is_blocked`), `test_first_sql_blocked_then_repaired` | B9; the two-year ad-hoc question |
 
 ## Safety model
@@ -200,27 +200,27 @@ All entities are fictional. See [docs/DATA_DICTIONARY.md](docs/DATA_DICTIONARY.m
 ## Evaluation
 
 `uv run paysight eval run --mode replay` scores Paysight and a naive text-to-SQL baseline on
-the same 36 questions with the same text-based rules. Numbers are checked against gold SQL
+the same 39 questions with the same text-based rules. Numbers are checked against gold SQL
 computed on the same data; behaviour, named segments and dates are checked as written. Full
 report: [eval/reports/latest.md](eval/reports/latest.md).
 
 | Metric | Paysight | Baseline |
 |---|---|---|
-| Cases fully correct | 97.2% (35 of 36) | 33.3% (12 of 36) |
-| Numeric accuracy (14 checks) | 92.9% | 57.1% |
+| Cases fully correct | 97.4% (38 of 39) | 30.8% (12 of 39) |
+| Numeric accuracy (17 checks) | 94.1% | 47.1% |
 | Root-cause checks passed (5 questions) | 100% | 20% |
 | Driver recall@2 | 100% | 40% |
-| Clarifies when it should (3) | 100% | 33.3% |
+| Clarifies when it should (4) | 100% | 25% |
 | Denies out-of-scope requests (3) | 100% | 33.3% |
 | Refuses unsafe requests (3) | 100% | 100% |
-| Grounding pass rate (every stated number in the system's own query results) | 100% | 39.1% |
+| Grounding pass rate (every stated number in the system's own query results) | 100% | 44.0% |
 | Intent stage: question type / metric / window | 100% / 100% / 100% | – |
 | Phrasing robustness (8 groups × 3 phrasings, all must pass) | 100% | – |
-| LLM calls · estimated cost (recorded usage) | 72 · $0.87 | 72 · $0.26 |
+| LLM calls · estimated cost (recorded usage) | 78 · $0.98 | 78 · $0.29 |
 
 **Read these numbers with their limits in mind:**
 
-- **We wrote the 36 questions ourselves**, on synthetic data where we planted the answers.
+- **We wrote the 39 questions ourselves**, on synthetic data where we planted the answers.
   This shows that the system finds what it was designed to find. It is not a measure of
   accuracy on real, messy enterprise data.
 - **The baseline is deliberately naive**: the raw view schema and a few SQL rules, with no
@@ -229,6 +229,10 @@ report: [eval/reports/latest.md](eval/reports/latest.md).
   architecture rather than the model. A stronger baseline would narrow it.
 - **We wrote the paraphrases ourselves too**, two per question for eight questions. 100%
   robustness on 24 phrasings is encouraging, not proof.
+- **Three cases came from manual testing.** Live testing found two gaps (a segment comparison
+  treated as a period comparison, and a ranking that ignored "when"). They were fixed in the
+  system, not in the checks, and three cases now cover them
+  ([D36](docs/DECISIONS.md#d36-segment-comparisons-period-options-that-keep-the-stated-period-and-timing-for-rankings)).
 - **One miss.** On "average authorization latency of failed payments over the past two years",
   the ad-hoc SQL was repaired correctly after hitting the 400-day cap, but it grouped by failure
   category, so the answer gave four averages instead of the overall one. We kept that recording
@@ -293,7 +297,7 @@ src/paysight/
   orchestrator/           intent, planner, playbooks, ad-hoc SQL, narrator, grounding, confidence
   evaluation/             baseline, scorer, runner
   observability/          traces and logging
-tests/                    306 tests: unit, safety corpus, replay of every demo question
+tests/                    322 tests: unit, safety corpus, replay of every demo question
 ```
 
 **Stack:** Python 3.11+, uv, DuckDB, pandas, numpy, scipy, sqlglot, pydantic v2, Streamlit,

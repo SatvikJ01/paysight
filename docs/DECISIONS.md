@@ -464,6 +464,55 @@ it, because the number was genuinely in the evidence.
 - Re-recorded: only the narrations whose evidence bundle changed (ad-hoc, root-cause and
   anomaly answers), found by replaying every question and listing the missing cassettes.
 
+## D36. Segment comparisons, period options that keep the stated period, and timing for rankings
+
+Manual live testing on 21 Nov found two gaps. Both came from deterministic code, not the model:
+in each case the intent was parsed correctly and the planner or playbook ignored part of it.
+
+- **A. Comparing segments within one period.** "Compare UPI and card success rates in August"
+  parsed as `comparison`, `method_family in [upi, card]`, August, no second period. The planner
+  forced a previous-period baseline for every comparison and asked for July, which is outside
+  the data. Now a comparison with no second period and a filter naming two or more values of
+  one dimension compares those segments in one window. It reports each segment's rate with
+  numerator, denominator and a 95% Wilson interval, a two-proportion z-test between the highest
+  and the lowest, and a bar chart. No baseline is resolved. The rule keys only on the parsed
+  intent, so no prompt changed.
+- **A. Period options keep the stated period.** When a comparison period falls outside the data,
+  Paysight used to offer the generic options (last 7 days, October vs September), which ignored
+  the period the user named. Now it says that the data starts on 1 Aug 2026 and offers options
+  that keep the stated period: the following period compared with it (the next calendar month
+  for a month), and the period on its own (not offered for root-cause questions). The choice id
+  encodes the option (`period:<window>~<compare>~<type>`), so the UI and the CLI send it back
+  without server state; ids that do not resolve are ignored. If the stated period itself is
+  outside the data, the message gives the data range and the generic options.
+- **B. A ranking that also asks "when".** The intent for "which acquiring bank had the most
+  technical failures in September, and when did they happen?" asked for daily, hourly and
+  failure-code steps, but the ranking playbook never ran extra steps. Now a ranking whose intent
+  asks for a daily or hourly step (or ranks by a time dimension) drills into the top segment:
+  its daily success rate with anomaly windows, then the anomaly playbook's own drop
+  explanation for the main drop (payment methods affected, failure-code shift, hourly
+  timeline). The drill-down uses the segment's full traffic, because a success rate inside
+  "technical failures only" is meaningless. A `failure_codes` step alone does not trigger it,
+  which keeps B10 and B12 unchanged.
+- **B. Rates beside counts.** A count ranking favours the biggest segments, so rankings by
+  failed attempts now add each segment's failure rate: its failures under the question's
+  filters divided by its attempts under the same filters minus the failure-type ones. This is
+  the one change that altered recorded answers (B10 and B12, re-recorded).
+- **C. Precision.** New segment-comparison evidence carries rates as two-decimal text (89.40,
+  not 89.4), so close values read consistently. Applying this to every evidence item would
+  change every recorded narration, so the older evidence keeps its format; see LIMITATIONS.md.
+- **Deterministic order for AI-written SQL.** The baseline's SQL for the Kestrel question
+  (`ORDER BY failures DESC LIMIT 50`) returned a different set of rows on each of 10 runs
+  because of ties, so its replay missed. The validator now appends every output column, by
+  position, to a top-level `ORDER BY`. That only decides between rows the query already treats
+  as equal, so it never changes what was asked, and it makes ad-hoc and baseline SQL
+  reproducible. No other recorded answer changed.
+- **Confidence for segment comparisons** reads the sample size from the per-segment rows; it
+  previously looked only for period-comparison keys and reported 0 attempts.
+- **What was re-recorded:** the B10 and B12 narrations, and three new eval cases
+  (`segment_upi_vs_card_august`, `period_compare_outside_data`,
+  `ranking_when_kestrel_september`). Every other question replays unchanged.
+
 ## Related approaches
 
 How Paysight's design relates to published industry systems, as they publicly describe them.

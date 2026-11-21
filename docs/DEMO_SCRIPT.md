@@ -1,12 +1,23 @@
 # Demo script (about 4 min 40 s)
 
-Recorded in replay mode, so every answer below is exactly what appears on screen. Before
-recording:
+Every segment except one replays recorded responses, so those answers are exactly what appears
+on screen. Segment 7 is a live call. Run two instances: replay on port 8501 and live on 8502
+(the live one needs `ANTHROPIC_API_KEY` in `.env`):
 
 ```bash
 uv run paysight data generate
-uv run streamlit run app/streamlit_app.py
 ```
+
+```bash
+LLM_MODE=replay uv run streamlit run app/streamlit_app.py
+```
+
+```bash
+LLM_MODE=live uv run streamlit run app/streamlit_app.py --server.port 8502
+```
+
+Each live answer costs about $0.03 and counts towards the spend guard in
+`config/settings.yaml` (`llm.budget_usd`).
 
 Use a 1600px-wide browser window, light theme, 100% zoom. Keep the role selector visible in
 the sidebar. Questions can be typed, clicked from **Example questions**, or opened as links
@@ -24,7 +35,7 @@ the sidebar. Questions can be typed, clicked from **Example questions**, or open
 > wrong thing, invent a number, or show data you shouldn't see. Paysight is an AI payments
 > analyst that shows its work. Everything you'll see runs on fictional, synthetic data."
 
-## 2. Architecture (0:20–0:50)
+## 2. Architecture (0:20–0:45)
 
 **Show:** the README's "How it works" diagram (or `docs/ARCHITECTURE.md`).
 
@@ -35,7 +46,7 @@ the sidebar. Questions can be typed, clicked from **Example questions**, or open
 > database. The statistics are plain Python. A grounding checker then removes any number in
 > the answer that isn't in an executed query result."
 
-## 3. Hero question: a decline explained by mix (0:50–2:20)
+## 3. Hero question: a decline explained by mix (0:45–2:05)
 
 **Role:** Leadership. **Ask:**
 `Why did payment success rate drop over the last two weeks compared with the two weeks before?`
@@ -61,7 +72,7 @@ the sidebar. Questions can be typed, clicked from **Example questions**, or open
 > validation. Recommendations and hypotheses are kept apart from facts, and each hypothesis
 > says how to verify it."
 
-## 4. Ambiguity, access denial, data quality (2:20–3:20)
+## 4. Ambiguity, access denial, data quality (2:05–3:00)
 
 **a) Ambiguity (about 20 s).** Role: Leadership. Ask: `Why is success rate down?`
 - **Point at:** "Which period should I analyse?" and the three fixed options. Nothing was
@@ -83,7 +94,7 @@ the sidebar. Questions can be typed, clicked from **Example questions**, or open
 - **Say:** "Three percent of that day was ingested twice. Paysight counts each attempt once
   and tells you what it removed."
 
-## 5. Reconciliation: two sources disagree (3:20–3:50)
+## 5. Reconciliation: two sources disagree (3:00–3:25)
 
 **Role:** Leadership. **Ask:**
 `Compare NovaMart's GMV from transactions with what we settled for the last week of October.`
@@ -96,13 +107,13 @@ settling T+1, refunds and fees, the combined multi-day batch, and the unexplaine
 > hasn't settled yet, there are refunds and fees, and one batch covers two days. It would flag
 > anything it can't explain, as it does for another merchant's 1.8% shortfall."
 
-## 6. Evaluation against a baseline (3:50–4:20)
+## 6. Evaluation against a baseline (3:25–3:50)
 
 **Show:** the **Eval scorecard** page.
 
 **Say:**
-> "We wrote 36 questions on the planted scenarios and compared Paysight with a naive
-> text-to-SQL baseline that uses the same model and the same validator. Paysight gets 35 of 36
+> "We wrote 39 questions on the planted scenarios and compared Paysight with a naive
+> text-to-SQL baseline that uses the same model and the same validator. Paysight gets 38 of 39
 > fully right, against 12. Every number it stated was traceable to its own query results.
 > Paraphrased questions gave the same results. These are our own questions on synthetic data,
 > so this shows the design works as intended, not production accuracy. The one miss is in the
@@ -111,7 +122,27 @@ settling T+1, refunds and fees, the combined multi-day batch, and the unexplaine
 **Point at:** the summary table, the robustness section, and the failures list (the one
 Paysight miss).
 
-## 7. Limitations and close (4:20–4:40)
+## 7. One live question (3:50–4:20)
+
+**Show:** switch to the tab on port 8502. Point at the **LIVE** badge in the sidebar.
+**Role:** Leadership. **Ask:**
+`Which acquiring bank had the most technical payment failures in September, and when did they happen?`
+
+**Point at:** Kestrel Bank first, with its failure rate beside the count; the daily drop on
+17–18 September; card methods falling while UPI holds; `ACQ_TIMEOUT` jumping; the **Charts** tab.
+
+**Say:**
+> "Everything else replays recorded live calls for reproducibility; this one is live. It ranks
+> the acquirers, then works out when: Kestrel's card payments fell on 17 and 18 September
+> because of acquirer timeouts."
+
+**Fallback (if the Kestrel answer is slow or fails):** on the same live tab, switch the role to
+**Regional analyst (North)** and ask
+`How did our success rate change in October compared with September?` (it has no recording,
+so it only works live). Open the **Evidence** tab and point at `region IN ('north')` in the SQL:
+"The row filter was injected into the query by the validator; the model never wrote it."
+
+## 8. Limitations and close (4:20–4:40)
 
 **Show:** the README's limitations and "Path to production" sections.
 

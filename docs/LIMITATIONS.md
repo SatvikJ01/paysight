@@ -21,6 +21,18 @@ Honest limitations of Paysight. Every `TODO` in the code has a matching entry he
   one recording run with an API key (`LLM_MODE=record`); in replay mode it fails with a
   "No recorded response" message rather than guessing.
 
+## Precision and hourly timelines
+
+- **Mixed decimal places.** Most evidence stores percentages as numbers rounded to two decimals,
+  so 89.40 is sent as 89.4, and an answer can show "89.4%" next to "89.45%". New
+  segment-comparison evidence uses fixed two-decimal text (D36). Changing the older evidence
+  would invalidate every recorded narration, so it is left for the next re-recording.
+- **Long outages in short hourly windows.** The hourly timeline marks an outage window by robust
+  z-scores over the hours shown. When the outage covers a large share of them (S1: about 36 of
+  96 hours), the median baseline is pulled down and no window is marked. The answer then relies
+  on the daily anomaly window, the payment-method and failure-code comparison, and the hourly
+  rows. This affects B2 and the ranking drill-down alike.
+
 ## Context dimensions
 
 - Only `card_bin` declares a context dimension (`issuer_name`, D34). `merchant_name` →
@@ -29,7 +41,7 @@ Honest limitations of Paysight. Every `TODO` in the code has a matching entry he
 
 ## Evaluation
 
-- **Our own questions, on our own data.** The 36 questions, their gold SQL and the paraphrases
+- **Our own questions, on our own data.** The 39 questions, their gold SQL and the paraphrases
   were written by us against scenarios we planted. The results show that the system finds what
   it was designed to find; they do not measure accuracy on real enterprise data or on
   questions written by someone else.

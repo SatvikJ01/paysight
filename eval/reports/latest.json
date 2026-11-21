@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-11-21T17:23:49",
+  "generated_at": "2026-11-21T20:27:32",
   "mode": "replay",
   "model": "claude-sonnet-5-5",
-  "n_questions": 36,
+  "n_questions": 39,
   "summary": [
     {
       "metric": "Cases fully correct (%)",
-      "paysight": 97.2,
-      "baseline": 33.3
+      "paysight": 97.4,
+      "baseline": 30.8
     },
     {
       "metric": "Numeric accuracy (%)",
-      "paysight": 92.9,
-      "baseline": 57.1
+      "paysight": 94.1,
+      "baseline": 47.1
     },
     {
       "metric": "Driver recall@2 (%)",
@@ -32,12 +32,12 @@
     {
       "metric": "Behavior accuracy: answer (%)",
       "paysight": 100.0,
-      "baseline": 100.0
+      "baseline": 50.0
     },
     {
       "metric": "Behavior accuracy: clarify (%)",
       "paysight": 100.0,
-      "baseline": 33.3
+      "baseline": 25.0
     },
     {
       "metric": "Behavior accuracy: deny_access (%)",
@@ -72,32 +72,32 @@
     {
       "metric": "Grounding pass rate (%)",
       "paysight": 100.0,
-      "baseline": 39.1
+      "baseline": 44.0
     },
     {
       "metric": "Latency p50 (ms, this run)",
-      "paysight": 558.0,
-      "baseline": 155.0
+      "paysight": 338.0,
+      "baseline": 115.0
     },
     {
       "metric": "Latency p95 (ms, this run)",
-      "paysight": 4166.0,
-      "baseline": 414.0
+      "paysight": 3551.0,
+      "baseline": 278.0
     },
     {
       "metric": "LLM calls",
-      "paysight": 72,
-      "baseline": 72
+      "paysight": 78,
+      "baseline": 78
     },
     {
       "metric": "Tokens in / out",
-      "paysight": "382,522 / 55,737",
-      "baseline": "92,733 / 16,722"
+      "paysight": "414,276 / 60,668",
+      "baseline": "101,910 / 18,225"
     },
     {
       "metric": "Estimated cost (USD, recorded usage)",
-      "paysight": 0.873,
-      "baseline": 0.264
+      "paysight": 0.978,
+      "baseline": 0.293
     }
   ],
   "robustness": {
@@ -706,6 +706,51 @@
       "baseline_behavior": "deny_access",
       "paysight_sql": "ad_hoc",
       "intent": {}
+    },
+    {
+      "id": "segment_upi_vs_card_august",
+      "category": "comparison",
+      "role": "leadership",
+      "paysight": "pass",
+      "baseline": "fail",
+      "paysight_behavior": "answer",
+      "baseline_behavior": "error",
+      "paysight_sql": "governed",
+      "intent": {
+        "question_type": true,
+        "metric": true,
+        "window": true
+      }
+    },
+    {
+      "id": "period_compare_outside_data",
+      "category": "ambiguity",
+      "role": "leadership",
+      "paysight": "pass",
+      "baseline": "fail",
+      "paysight_behavior": "clarify",
+      "baseline_behavior": "answer",
+      "paysight_sql": "none",
+      "intent": {
+        "question_type": true,
+        "metric": true,
+        "window": true
+      }
+    },
+    {
+      "id": "ranking_when_kestrel_september",
+      "category": "anomaly_explain",
+      "role": "leadership",
+      "paysight": "pass",
+      "baseline": "fail",
+      "paysight_behavior": "answer",
+      "baseline_behavior": "answer",
+      "paysight_sql": "governed",
+      "intent": {
+        "question_type": true,
+        "metric": true,
+        "window": true
+      }
     }
   ],
   "failures": [
@@ -833,6 +878,21 @@
       "id": "adhoc_failed_latency_two_years",
       "system": "baseline",
       "reason": "numeric: no stated number matches gold 9206.14"
+    },
+    {
+      "id": "segment_upi_vs_card_august",
+      "system": "baseline",
+      "reason": "behavior: error (expected answer); numeric: no stated number matches gold 0.931111; numeric: no stated number matches gold 0.865865"
+    },
+    {
+      "id": "period_compare_outside_data",
+      "system": "baseline",
+      "reason": "behavior: answer (expected clarify); mentions: missing ['1 Aug 2026']"
+    },
+    {
+      "id": "ranking_when_kestrel_september",
+      "system": "baseline",
+      "reason": "numeric: no stated number matches gold 2776; mentions: missing  none of ['ACQ_TIMEOUT', 'timeout']"
     }
   ]
 }

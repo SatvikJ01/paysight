@@ -1,30 +1,30 @@
 # Paysight evaluation
 
-36 questions · mode `replay` · model `claude-sonnet-5-5` · generated 2026-11-21T17:23:49
+39 questions · mode `replay` · model `claude-sonnet-5-5` · generated 2026-11-21T20:27:32
 
 ## Paysight vs naive text-to-SQL baseline
 
 | Metric | Paysight | Baseline |
 |---|---|---|
-| Cases fully correct (%) | 97.2 | 33.3 |
-| Numeric accuracy (%) | 92.9 | 57.1 |
+| Cases fully correct (%) | 97.4 | 30.8 |
+| Numeric accuracy (%) | 94.1 | 47.1 |
 | Driver recall@2 (%) | 100.0 | 40.0 |
 | Root-cause checks passed (%) | 100.0 | 20.0 |
 | Anomaly window hit rate (%) | 100.0 | 100.0 |
-| Behavior accuracy: answer (%) | 100.0 | 100.0 |
-| Behavior accuracy: clarify (%) | 100.0 | 33.3 |
+| Behavior accuracy: answer (%) | 100.0 | 50.0 |
+| Behavior accuracy: clarify (%) | 100.0 | 25.0 |
 | Behavior accuracy: deny_access (%) | 100.0 | 33.3 |
 | Behavior accuracy: refuse_unsafe (%) | 100.0 | 100.0 |
 | Mentions (DQ, reconciliation, anomaly) (%) | 100.0 | 0.0 |
 | Intent stage: question_type (%) | 100.0 | – |
 | Intent stage: metric (%) | 100.0 | – |
 | Intent stage: window (%) | 100.0 | – |
-| Grounding pass rate (%) | 100.0 | 39.1 |
-| Latency p50 (ms, this run) | 558.0 | 155.0 |
-| Latency p95 (ms, this run) | 4166.0 | 414.0 |
-| LLM calls | 72 | 72 |
-| Tokens in / out | 382,522 / 55,737 | 92,733 / 16,722 |
-| Estimated cost (USD, recorded usage) | 0.873 | 0.264 |
+| Grounding pass rate (%) | 100.0 | 44.0 |
+| Latency p50 (ms, this run) | 338.0 | 115.0 |
+| Latency p95 (ms, this run) | 3551.0 | 278.0 |
+| LLM calls | 78 | 78 |
+| Tokens in / out | 414,276 / 60,668 | 101,910 / 18,225 |
+| Estimated cost (USD, recorded usage) | 0.978 | 0.293 |
 
 ## Phrasing robustness (Paysight)
 
@@ -81,6 +81,9 @@ Robustness score: **100.0%** of 8 question groups pass with every phrasing (the 
 | adhoc_retry_share | adhoc | pass | pass |
 | adhoc_novamart_median_ticket | adhoc | pass | fail |
 | adhoc_failed_latency_two_years | adhoc | fail | fail |
+| segment_upi_vs_card_august | comparison | pass | fail |
+| period_compare_outside_data | ambiguity | pass | fail |
+| ranking_when_kestrel_september | anomaly_explain | pass | fail |
 
 ## Failures
 
@@ -109,3 +112,6 @@ Robustness score: **100.0%** of 8 question groups pass with every phrasing (the 
 - **adhoc_novamart_median_ticket** (baseline): numeric: no stated number matches gold 5651.52
 - **adhoc_failed_latency_two_years** (paysight): numeric: no stated number matches gold 9206.14
 - **adhoc_failed_latency_two_years** (baseline): numeric: no stated number matches gold 9206.14
+- **segment_upi_vs_card_august** (baseline): behavior: error (expected answer); numeric: no stated number matches gold 0.931111; numeric: no stated number matches gold 0.865865
+- **period_compare_outside_data** (baseline): behavior: answer (expected clarify); mentions: missing ['1 Aug 2026']
+- **ranking_when_kestrel_september** (baseline): numeric: no stated number matches gold 2776; mentions: missing  none of ['ACQ_TIMEOUT', 'timeout']
