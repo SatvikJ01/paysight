@@ -381,6 +381,22 @@ def _apply_limit(tree: exp.Expression, cap: int) -> tuple[exp.Expression, str]:
     return tree, f"LIMIT {n}"
 
 
+def _break_ties(tree: exp.Expression) -> bool:
+    """Append every output column (by position) to a top-level ORDER BY.
+
+    ``ORDER BY failures DESC LIMIT 50`` with ties returns a different set and order of rows on
+    each run under parallel execution. Extra sort keys only decide between rows the query
+    already considers equal, so they never change what it asks for, and they make AI-written
+    queries reproducible (replay depends on it).
+    """
+    order = tree.args.get("order") if isinstance(tree, exp.Select) else None
+    if order is None or any(isinstance(p, exp.Star) for p in tree.expressions):
+        return False
+    for position in range(1, len(tree.expressions) + 1):
+        order.append("expressions", exp.Ordered(this=exp.Literal.number(position)))
+    return True
+
+
 # --------------------------------------------------------------------------------------------
 # Entry point
 # --------------------------------------------------------------------------------------------
@@ -476,6 +492,8 @@ def validate_sql(
     if rewritten is not None:
         try:
             rewritten, detail = _apply_limit(rewritten, limits.default_row_limit)
+            if _break_ties(rewritten):
+                detail += "; output columns appended to ORDER BY as tie-breakers"
             report.add("row_limit", "pass", detail)
         except _CheckFailedError as exc:
             report.add("row_limit", "fail", str(exc))

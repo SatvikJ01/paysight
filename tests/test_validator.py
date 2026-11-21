@@ -235,6 +235,31 @@ def test_missing_limit_is_injected(small_engine: Engine, policies: dict) -> None
     assert result.row_count == 10_000
 
 
+def test_ties_in_an_ordered_query_are_broken_deterministically(
+    small_engine: Engine, policies: dict
+) -> None:
+    """ORDER BY count DESC LIMIT n with ties must return the same rows every time (D36)."""
+    sql = (
+        f"SELECT acquirer_name, hour_of_day, COUNT(*) AS failures FROM v_attempts_clean "
+        f"WHERE {TW} AND status <> 'SUCCESS' GROUP BY 1, 2 ORDER BY failures DESC LIMIT 20"
+    )
+    result = small_engine.run_sql(sql, policies["leadership"])
+    assert result.ok
+    order_by = result.sql.split("ORDER BY", 1)[1]
+    assert [line.strip(" ,") for line in order_by.splitlines()[1:5]] == [
+        "failures DESC",
+        "1",
+        "2",
+        "3",
+    ]
+    row_limit = next(c for c in result.report.checks if c.name == "row_limit")
+    assert "tie-breakers" in row_limit.detail
+    unordered = small_engine.run_sql(
+        f"SELECT order_id FROM v_orders WHERE {TW} LIMIT 5", policies["leadership"]
+    )
+    assert "ORDER BY" not in unordered.sql  # no ORDER BY asked for, none added
+
+
 def test_oversized_limit_is_capped(small_engine: Engine, policies: dict) -> None:
     result = small_engine.run_sql(
         f"SELECT order_id FROM v_orders WHERE {TW} LIMIT 999999", policies["leadership"]
