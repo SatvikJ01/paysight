@@ -1,0 +1,276 @@
+# Paysight semantic layer: the governed vocabulary (SPEC §7).
+#
+# The LLM sees metrics and dimensions, never raw table names. Metric SQL fragments are trusted,
+# reviewed configuration; user- or LLM-supplied *values* never enter SQL as text (the compiler
+# builds them as typed literals with sqlglot).
+
+views:
+  v_attempts_clean:
+    description: Deduplicated payment attempts joined with merchant, method, acquirer and issuer.
+    grain: attempt
+    fact: true
+    time_column: created_at
+    pii_columns: [card_bin, customer_ref_hash]
+  v_orders:
+    description: One row per order (checkout). An order succeeds if any attempt succeeded.
+    grain: order
+    fact: true
+    time_column: created_at
+    pii_columns: []
+  v_settlements:
+    description: Settlement batches with merchant attributes.
+    grain: settlement_batch
+    fact: false
+    time_column: covered_from
+    pii_columns: []
+
+metrics:
+  - name: attempt_success_rate
+    description: Share of payment attempts that succeeded. The default meaning of "success rate".
+    synonyms: [success rate, sr, payment success rate, approval rate, auth rate, attempt sr]
+    kind: rate
+    view: v_attempts_clean
+    numerator_sql: "SUM(CASE WHEN status = 'SUCCESS' THEN 1 ELSE 0 END)"
+    denominator_sql: "COUNT(*)"
+    format: percent
+    caveats:
+      - Retries count as separate attempts, so this sits below the order-level success rate.
+    default_filters: []
+
+  - name: order_success_rate
+    description: Share of orders (checkouts) with at least one successful attempt.
+    synonyms: [order sr, checkout success rate, conversion rate, order-level success rate]
+    kind: rate
+    view: v_orders
+    numerator_sql: "SUM(CASE WHEN order_status = 'SUCCESS' THEN 1 ELSE 0 END)"
+    denominator_sql: "COUNT(*)"
+    format: percent
+    caveats:
+      - Dimensions that can change between retries (payment method) use the first attempt.
+    default_filters: []
+
+  - name: technical_success_rate
+    description: Successful attempts over attempts that were not abandoned by the customer.
+    synonyms: [technical sr, tsr, success rate excluding drop-offs]
+    kind: rate
+    view: v_attempts_clean
+    numerator_sql: "SUM(CASE WHEN status = 'SUCCESS' THEN 1 ELSE 0 END)"
+    denominator_sql: "SUM(CASE WHEN COALESCE(failure_category, '') <> 'customer_dropoff' THEN 1 ELSE 0 END)"
+    format: percent
+    caveats:
+      - Excludes customer drop-offs from the denominator, so it isolates system and issuer failures.
+    default_filters: []
+
+  - name: attempts
+    description: Number of payment attempts (deduplicated).
+    synonyms: [transactions, attempt count, volume, payment attempts, txns]
+    kind: count
+    view: v_attempts_clean
+    numerator_sql: "COUNT(*)"
+    format: integer
+    caveats: []
+    default_filters: []
+
+  - name: successful_attempts
+    description: Number of successful payment attempts.
+    synonyms: [successful payments, successes, approved transactions]
+    kind: count
+    view: v_attempts_clean
+    numerator_sql: "SUM(CASE WHEN status = 'SUCCESS' THEN 1 ELSE 0 END)"
+    format: integer
+    caveats: []
+    default_filters: []
+
+  - name: failed_attempts
+    description: Number of failed payment attempts.
+    synonyms: [failures, failed payments, declines, failed transactions]
+    kind: count
+    view: v_attempts_clean
+    numerator_sql: "SUM(CASE WHEN status = 'FAILED' THEN 1 ELSE 0 END)"
+    format: integer
+    caveats: []
+    default_filters: []
+
+  - name: orders
+    description: Number of orders (checkouts), each with one or more attempts.
+    synonyms: [order count, checkouts]
+    kind: count
+    view: v_orders
+    numerator_sql: "COUNT(*)"
+    format: integer
+    caveats: []
+    default_filters: []
+
+  - name: gmv_inr
+    description: Gross merchandise value, the sum of successful attempt amounts in INR.
+    synonyms: [gmv, gross merchandise value, processed value, sales, revenue]
+    kind: sum
+    view: v_attempts_clean
+    numerator_sql: "SUM(CASE WHEN status = 'SUCCESS' THEN amount_inr ELSE 0 END)"
+    format: inr
+    caveats: []
+    default_filters: []
+
+  - name: avg_ticket_inr
+    description: Average successful ticket size in INR (GMV per successful attempt).
+    synonyms: [average ticket, ats, average transaction size, aov]
+    kind: ratio
+    view: v_attempts_clean
+    numerator_sql: "SUM(CASE WHEN status = 'SUCCESS' THEN amount_inr ELSE 0 END)"
+    denominator_sql: "SUM(CASE WHEN status = 'SUCCESS' THEN 1 ELSE 0 END)"
+    format: inr
+    caveats: []
+    default_filters: []
+
+  - name: p95_latency_ms
+    description: 95th percentile authorization latency in milliseconds.
+    synonyms: [latency, p95 latency, response time]
+    kind: quantile
+    view: v_attempts_clean
+    numerator_sql: "QUANTILE_CONT(latency_ms, 0.95)"
+    format: milliseconds
+    caveats: []
+    default_filters: []
+
+  - name: settled_gross_inr
+    description: Gross amount in settlement batches covering the period, in INR.
+    synonyms: [settled amount, settlements, settled gmv, settlement gross]
+    kind: sum
+    view: v_settlements
+    numerator_sql: "SUM(gross_amount_inr)"
+    format: inr
+    caveats:
+      - Settlement is normally T+1, so the most recent dates may not be settled yet.
+    default_filters: []
+
+  - name: settled_net_inr
+    description: Net settled amount (gross minus refunds and fees) in INR.
+    synonyms: [net settlement, net payout, payout]
+    kind: sum
+    view: v_settlements
+    numerator_sql: "SUM(net_amount_inr)"
+    format: inr
+    caveats:
+      - Settlement is normally T+1, so the most recent dates may not be settled yet.
+    default_filters: []
+
+# Dimension `sources` map each view to its column. A dimension is unavailable on views it does
+# not list.
+_categorical_ops: &categorical ["=", "!=", in, not_in]
+_ordinal_ops: &ordinal ["=", "!=", in, not_in, between, ">=", "<="]
+
+dimensions:
+  - name: payment_method
+    description: Payment method (UPI, CREDIT_CARD, DEBIT_CARD, CARD_EMI, NETBANKING, WALLET).
+    synonyms: [method, payment mode, instrument, pay mode]
+    sources: {v_attempts_clean: payment_method, v_orders: payment_method}
+    sensitivity: public
+    allowed_ops: *categorical
+  - name: method_family
+    description: Payment method family (upi, card, netbanking, wallet).
+    synonyms: [family, method type]
+    sources: {v_attempts_clean: method_family, v_orders: method_family}
+    sensitivity: public
+    allowed_ops: *categorical
+  - name: channel
+    description: Online checkout or in-store POS terminal.
+    synonyms: [online vs pos, sales channel]
+    sources: {v_attempts_clean: channel, v_orders: channel}
+    sensitivity: public
+    allowed_ops: *categorical
+  - name: acquirer_name
+    description: Acquiring bank that processed the attempt.
+    synonyms: [acquirer, acquiring bank, processor]
+    sources: {v_attempts_clean: acquirer_name}
+    sensitivity: internal
+    allowed_ops: *categorical
+  - name: issuer_name
+    description: Issuing bank, UPI PSP or wallet.
+    synonyms: [issuer, issuing bank, bank, psp, upi app]
+    sources: {v_attempts_clean: issuer_name}
+    sensitivity: internal
+    allowed_ops: *categorical
+  - name: issuer_type
+    description: Kind of issuer (bank, upi_psp, wallet).
+    synonyms: []
+    sources: {v_attempts_clean: issuer_type}
+    sensitivity: internal
+    allowed_ops: *categorical
+  - name: merchant_name
+    description: Merchant.
+    synonyms: [merchant, store, seller]
+    sources: {v_attempts_clean: merchant_name, v_orders: merchant_name, v_settlements: merchant_name}
+    sensitivity: internal
+    allowed_ops: *categorical
+  - name: merchant_group
+    description: Merchant group or chain (e.g. NovaMart).
+    synonyms: [group, chain, brand, merchant group]
+    sources: {v_attempts_clean: merchant_group, v_orders: merchant_group, v_settlements: merchant_group}
+    sensitivity: internal
+    allowed_ops: *categorical
+  - name: merchant_tier
+    description: Merchant tier (enterprise, mid_market, smb).
+    synonyms: [tier, segment, merchant size]
+    sources: {v_attempts_clean: merchant_tier, v_orders: merchant_tier, v_settlements: merchant_tier}
+    sensitivity: internal
+    allowed_ops: *categorical
+  - name: category
+    description: Merchant category (grocery, electronics, fashion, travel, fuel, ...).
+    synonyms: [merchant category, vertical, industry, mcc]
+    sources: {v_attempts_clean: category, v_orders: category, v_settlements: category}
+    sensitivity: internal
+    allowed_ops: *categorical
+  - name: region
+    description: Merchant region (north, south, east, west).
+    synonyms: [zone, geography]
+    sources: {v_attempts_clean: region, v_orders: region, v_settlements: region}
+    sensitivity: internal
+    allowed_ops: *categorical
+  - name: city
+    description: Merchant city.
+    synonyms: [location, town]
+    sources: {v_attempts_clean: city, v_orders: city, v_settlements: city}
+    sensitivity: internal
+    allowed_ops: *categorical
+  - name: failure_category
+    description: Failure family (customer_dropoff, issuer_decline, technical, risk_decline).
+    synonyms: [failure type, decline type, failure reason group]
+    sources: {v_attempts_clean: failure_category}
+    sensitivity: public
+    allowed_ops: *categorical
+  - name: failure_code
+    description: Specific failure code (e.g. ACQ_TIMEOUT, ISSUER_RISK_DECLINE).
+    synonyms: [error code, decline code, response code, failure reason]
+    sources: {v_attempts_clean: failure_code}
+    sensitivity: internal
+    allowed_ops: *categorical
+  - name: hour_of_day
+    description: Hour of day (0-23, IST) of the attempt or the order's first attempt.
+    synonyms: [hour, time of day]
+    sources: {v_attempts_clean: hour_of_day, v_orders: hour_of_day}
+    sensitivity: public
+    allowed_ops: *ordinal
+  - name: day_of_week
+    description: Day of the week (Monday ... Sunday).
+    synonyms: [weekday, day]
+    sources: {v_attempts_clean: day_of_week, v_orders: day_of_week}
+    sensitivity: public
+    allowed_ops: *categorical
+  - name: date
+    description: Transaction date (IST); for settlements, the first covered transaction date.
+    synonyms: [day, txn date, transaction date]
+    sources: {v_attempts_clean: txn_date, v_orders: txn_date, v_settlements: covered_from}
+    sensitivity: public
+    allowed_ops: *ordinal
+  - name: card_bin
+    description: First six digits of the card number (card methods only).
+    synonyms: [bin, card bin, bins]
+    sources: {v_attempts_clean: card_bin}
+    sensitivity: pii
+    allowed_ops: *categorical
+  - name: customer_ref_hash
+    description: Pseudonymous customer reference.
+    synonyms: [customer, customer id, customer reference]
+    sources: {v_attempts_clean: customer_ref_hash}
+    sensitivity: pii
+    allowed_ops: *categorical
