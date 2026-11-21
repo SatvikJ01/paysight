@@ -72,7 +72,7 @@ To use a live model, copy `.env.example` to `.env` and set one key (`ANTHROPIC_A
   measured answer key. 39 questions score Paysight against a naive text-to-SQL baseline that
   uses the same model and the same validator.
 - **Deterministic and reviewable.** Seeded data, a fixed `AS_OF_DATE` and recorded LLM
-  responses mean a reviewer with no key sees exactly what we saw. Each answer shows its plan,
+  responses mean a reviewer with no key sees exactly what I saw. Each answer shows its plan,
   SQL, validation reports, trace and a "Governed" or "Ad-hoc SQL" badge.
 
 ## How it works
@@ -222,14 +222,14 @@ report: [eval/reports/latest.md](eval/reports/latest.md).
 
 **Read these numbers with their limits in mind:**
 
-- **We wrote the 39 questions ourselves**, on synthetic data where we planted the answers.
+- **I wrote the 39 questions myself**, on synthetic data where I planted the answers.
   This shows that the system finds what it was designed to find. It is not a measure of
   accuracy on real, messy enterprise data.
 - **The baseline is deliberately naive**: the raw view schema and a few SQL rules, with no
   semantic layer, playbooks, statistics or grounding. It does use the same model
   (`claude-sonnet-5-5`), the same validator and the same role filters, so the gap reflects the
   architecture rather than the model. A stronger baseline would narrow it.
-- **We wrote the paraphrases ourselves too**, two per question for eight questions. 100%
+- **I wrote the paraphrases myself too**, two per question for eight questions. 100%
   robustness on 24 phrasings is encouraging, not proof.
 - **Three cases came from manual testing.** Live testing found two gaps (a segment comparison
   treated as a period comparison, and a ranking that ignored "when"). They were fixed in the
@@ -237,7 +237,7 @@ report: [eval/reports/latest.md](eval/reports/latest.md).
   ([D36](docs/DECISIONS.md#d36-segment-comparisons-period-options-that-keep-the-stated-period-and-timing-for-rankings)).
 - **One miss.** On "average authorization latency of failed payments over the past two years",
   the ad-hoc SQL was repaired correctly after hitting the 400-day cap, but it grouped by failure
-  category, so the answer gave four averages instead of the overall one. We kept that recording
+  category, so the answer gave four averages instead of the overall one. I kept that recording
   rather than re-running until it passed. See
   [D34](docs/DECISIONS.md#d34-fixes-from-the-first-recorded-eval-run-entity-context-not-test-changes).
 - Some checks need structure only Paysight produces (a mix share needs a decomposition), so

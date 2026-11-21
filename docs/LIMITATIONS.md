@@ -44,8 +44,8 @@ Honest limitations of Paysight. Every `TODO` in the code has a matching entry he
 
 ## Evaluation
 
-- **Our own questions, on our own data.** The 39 questions, their gold SQL and the paraphrases
-  were written by us against scenarios we planted. The results show that the system finds what
+- **My own questions, on my own data.** The 39 questions, their gold SQL and the paraphrases
+  were written by me against scenarios I planted. The results show that the system finds what
   it was designed to find; they do not measure accuracy on real enterprise data or on
   questions written by someone else.
 - **A deliberately naive baseline.** It shares the model, validator and role filters but has

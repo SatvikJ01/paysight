@@ -446,7 +446,7 @@ the system without touching the checks.
   hit the 400-day cap, the second passed), but this time the SQL writer grouped failed
   payments by failure category and the answer gives four per-category averages rather than
   the overall one, so the numeric check fails. That is model variance on an open-ended SQL
-  task; we kept the recording instead of re-rolling until it passed, and the report shows it.
+  task; I kept the recording instead of re-rolling until it passed, and the report shows it.
 
 ## D35. Pipeline counters live in `Evidence.meta`, never in `key_numbers`
 
