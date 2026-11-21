@@ -1,0 +1,25 @@
+# Role-based access policies (SPEC §3, §8). Roles are simulated; a real deployment maps them
+# from SSO. Enforced twice: at intent time (pre-check) and in the SQL validator (AST rewrite).
+
+roles:
+  leadership:
+    label: Leadership
+    description: All regions. No access to personal or card data (card BINs, customer references).
+    allowed_views: [v_attempts_clean, v_orders, v_settlements]
+    denied_sensitivities: [pii]
+    row_filters: {}
+
+  analyst_north:
+    label: Regional analyst (North)
+    description: North-region merchants only. No access to personal or card data.
+    allowed_views: [v_attempts_clean, v_orders, v_settlements]
+    denied_sensitivities: [pii]
+    row_filters:
+      region: [north]
+
+  risk_analyst:
+    label: Risk analyst
+    description: All regions, including card BINs and customer references for risk investigations.
+    allowed_views: [v_attempts_clean, v_orders, v_settlements]
+    denied_sensitivities: []
+    row_filters: {}
