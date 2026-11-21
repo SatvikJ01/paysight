@@ -15,6 +15,7 @@ from paysight.llm.replay import LLMClient
 from paysight.observability.trace import Trace
 from paysight.orchestrator.models import AdhocSQL, Evidence
 from paysight.orchestrator.playbooks import PlanError, RunContext, _clean
+from paysight.semantic.models import Filter
 
 ADHOC_CAVEAT = (
     "Part of this answer uses custom SQL written by the AI, outside the governed semantic layer. "
@@ -39,18 +40,43 @@ def view_schema(ctx: RunContext) -> tuple[str, str]:
     return ", ".join(views), "\n".join(lines)
 
 
+def resolved_filters(ctx: RunContext, filters: list[Filter]) -> str:
+    """The question's entities as the semantic layer resolved them, as column predicates.
+
+    Names like "NovaMart" are ambiguous in raw SQL (merchant name or merchant group?). The
+    intent step already resolved them against the data, so the SQL writer gets the answer
+    instead of guessing.
+    """
+    lines = []
+    for f in filters:
+        dim = ctx.layer.dimension(f.dimension)
+        cols = ", ".join(f"{view}.{col}" for view, col in dim.sources.items())
+        values = ", ".join(repr(v) for v in f.values)
+        lines.append(f"- {f.dimension} {f.op} {values} (column: {cols})")
+    if not lines:
+        return "none"
+    return "\n".join(lines)
+
+
 def _failures(result: QueryResult) -> str:
     reasons = [f"{c.name}: {c.detail}" for c in result.report.failures]
     return "; ".join(reasons) or result.error or result.status
 
 
 def run_adhoc(
-    ctx: RunContext, llm: LLMClient, trace: Trace, *, question: str, reason: str
+    ctx: RunContext,
+    llm: LLMClient,
+    trace: Trace,
+    *,
+    question: str,
+    reason: str,
+    filters: list[Filter] | None = None,
 ) -> Evidence:
     """Ask the LLM for SQL, validate and run it (one repair), and record ad-hoc evidence."""
     views, schema = view_schema(ctx)
     prompt = load_prompt("adhoc_sql")
     as_of = ctx.settings.data.as_of_date.isoformat()
+    entities = resolved_filters(ctx, filters or [])
     attempts: list[tuple[AdhocSQL, QueryResult]] = []
     errors = ""
     for attempt in (1, 2):
@@ -62,6 +88,7 @@ def run_adhoc(
                 views=views,
                 view_schema=schema,
                 as_of=as_of,
+                entities=entities,
                 errors=errors,
             )
             trace.add_usage(step, usage)
@@ -102,7 +129,7 @@ def run_adhoc(
         runtime_ms=sum(a[1].runtime_ms for a in attempts),
         cache_hits=int(result.cache_hit),
         datasets=[v for v in ctx.engine.catalog if v in (result.sql or "")],
-        filters=[],
+        filters=[f"{f.dimension} {f.op} {', '.join(map(str, f.values))}" for f in filters or []],
         time_window="as written in the SQL",
         result=rows,
         key_numbers=key,

@@ -114,15 +114,14 @@ class Paysight:
         ctx: RunContext,
         question: str,
         reason: str,
-        windows: planner.Windows,
+        scope: Scope,
         trace: Trace,
         result: AskResult,
-        extras: list,
     ) -> None:
         """SPEC §9.6: answer with validated, AI-written SQL, then scan data quality."""
-        result.plan = plan_steps("adhoc", extras, [])
-        run_adhoc(ctx, self.llm, trace, question=question, reason=reason)
-        dq_step(ctx, windows.current, [], [])
+        result.plan = plan_steps("adhoc", scope.extra_steps, [])
+        run_adhoc(ctx, self.llm, trace, question=question, reason=reason, filters=scope.filters)
+        dq_step(ctx, scope.current, [], [])
 
     def _run(
         self,
@@ -233,21 +232,13 @@ class Paysight:
         with trace.step(f"playbook:{qtype}") as step:
             try:
                 if intent.needs_custom_sql:
-                    self._adhoc(
-                        ctx,
-                        question,
-                        intent.custom_sql_reason or "",
-                        windows,
-                        trace,
-                        result,
-                        extras,
-                    )
+                    self._adhoc(ctx, question, intent.custom_sql_reason or "", scope, trace, result)
                 else:
                     try:
                         RUNNERS[qtype](ctx, scope)
                     except NotExpressibleError as exc:
                         ctx.evidence.clear()
-                        self._adhoc(ctx, question, str(exc), windows, trace, result, extras)
+                        self._adhoc(ctx, question, str(exc), scope, trace, result)
             except (AnalysisError, PlanError) as exc:
                 step.status = "error"
                 step.summary = str(exc)

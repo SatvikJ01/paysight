@@ -85,6 +85,7 @@ def test_first_sql_blocked_then_repaired(small_engine, tmp_path) -> None:
     assert 0 < adhoc.key_numbers["retry_share"] < 0.2
     assert "YOUR PREVIOUS SQL FAILED VALIDATION" in seen["adhoc_prompts"][1]
     assert result.confidence.level != "High"
+    assert result.sql_source == "ad_hoc"
     assert any("custom SQL written by the AI" in c for c in result.caveats)
     assert [s.name for s in result.plan][:1] == ["adhoc_sql"]
     trace = json.loads(Path(result.trace_path).read_text())
@@ -118,3 +119,19 @@ def test_schema_hides_columns_the_role_cannot_use(small_engine, tmp_path, role, 
     app, _, seen = _build(small_engine, tmp_path, CUSTOM, [GOOD])
     app.ask("What share of October orders needed more than one attempt?", role)
     assert bool(re.search(r"\bcard_bin\b", seen["adhoc_prompts"][0])) is visible
+
+
+def test_resolved_entities_reach_the_sql_writer(small_engine, tmp_path) -> None:
+    intent = IntentResult(
+        **CUSTOM.model_dump(exclude={"filters"}),
+        filters=[{"dimension": "merchant_group", "op": "=", "values": ["novamart"]}],
+    )
+    app, _, seen = _build(small_engine, tmp_path, intent, [GOOD])
+    result = app.ask("What share of NovaMart's October orders needed a retry?", "leadership")
+    assert result.kind == "answer", result.message
+    # Resolved against the data ("novamart" -> "NovaMart") and named with its column.
+    assert (
+        "merchant_group = 'NovaMart' (column: v_attempts_clean.merchant_group"
+        in (seen["adhoc_prompts"][0])
+    )
+    assert result.evidence[0].filters == ["merchant_group = NovaMart"]
