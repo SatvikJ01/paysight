@@ -1,0 +1,108 @@
+{
+  "key": "5e2b408ac0753a5dfdffaca4a04347249ad2ad272416693a07a70a2a8753948c",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "'Success rate' means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "The requested period is 17 Sep 2026, compared with 16 Sep 2026 (the immediately preceding period of equal length). The detailed analysis uses a wider window, 17-18 Sep against a 10-16 Sep baseline, because the anomaly spans both days."
+    ],
+    "caveats": [
+      "The comparison window covers 17-18 Sep, because the incident continued into 18 Sep. The question asked about 17 Sep, so figures for the window include 18 Sep.",
+      "The 716 excess failed attempts and 2,229 affected attempts are measured against a reference rate of 86.87% for Kestrel Bank card methods in 10-16 Sep.",
+      "The hour-of-day view mixes all acquirers and is noisy at low volumes. The acquirer-level and hourly Kestrel views are better evidence for timing."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "Across 17-18 Sep the overall attempt success rate was 86.98% on 22,790 attempts, versus 90.07% on 83,268 attempts in the 10-16 Sep baseline. That is a 3.1pp fall, and it is statistically and practically significant."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The daily series flags 17-18 Sep as a drop window. The lowest day was 18 Sep at 86.66%, against a median daily rate of 89.72%."
+      },
+      {
+        "evidence_ids": [
+          "E3",
+          "E10"
+        ],
+        "text": "The drop is concentrated in one acquirer. Kestrel Bank's success rate fell 11.54pp, from 90.03% to 78.49%. Northstar Bank (-0.44pp), Meridian Bank (+0.27pp) and Saffron Bank (+0.24pp) showed no significant change."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "Within Kestrel Bank, only card methods were affected. Debit card fell 30.11pp (86.42% to 56.31%), credit card fell 28.71pp (88.64% to 59.94%) and card EMI fell 23.87pp (80.67% to 56.8%). UPI, wallet and netbanking showed no significant change."
+      },
+      {
+        "evidence_ids": [
+          "E5"
+        ],
+        "text": "For Kestrel Bank card methods, the ACQ_TIMEOUT failure code rose from 0.26 to 32.27 per 100 attempts (803 failures in the current window). Other failure codes were flat or lower."
+      },
+      {
+        "evidence_ids": [
+          "E9"
+        ],
+        "text": "Across all traffic, ACQ_TIMEOUT rose from 0.08 to 3.58 per 100 attempts (815 failures in the current window). It is the only failure code with a meaningful increase."
+      },
+      {
+        "evidence_ids": [
+          "E6"
+        ],
+        "text": "The hourly timeline for Kestrel Bank card methods shows the problem running from 2026-09-17 10:00 to 2026-09-18 22:00, about 36 hours. The worst hour was 2026-09-18 02:00, with a 36.36% success rate against a reference of 86.87%."
+      },
+      {
+        "evidence_ids": [
+          "E6"
+        ],
+        "text": "Impact on Kestrel Bank card methods: 2,229 attempts were affected, with about 716 excess failed attempts compared with the reference rate."
+      },
+      {
+        "evidence_ids": [
+          "E7"
+        ],
+        "text": "The data-quality scan found no issues (0 findings) for the window."
+      }
+    ],
+    "headline": "Yes. An incident hit card payments routed through Kestrel Bank from about 10:00 on 17 Sep and continued through 18 Sep. Overall success rate fell 3.1pp, from 90.07% to 86.98%, versus the 10-16 Sep baseline.",
+    "hypotheses": [
+      {
+        "confidence": "high",
+        "how_to_verify": "Check with Kestrel Bank and Paysight's own routing and monitoring logs for incident notices, latency or timeout alerts, and the exact start and recovery times around 17 Sep 10:00 and 18 Sep 22:00.",
+        "rationale": "The drop is isolated to one acquirer and to its card methods. Failures are almost entirely ACQ_TIMEOUT, a technical acquirer-side timeout code. Customer drop-off, issuer declines and risk declines did not rise. Other acquirers and Kestrel's UPI, wallet and netbanking were unaffected.",
+        "text": "A technical problem on the Kestrel Bank acquiring side, such as connectivity or processing degradation for card transactions, caused the incident."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "A technical problem on the Kestrel Bank acquiring side, such as connectivity or processing degradation for card transactions, caused the incident.",
+        "rationale": "The evidence points to an acquirer-side timeout issue, but only the acquirer or routing logs can confirm it.",
+        "text": "Confirm the root cause and the recovery time with Kestrel Bank, and get an incident report covering 17 Sep 10:00 to 18 Sep 22:00."
+      },
+      {
+        "linked_fact_or_hypothesis": "For Kestrel Bank card methods, the ACQ_TIMEOUT failure code rose from 0.26 to 32.27 per 100 attempts (803 failures in the current window). Other failure codes were flat or lower.",
+        "rationale": "The incident ran for about 36 hours and caused about 716 excess failed attempts on Kestrel Bank card methods. Faster detection and re-routing would shorten such events.",
+        "text": "Set up an alert on ACQ_TIMEOUT per 100 attempts for each acquirer and payment method, and review failover or re-routing of card traffic away from a degraded acquirer."
+      },
+      {
+        "linked_fact_or_hypothesis": "Impact on Kestrel Bank card methods: 2,229 attempts were affected, with about 716 excess failed attempts compared with the reference rate.",
+        "rationale": "Failed card attempts on Kestrel Bank in this window were technical failures, so some of those customers may still be recoverable.",
+        "text": "Review affected merchants for retry or recovery options, such as prompting customers to retry or offering UPI as an alternative, for failed card attempts in the window."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 7144,
+    "output_tokens": 2099
+  }
+}

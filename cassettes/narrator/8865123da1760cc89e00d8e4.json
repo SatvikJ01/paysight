@@ -1,0 +1,102 @@
+{
+  "key": "8865123da1760cc89e00d8e468f0421da039e74021ac5178b8cb2bfffbfba507",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "'Success rate' means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "Period analysed: 1 Oct 2026 to 31 Oct 2026, compared against the preceding window of 31 Aug to 30 Sep 2026."
+    ],
+    "caveats": [
+      "Duplicate records on 12 Oct: 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts, +3.0%). Paysight counts each attempt once and kept the first ingestion.",
+      "Volume spike from 18 Oct to 31 Oct: attempt volume was about 39% above the usual weekday level over 14 days. Sales and data gaps both look like this, so check before comparing totals across this period. It is not treated as a data error by itself.",
+      "Failure-code figures are per 100 attempts, not raw counts, because attempt volumes differ between the two periods.",
+      "The change of 0.42pp is statistically significant but small; the lowest daily rate in the window (18 Sep) falls before October."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "October 2026 attempt success rate was 89.23% (384,193 successes out of 430,580 attempts), versus 89.65% (326,607 out of 364,324) for 31 Aug–30 Sep. That is a fall of 0.42pp."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "The 0.42pp change is statistically significant (p-value 1.25e-09; confidence ranges 89.55%–89.75% before and 89.13%–89.32% now, which do not overlap) but is not flagged as practically significant."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Across the 62 days from 31 Aug to 31 Oct, the median daily success rate was 89.76%. The highest day was 16 Oct at 90.65%, and the lowest day in the window was 18 Sep at 86.66%, which is outside October."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "The segment scan ranks merchant group as the dimension that concentrates the change most. NovaMart's rate fell from 89.5% to 86.77%."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "For NovaMart, the hours with a statistically significant drop were 0, 8, 9, 10, 11, 12, 16, 17, 18, 19, 21, 22 and 23. For example, hour 0 fell from 93.02% to 86.92% (-6.1pp) and hour 9 fell from 92.12% to 86.44% (-5.67pp). Overnight hours with fewer attempts (e.g. hours 4–6) also moved down but were not significant."
+      },
+      {
+        "evidence_ids": [
+          "E6"
+        ],
+        "text": "NovaMart failures per 100 attempts rose for several codes: AUTH_3DS_ABANDONED went from 0.49 to 1.72, EMI_NOT_ELIGIBLE from 0.17 to 1.18, DO_NOT_HONOR from 0.64 to 1.55, ISSUER_RISK_DECLINE from 0.12 to 0.80, and INSUFFICIENT_FUNDS from 0.77 to 1.40. Some customer drop-off codes fell, such as UPI_COLLECT_EXPIRED (1.32 to 0.58) and NB_SESSION_ABANDONED (0.85 to 0.37)."
+      },
+      {
+        "evidence_ids": [
+          "E7"
+        ],
+        "text": "Attempt volume was about 39% above the usual weekday level from 18 Oct to 31 Oct, and 341 duplicate records on 12 Oct were removed (11,704 raw rows vs 11,363 unique attempts)."
+      }
+    ],
+    "headline": "October's attempt success rate was 89.2%, down 0.42pp from 89.7% in the prior month; the dip is small but statistically real, and NovaMart is where it concentrates.",
+    "hypotheses": [
+      {
+        "confidence": "med",
+        "how_to_verify": "Compare NovaMart's daily rate and payment-method mix before and after 18 Oct, and confirm with the merchant team whether a sale or EMI offer ran in that period.",
+        "rationale": "NovaMart is the top-ranked segment, the volume spike starts on 18 Oct, and the failure codes that grew most (3DS abandonment, EMI not eligible, issuer declines and risk declines) are typical of promotional, EMI-heavy traffic.",
+        "text": "A NovaMart event or sale in the second half of October (higher volume, more EMI and 3-D Secure traffic) pulled NovaMart's success rate down and, because of its size, nudged the overall rate lower."
+      },
+      {
+        "confidence": "low",
+        "how_to_verify": "Break NovaMart failures by issuer and payment method, and review 3DS authentication flow completion rates and EMI eligibility rules for the affected hours.",
+        "rationale": "The largest increases per 100 attempts are in customer drop-off and issuer/risk decline codes, while technical codes such as ISSUER_UNAVAILABLE rose only slightly (0.16 to 0.51) and some UPI technical codes fell.",
+        "text": "Increased 3-D Secure friction and issuer/risk declines at NovaMart are driving the extra failures rather than a technical outage."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "The segment scan ranks merchant group as the dimension that concentrates the change most. NovaMart's rate fell from 89.5% to 86.77%.",
+        "rationale": "NovaMart is the segment where the overall decline concentrates, and the heatmap and hourly views can show whether it is tied to specific dates or hours.",
+        "text": "Investigate NovaMart's October performance first: split its success rate by payment method, issuer and date, focusing on the hours with significant drops."
+      },
+      {
+        "linked_fact_or_hypothesis": "NovaMart failures per 100 attempts rose for several codes: AUTH_3DS_ABANDONED went from 0.49 to 1.72, EMI_NOT_ELIGIBLE from 0.17 to 1.18, DO_NOT_HONOR from 0.64 to 1.55, ISSUER_RISK_DECLINE from 0.12 to 0.80, and INSUFFICIENT_FUNDS from 0.77 to 1.40. Some customer drop-off codes fell, such as UPI_COLLECT_EXPIRED (1.32 to 0.58) and NB_SESSION_ABANDONED (0.85 to 0.37).",
+        "rationale": "These two codes show some of the largest increases per 100 attempts.",
+        "text": "Review the 3-D Secure flow and EMI eligibility messaging for NovaMart checkouts to reduce abandonment and 'EMI not eligible' failures."
+      },
+      {
+        "linked_fact_or_hypothesis": "A NovaMart event or sale in the second half of October (higher volume, more EMI and 3-D Secure traffic) pulled NovaMart's success rate down and, because of its size, nudged the overall rate lower.",
+        "rationale": "A volume spike can reflect real events or data gaps, and it changes the traffic mix being compared.",
+        "text": "Confirm with the business whether a sale or campaign drove the volume rise from 18 Oct before drawing conclusions about the rate change."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 5520,
+    "output_tokens": 2442
+  }
+}

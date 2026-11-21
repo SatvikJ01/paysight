@@ -1,0 +1,104 @@
+{
+  "key": "894d91ece01ac3937b6662d0d0962a6d7b43dd5690a10339720adce36390c91c",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "'Success rate' means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "The period analysed is 18 Sep 2026. The headline day-level rate (76.75%) is compared with the preceding day, while the significance tests compare 17-18 Sep with the reference window 10-16 Sep."
+    ],
+    "caveats": [],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The card success rate on 18 Sep was 76.75%, the lowest of the 22 days shown. The median daily rate was 86.72% and the highest day was 12 Sep at 87.97%."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "Across 17-18 Sep, the card success rate fell 9.24pp from 87.0% to 77.75%, compared with 10-16 Sep (7,956 attempts vs 28,445). The change is statistically and practically significant."
+      },
+      {
+        "evidence_ids": [
+          "E3",
+          "E10"
+        ],
+        "text": "Kestrel Bank was the segment that concentrated the drop. Its card success rate fell from 86.87% to 57.8%, a fall of 29.07pp. Other acquirers moved by about 1.5pp or less, and none of those changes were significant (Northstar Bank -1.45pp, Meridian Bank +0.8pp, Saffron Bank -0.34pp)."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "Within Kestrel Bank, all three card methods fell sharply: debit cards by 30.11pp to 56.31%, credit cards by 28.71pp to 59.94%, and EMI cards by 23.87pp to 56.8%."
+      },
+      {
+        "evidence_ids": [
+          "E5"
+        ],
+        "text": "For Kestrel Bank cards, acquirer timeouts (ACQ_TIMEOUT) rose from 0.26 to 32.27 per 100 attempts (803 failures in the current window). Failure codes for customer drop-off and issuer declines did not rise."
+      },
+      {
+        "evidence_ids": [
+          "E9"
+        ],
+        "text": "Across all card payments, ACQ_TIMEOUT rose from 0.24 to 10.24 per 100 attempts (815 failures). No other failure code moved by more than about 0.3 per 100 attempts."
+      },
+      {
+        "evidence_ids": [
+          "E6"
+        ],
+        "text": "The Kestrel Bank card problem ran from 17 Sep 10:00 to 18 Sep 22:00 (36 hours). The worst hour was 18 Sep 02:00 at a 36.36% success rate, against a reference of 86.87%. About 716 excess failed attempts occurred out of 2,229 affected attempts."
+      },
+      {
+        "evidence_ids": [
+          "E8"
+        ],
+        "text": "Across all card payments, hours from 10:00 to 23:00 (and 08:00) showed significant drops against the reference week. The worst hour of day was 12:00, down 13.64pp."
+      },
+      {
+        "evidence_ids": [
+          "E7"
+        ],
+        "text": "The data-quality scan found no issues for 17-18 Sep."
+      }
+    ],
+    "headline": "Card success rate on 18 Sep was 76.75%, the lowest day in the 22-day window (median 86.72%). The drop is concentrated in Kestrel Bank, where a card problem that began on 17 Sep 10:00 ran until 18 Sep 22:00.",
+    "hypotheses": [
+      {
+        "confidence": "high",
+        "how_to_verify": "Ask Kestrel Bank for their incident log for 17 Sep 10:00 to 18 Sep 22:00 and compare it with the timeout timeline. Check gateway logs for the same window.",
+        "rationale": "The decline is concentrated in one acquirer across debit, credit and EMI cards. The only failure code that rose materially is the acquirer timeout code, and other acquirers were unaffected.",
+        "text": "A Kestrel Bank acquirer-side technical problem, such as an outage or connectivity degradation, caused the drop."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "A Kestrel Bank acquirer-side technical problem, such as an outage or connectivity degradation, caused the drop.",
+        "rationale": "Acquirer timeouts and the Kestrel-only drop point to an acquirer-side issue that needs confirmation and a fix.",
+        "text": "Raise an incident with Kestrel Bank and request a root-cause report for 17 Sep 10:00 to 18 Sep 22:00."
+      },
+      {
+        "linked_fact_or_hypothesis": "The Kestrel Bank card problem ran from 17 Sep 10:00 to 18 Sep 22:00 (36 hours). The worst hour was 18 Sep 02:00 at a 36.36% success rate, against a reference of 86.87%. About 716 excess failed attempts occurred out of 2,229 affected attempts.",
+        "rationale": "The problem ran for 36 hours; faster detection and rerouting would limit the roughly 716 excess failed attempts.",
+        "text": "Set up a per-acquirer alert on acquirer timeout rate and hourly success rate, and consider routing card traffic to healthy acquirers during future Kestrel degradations."
+      },
+      {
+        "linked_fact_or_hypothesis": "The Kestrel Bank card problem ran from 17 Sep 10:00 to 18 Sep 22:00 (36 hours). The worst hour was 18 Sep 02:00 at a 36.36% success rate, against a reference of 86.87%. About 716 excess failed attempts occurred out of 2,229 affected attempts.",
+        "rationale": "Success rate counts each retry as a separate attempt, so lost orders are not visible in this analysis.",
+        "text": "Check whether customers who failed during the window retried successfully or were lost, and consider outreach for high-value lost orders."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 2075,
+    "input_tokens": 6991,
+    "output_tokens": 1923
+  }
+}

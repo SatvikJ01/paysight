@@ -1,0 +1,108 @@
+{
+  "key": "5eb2ac8c9cbfa7f7f99612c68c268460834b250f945fcfeff23eb9d6b40cb36f",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "'Success rate' means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "Time window assumed to be 1-10 September 2026, compared with 22-31 August 2026 as the baseline.",
+      "Metric assumed to be attempt_success_rate for UPI."
+    ],
+    "caveats": [
+      "The data-quality scan found no issues for 1-10 Sep (duplicates, missing values, orphan keys, timestamps, ingestion lag, volume).",
+      "Hourly and daily views shown are partial extracts of the underlying tables, so some days and hours are not displayed here."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "UPI attempt success rate was 92.1% in 1-10 Sep (58,146 successes out of 63,131 attempts), versus 93.0% in 22-31 Aug (60,069 out of 64,606). It fell 0.87pp, and the difference is statistically significant (p-value 2.78e-09) and practically significant."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "The 95% confidence intervals do not overlap: 92.78%-93.17% for the baseline and 91.89%-92.31% for early September."
+      },
+      {
+        "evidence_ids": [
+          "E1",
+          "E8"
+        ],
+        "text": "Across 22 Aug-10 Sep the median daily success rate was 92.51%. The lowest day was 2 Sep at 91.77% and the highest was 26 Aug at 93.42%. No anomaly windows were flagged in the daily series."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Among the daily rates shown, 1 Sep (92.6%) and 2 Sep (91.77%) were below every baseline day except 25 Aug (92.24%)."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "The segment scan ranks issuer as the dimension that most concentrates the change. Zephyr's success rate fell from 93.42% to 89.59%."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "For Zephyr, hours 19, 20, 21 and 22 show statistically significant drops. The worst is hour 19, which fell 11.92pp. Other hours shown (0-11) show no significant change."
+      },
+      {
+        "evidence_ids": [
+          "E6"
+        ],
+        "text": "For Zephyr, UPI_PSP_TIMEOUT failures rose from 0.28 to 3.89 per 100 attempts (745 failures in the current window versus 53 in the baseline). This is the largest shift among Zephyr failure codes."
+      },
+      {
+        "evidence_ids": [
+          "E9"
+        ],
+        "text": "Across all UPI, UPI_PSP_TIMEOUT rose from 0.29 to 1.39 per 100 attempts (879 failures versus 189), the largest rise of any failure code. UPI_COLLECT_EXPIRED edged down from 2.50 to 2.35 per 100 attempts."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "Other segments (acquirer, region, merchant group, category, channel) show much weaker concentration than issuer."
+      }
+    ],
+    "headline": "UPI attempt success rate fell 0.87pp, from 93.0% (22-31 Aug) to 92.1% in 1-10 Sep. The drop is statistically significant and is concentrated in one issuer, Zephyr, where a spike in UPI PSP timeouts stands out.",
+    "hypotheses": [
+      {
+        "confidence": "med",
+        "how_to_verify": "Check the PSP/issuer incident logs for Zephyr in the evenings of 1-10 Sep, review the hour x date view to see when the timeouts began, and compare timeout rates by PSP route.",
+        "rationale": "Zephyr's rate fell sharply, its drops are significant only in hours 19-22, and UPI_PSP_TIMEOUT per 100 attempts rose about 14-fold for Zephyr and about 5-fold across UPI, while other failure codes barely moved.",
+        "text": "A PSP-side timeout problem affecting Zephyr UPI transactions, mainly in the evening hours (19:00-22:59), is the main driver of the overall dip."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "A PSP-side timeout problem affecting Zephyr UPI transactions, mainly in the evening hours (19:00-22:59), is the main driver of the overall dip.",
+        "rationale": "The timeout spike is the clearest failure-code shift and is concentrated in one issuer and a few hours.",
+        "text": "Escalate to the PSP and Zephyr with the hour-by-date timeout evidence, focusing on 19:00-22:59."
+      },
+      {
+        "linked_fact_or_hypothesis": "For Zephyr, UPI_PSP_TIMEOUT failures rose from 0.28 to 3.89 per 100 attempts (745 failures in the current window versus 53 in the baseline). This is the largest shift among Zephyr failure codes.",
+        "rationale": "This would catch a recurrence or confirm recovery quickly.",
+        "text": "Monitor Zephyr UPI success rate and UPI_PSP_TIMEOUT per 100 attempts daily for the evening hours, and alert if timeouts stay above baseline."
+      },
+      {
+        "linked_fact_or_hypothesis": "A PSP-side timeout problem affecting Zephyr UPI transactions, mainly in the evening hours (19:00-22:59), is the main driver of the overall dip.",
+        "rationale": "Reducing exposure to the affected path could recover part of the 0.87pp loss, subject to confirming the cause.",
+        "text": "Consider routing or retry tuning for Zephyr UPI traffic in the affected evening window while the timeout issue is investigated."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 5905,
+    "output_tokens": 1906
+  }
+}

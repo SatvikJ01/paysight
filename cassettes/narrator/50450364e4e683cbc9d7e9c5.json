@@ -1,0 +1,93 @@
+{
+  "key": "50450364e4e683cbc9d7e9c5ea26d27838faaaae77a25139f59adfa1fdb6673e",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "'Success rate' means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "The period analysed is 17 Sep 2026, compared against the immediately preceding period of equal length (16 Sep 2026). The detailed comparisons above use the anomaly window of 17-18 Sep against the baseline of 10-16 Sep."
+    ],
+    "caveats": [],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1",
+          "E2"
+        ],
+        "text": "Across 17-18 Sep the attempt success rate fell 3.10pp from 90.07% (83,268 attempts in the baseline week) to 86.98% (22,790 attempts). The drop is statistically and practically significant. The daily view shows the dip starting on 17 Sep and the lowest day being 18 Sep at 86.66%, against a median of 89.72%."
+      },
+      {
+        "evidence_ids": [
+          "E3",
+          "E10"
+        ],
+        "text": "Kestrel Bank was the segment that concentrated the drop: its success rate fell 11.54pp from 90.03% to 78.49%. The other acquirers (Northstar, Meridian, Saffron) did not change significantly."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "Within Kestrel Bank only card payments were hit. Debit card fell 30.11pp (86.42% to 56.31%), credit card fell 28.71pp (88.64% to 59.94%) and card EMI fell 23.87pp (80.67% to 56.80%). UPI, wallet and netbanking at Kestrel showed no significant change."
+      },
+      {
+        "evidence_ids": [
+          "E5"
+        ],
+        "text": "The failure code ACQ_TIMEOUT (a technical acquirer timeout) rose from 0.26 to 32.27 per 100 attempts on Kestrel's affected card methods (22 to 803 failures). Other failure codes were flat or lower."
+      },
+      {
+        "evidence_ids": [
+          "E9"
+        ],
+        "text": "Across all acquirers, ACQ_TIMEOUT rose from 0.08 to 3.58 per 100 attempts (815 failures in the current window); no other failure code moved by more than 0.16 per 100 attempts."
+      },
+      {
+        "evidence_ids": [
+          "E6"
+        ],
+        "text": "The hourly timeline shows the Kestrel card problem running about 36 hours, from 17 Sep 10:00 to 18 Sep 22:00. The worst hour was 18 Sep 02:00, with a 36.36% success rate against a reference of 86.87%. It affected 2,229 attempts and caused about 716 excess failed attempts."
+      },
+      {
+        "evidence_ids": [
+          "E7"
+        ],
+        "text": "The data-quality scan found no issues (0 findings)."
+      }
+    ],
+    "headline": "The 17 Sep dip was a Kestrel Bank card problem: acquirer timeouts hit Kestrel's debit card, credit card and card EMI payments from 10:00 on 17 Sep, and the overall rate fell 3.10pp from 90.07% to 86.98% across 17-18 Sep.",
+    "hypotheses": [
+      {
+        "confidence": "high",
+        "how_to_verify": "Ask Kestrel Bank for their incident log and root cause for 17 Sep 10:00 to 18 Sep 22:00, and check our gateway logs for timeout errors on Kestrel's card routes in that window.",
+        "rationale": "The drop is confined to one acquirer and to its card methods only, with ACQ_TIMEOUT jumping from 0.26 to 32.27 per 100 attempts there. UPI and wallet at the same acquirer were unaffected, which points to a card-specific path rather than a general issue.",
+        "text": "A Kestrel Bank-side technical incident (for example a connectivity or processing problem on the card authorisation path) caused the timeouts."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "E6",
+        "rationale": "The 36-hour Kestrel card degradation accounts for the dip and caused about 716 excess failed attempts.",
+        "text": "Raise an incident with Kestrel Bank and request a root-cause report and confirmation that card processing is back to normal."
+      },
+      {
+        "linked_fact_or_hypothesis": "E5",
+        "rationale": "The problem ran for about 36 hours before ending, and the signal was very clear: ACQ_TIMEOUT rose from 0.26 to 32.27 per 100 attempts on Kestrel's card methods.",
+        "text": "Set up an alert on ACQ_TIMEOUT per 100 attempts and on hourly success rate by acquirer and payment method, so a similar episode is caught within hours."
+      },
+      {
+        "linked_fact_or_hypothesis": "E10",
+        "rationale": "Other acquirers held their rates (Northstar -0.44pp, Meridian +0.27pp, Saffron +0.24pp), so rerouting could have limited the impact.",
+        "text": "Evaluate smart routing or failover of card traffic to other acquirers when Kestrel's timeout rate spikes."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 7126,
+    "output_tokens": 1659
+  }
+}

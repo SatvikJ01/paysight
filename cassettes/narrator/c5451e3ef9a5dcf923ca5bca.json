@@ -1,0 +1,106 @@
+{
+  "key": "c5451e3ef9a5dcf923ca5bcaedb6f1e429f9143d75c10b69578c7d0da33a8978",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "'Success rate' means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "The period analysed is 17 September 2026, compared with the preceding period of equal length; the evidence compares 17-18 September against the baseline week of 10-16 September."
+    ],
+    "caveats": [
+      "The comparison window covers 17-18 September, and the outage ran past the end of 17 September, so some of the impact falls on 18 September rather than 17 September alone.",
+      "Hourly rates for Kestrel Bank cards rest on small hourly volumes (often tens of attempts), so individual hours are noisy."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "Attempt success rate fell 3.10pp, from 90.07% (83,268 attempts, 10-16 Sep) to 86.98% (22,790 attempts, 17-18 Sep). The change is statistically and practically significant."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The daily series flags a drop window of 17-18 September. The lowest day was 18 September at 86.66%, against a median daily rate of 89.72%."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "Kestrel Bank is the segment that concentrates the drop most strongly (strongest segment signal among all dimensions scanned)."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "Within Kestrel Bank, debit cards fell 30.11pp (86.42% to 56.31%), credit cards fell 28.71pp (88.64% to 59.94%) and card EMI fell 23.87pp (80.67% to 56.80%). UPI, wallet and netbanking at Kestrel Bank showed no significant change."
+      },
+      {
+        "evidence_ids": [
+          "E5"
+        ],
+        "text": "For Kestrel Bank card payments, ACQ_TIMEOUT failures rose from 0.26 to 32.27 per 100 attempts (803 failures in the current window). Other failure codes were flat or lower."
+      },
+      {
+        "evidence_ids": [
+          "E9"
+        ],
+        "text": "Across all traffic, ACQ_TIMEOUT rose from 0.08 to 3.58 per 100 attempts (815 failures in the current window), the largest shift of any failure code."
+      },
+      {
+        "evidence_ids": [
+          "E6"
+        ],
+        "text": "The Kestrel Bank card timeline shows an outage window from 2026-09-17 10:00 to 2026-09-18 22:00 (36 hours). The worst hour was 2026-09-18 02:00 at a 36.36% success rate, against a reference rate of 86.87%. The window accounts for 716 excess failed attempts out of 2,229 affected attempts."
+      },
+      {
+        "evidence_ids": [
+          "E10"
+        ],
+        "text": "At the overall level, card methods fell about 9 to 10pp (card EMI -9.52pp, debit card -9.28pp, credit card -9.18pp). UPI was essentially unchanged (-0.14pp, not significant)."
+      },
+      {
+        "evidence_ids": [
+          "E7"
+        ],
+        "text": "The data-quality scan found no issues (0 findings)."
+      }
+    ],
+    "headline": "Success rate fell about 3.1pp, from 90.07% to 86.98%, across 17-18 September versus the prior week. It was an acquirer problem, not a mix shift: card payments routed through Kestrel Bank started failing on timeouts from 10:00 on 17 September.",
+    "hypotheses": [
+      {
+        "confidence": "high",
+        "how_to_verify": "Check Kestrel Bank's incident or status reports and gateway logs for card-route latency around 17 Sep 10:00 to 18 Sep 22:00, and confirm with the acquirer relationship contact.",
+        "rationale": "The drop is concentrated in one acquirer and in card methods only. The only failure code that moved materially is ACQ_TIMEOUT, and the timeline shows a sharp start at 10:00 on 17 September. Non-card methods at the same acquirer were unaffected.",
+        "text": "An outage or degradation on Kestrel Bank's card processing path (acquirer-side timeouts) caused the drop."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "An outage or degradation on Kestrel Bank's card processing path (acquirer-side timeouts) caused the drop.",
+        "rationale": "ACQ_TIMEOUT on Kestrel Bank cards accounts for most of the shortfall, and the excess failures (716) are material.",
+        "text": "Raise an incident with Kestrel Bank and request a root-cause analysis for the card timeouts between 17 Sep 10:00 and 18 Sep 22:00."
+      },
+      {
+        "linked_fact_or_hypothesis": "Within Kestrel Bank, debit cards fell 30.11pp (86.42% to 56.31%), credit cards fell 28.71pp (88.64% to 59.94%) and card EMI fell 23.87pp (80.67% to 56.80%). UPI, wallet and netbanking at Kestrel Bank showed no significant change.",
+        "rationale": "The timeout pattern was sustained for 36 hours, so automated failover would have limited the impact.",
+        "text": "Review failover or smart-routing rules so card traffic can shift to an alternate acquirer automatically when ACQ_TIMEOUT spikes."
+      },
+      {
+        "linked_fact_or_hypothesis": "For Kestrel Bank card payments, ACQ_TIMEOUT failures rose from 0.26 to 32.27 per 100 attempts (803 failures in the current window). Other failure codes were flat or lower.",
+        "rationale": "The rate rose from 0.26 to 32.27 per 100 attempts at Kestrel Bank cards, a signal that would have been detectable within hours.",
+        "text": "Add an alert on ACQ_TIMEOUT per 100 attempts by acquirer and payment method."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 1920,
+    "input_tokens": 7229,
+    "output_tokens": 1944
+  }
+}

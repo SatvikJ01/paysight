@@ -1,0 +1,86 @@
+{
+  "key": "fd69548627b44d59e00d31127f40d690baeccb3b0a4ad89c0117103d44b3efb3",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "Period analysed: 1 Sep 2026 to 30 Sep 2026.",
+      "Technical failures means attempts with failure category 'technical'."
+    ],
+    "caveats": [],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Kestrel Bank had the most technical failures in September 2026: 2,776 of 8,322 in total (33.4%). Meridian Bank had 1,965 (23.6%), Northstar Bank 1,806 (21.7%) and Saffron Bank 1,775 (21.3%)."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Kestrel's technical failures were 2.94% of its 94,315 attempts, versus 2.14% for Meridian, 2.20% for Northstar and 2.09% for Saffron. Kestrel is highest on rate as well as on count."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "Kestrel's daily success rate was steady around a median of 89.87% for the month, then fell to 78.03% on 18 Sep, its lowest day. The anomaly window is 17-18 Sep."
+      },
+      {
+        "evidence_ids": [
+          "E5"
+        ],
+        "text": "The hourly timeline shows a problem on Kestrel card payments (debit card, credit card, card EMI) from 2026-09-17 10:00 to 2026-09-18 22:00, a span of 36 hours. The worst hour was 2026-09-18 02:00, at a 36.36% success rate against a 86.87% reference rate."
+      },
+      {
+        "evidence_ids": [
+          "E5"
+        ],
+        "text": "The outage window had 2,229 affected attempts and about 716 excess failed attempts compared with the reference rate."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "During 17-18 Sep, success rates on Kestrel fell sharply for debit card (86.42% to 56.31%, down 30.11pp), credit card (88.64% to 59.94%, down 28.71pp) and card EMI (80.67% to 56.80%, down 23.87pp). UPI, wallet and netbanking showed no significant change."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "On Kestrel card payments, ACQ_TIMEOUT failures rose from 0.26 to 32.27 per 100 attempts (803 failures in the 17-18 Sep window versus 22 in the baseline window). Other failure codes were flat or lower."
+      }
+    ],
+    "headline": "Kestrel Bank had the most technical payment failures in September (2,776, or 33.4% of all technical failures). Most of the damage came from a 36-hour card outage from 10:00 on 17 Sep to 22:00 on 18 Sep.",
+    "hypotheses": [
+      {
+        "confidence": "med",
+        "how_to_verify": "Ask Kestrel Bank for its incident log for 17-18 Sep and compare the start and end times with 10:00 on 17 Sep and 22:00 on 18 Sep.",
+        "rationale": "Failures were confined to Kestrel's card methods, UPI and wallet were unaffected, and the shift was almost entirely in the ACQ_TIMEOUT code, which points to the acquirer not responding.",
+        "text": "A card-processing or connectivity problem at Kestrel Bank's acquiring side caused the 17-18 Sep card outage."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "A card-processing or connectivity problem at Kestrel Bank's acquiring side caused the 17-18 Sep card outage.",
+        "rationale": "This single 36-hour window explains most of Kestrel's lead in technical failures and the dip in its daily success rate.",
+        "text": "Raise the 17-18 Sep incident with Kestrel Bank and request a root-cause report covering their card-processing path."
+      },
+      {
+        "linked_fact_or_hypothesis": "The hourly timeline shows a problem on Kestrel card payments (debit card, credit card, card EMI) from 2026-09-17 10:00 to 2026-09-18 22:00, a span of 36 hours.",
+        "rationale": "The outage ran 36 hours with about 716 excess failures; faster detection and rerouting would limit that impact.",
+        "text": "Set up an alert on Kestrel card-method success rate and ACQ_TIMEOUT per 100 attempts, and evaluate routing card traffic to another acquirer when it trips."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 4049,
+    "output_tokens": 1435
+  }
+}
