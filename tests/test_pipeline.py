@@ -96,7 +96,7 @@ def _build(engine, tmp_path: Path, *, invent: bool = False) -> tuple[Paysight, F
     llm = LLMClient(
         mode="live",
         cassette_dir=tmp_path / "cassettes",
-        llm=StructuredLLM(fake, max_attempts=2, price_in=0, price_out=0, wait_max_s=0),
+        llm=StructuredLLM(fake, max_attempts=2, wait_max_s=0),
         provider_name="fake",
         model="fake-model",
     )

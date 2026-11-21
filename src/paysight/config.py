@@ -66,10 +66,12 @@ class AnalysisSettings(_Frozen):
 
 
 class TokenPrice(_Frozen):
-    """USD per million tokens."""
+    """USD per million tokens for one model."""
 
     input: float
     output: float
+    cache_write: float = 0.0
+    cache_read: float = 0.0
 
 
 class LLMSettings(_Frozen):
@@ -81,7 +83,9 @@ class LLMSettings(_Frozen):
     max_attempts: int
     request_timeout_s: float
     cassette_dir: Path
-    prices_per_million_tokens: dict[str, TokenPrice]
+    budget_usd: float
+    spend_ledger: Path
+    prices_per_million_tokens: dict[str, TokenPrice]  # keyed by model name
 
 
 class Settings(_Frozen):

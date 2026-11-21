@@ -46,6 +46,10 @@ class ReplayMissError(LLMError):
     """Replay mode found no cassette for this prompt."""
 
 
+class BudgetExceededError(LLMError):
+    """Cumulative live LLM spend reached the configured budget; no further calls are made."""
+
+
 class Usage(BaseModel):
     """Tokens, latency and estimated cost of one LLM call."""
 
@@ -54,12 +58,14 @@ class Usage(BaseModel):
     template_id: str
     provider: str
     model: str
-    input_tokens: int
+    input_tokens: int  # uncached input
     output_tokens: int
     latency_ms: float
     cost_usd: float
     source: str  # "live", "record" or "replay"
     reasked: bool = False
+    cache_write_tokens: int = 0
+    cache_read_tokens: int = 0
 
 
 @dataclass(frozen=True)
@@ -69,6 +75,27 @@ class RawResponse:
     text: str
     input_tokens: int
     output_tokens: int
+    cache_write_tokens: int = 0
+    cache_read_tokens: int = 0
+
+
+@dataclass(frozen=True)
+class Prices:
+    """USD per million tokens for one model."""
+
+    input: float = 0.0
+    output: float = 0.0
+    cache_write: float = 0.0
+    cache_read: float = 0.0
+
+    def cost(self, raw: RawResponse) -> float:
+        """Cost of one response, cache writes and reads included."""
+        return (
+            raw.input_tokens * self.input
+            + raw.output_tokens * self.output
+            + raw.cache_write_tokens * self.cache_write
+            + raw.cache_read_tokens * self.cache_read
+        ) / 1_000_000
 
 
 class Provider(ABC):
@@ -102,14 +129,12 @@ class StructuredLLM:
         provider: Provider,
         *,
         max_attempts: int,
-        price_in: float,
-        price_out: float,
+        prices: Prices | None = None,
         wait_max_s: float = 20.0,
     ) -> None:
         self.provider = provider
         self._max_attempts = max_attempts
-        self._price_in = price_in
-        self._price_out = price_out
+        self.prices = prices or Prices()
         self._wait_max_s = wait_max_s
 
     def _call(self, system: str, user: str, schema: type[BaseModel]) -> RawResponse:
@@ -133,25 +158,20 @@ class StructuredLLM:
             # callers; they surface as an unavailable LLM so the pipeline degrades gracefully.
             raise LLMUnavailableError(f"{self.provider.name} error: {exc}") from exc
 
-    def cost(self, input_tokens: int, output_tokens: int) -> float:
-        """Estimated USD cost from the configured price table."""
-        return (input_tokens * self._price_in + output_tokens * self._price_out) / 1_000_000
-
     def complete_structured(
         self, system: str, user: str, schema: type[T], *, template_id: str
     ) -> tuple[T, Usage, dict[str, Any]]:
         """Return a validated ``schema`` instance, its usage, and the raw JSON that produced it."""
         t0 = time.perf_counter()
         raw = self._call(system, user, schema)
-        tokens_in, tokens_out = raw.input_tokens, raw.output_tokens
+        responses = [raw]
         reasked = False
         try:
             parsed = schema.model_validate_json(raw.text)
         except ValidationError as first:
             reasked = True
             raw = self._call(system, reask_message(user, str(first)), schema)
-            tokens_in += raw.input_tokens
-            tokens_out += raw.output_tokens
+            responses.append(raw)
             try:
                 parsed = schema.model_validate_json(raw.text)
             except ValidationError as second:
@@ -162,10 +182,12 @@ class StructuredLLM:
             template_id=template_id,
             provider=self.provider.name,
             model=self.provider.model,
-            input_tokens=tokens_in,
-            output_tokens=tokens_out,
+            input_tokens=sum(r.input_tokens for r in responses),
+            output_tokens=sum(r.output_tokens for r in responses),
+            cache_write_tokens=sum(r.cache_write_tokens for r in responses),
+            cache_read_tokens=sum(r.cache_read_tokens for r in responses),
             latency_ms=(time.perf_counter() - t0) * 1000,
-            cost_usd=self.cost(tokens_in, tokens_out),
+            cost_usd=sum(self.prices.cost(r) for r in responses),
             source="live",
             reasked=reasked,
         )

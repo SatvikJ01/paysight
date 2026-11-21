@@ -27,12 +27,15 @@ from paysight.config import Settings
 from paysight.llm.base import (
     LLMError,
     LLMUnavailableError,
+    Prices,
     Provider,
+    RawResponse,
     ReplayMissError,
     StructuredLLM,
     Usage,
 )
 from paysight.llm.prompts import PromptTemplate
+from paysight.llm.usage import SpendLedger
 
 Mode = Literal["live", "record", "replay"]
 T = TypeVar("T", bound=BaseModel)
@@ -71,7 +74,8 @@ class LLMClient:
         llm: StructuredLLM | None,
         provider_name: str,
         model: str,
-        prices: Mapping[str, tuple[float, float]] | None = None,
+        prices: Mapping[str, Prices] | None = None,
+        ledger: SpendLedger | None = None,
     ) -> None:
         if mode in ("live", "record") and llm is None:
             raise LLMError(f"{mode} mode needs a configured provider")
@@ -80,6 +84,7 @@ class LLMClient:
         self._llm = llm
         self.info = ModeInfo(mode=mode, provider=provider_name, model=model)
         self._prices = dict(prices or {})
+        self.ledger = ledger
         self.rerecord = os.environ.get("PAYSIGHT_RERECORD", "0") == "1"
 
     def _path(self, prompt: PromptTemplate, key: str) -> Path:
@@ -100,16 +105,24 @@ class LLMClient:
             raise ReplayMissError(f"cassette {path.name} has a different key; re-record it")
         parsed = schema.model_validate(cassette["response"])
         tokens = cassette.get("usage", {})
-        price_in, price_out = self._prices.get(cassette.get("provider", ""), (0.0, 0.0))
-        tin, tout = int(tokens.get("input_tokens", 0)), int(tokens.get("output_tokens", 0))
+        recorded = RawResponse(
+            text="",
+            input_tokens=int(tokens.get("input_tokens", 0)),
+            output_tokens=int(tokens.get("output_tokens", 0)),
+            cache_write_tokens=int(tokens.get("cache_write_tokens", 0)),
+            cache_read_tokens=int(tokens.get("cache_read_tokens", 0)),
+        )
+        model = cassette.get("model", "unknown")
         return parsed, Usage(
             template_id=prompt.template_id,
             provider=cassette.get("provider", "unknown"),
-            model=cassette.get("model", "unknown"),
-            input_tokens=tin,
-            output_tokens=tout,
+            model=model,
+            input_tokens=recorded.input_tokens,
+            output_tokens=recorded.output_tokens,
+            cache_write_tokens=recorded.cache_write_tokens,
+            cache_read_tokens=recorded.cache_read_tokens,
             latency_ms=0.0,
-            cost_usd=(tin * price_in + tout * price_out) / 1_000_000,
+            cost_usd=self._prices.get(model, Prices()).cost(recorded),
             source=source,
         )
 
@@ -124,6 +137,8 @@ class LLMClient:
         if self.mode == "record" and path.exists() and not self.rerecord:
             return self._replay(path, key, prompt, schema, "replay")  # keep, don't spend quota
         assert self._llm is not None
+        if self.ledger is not None:
+            self.ledger.check()
         try:
             parsed, usage, data = self._llm.complete_structured(
                 system, user, schema, template_id=prompt.template_id
@@ -141,7 +156,12 @@ class LLMClient:
                 "schema": schema.__name__,
                 "provider": usage.provider,
                 "model": usage.model,
-                "usage": {"input_tokens": usage.input_tokens, "output_tokens": usage.output_tokens},
+                "usage": {
+                    "input_tokens": usage.input_tokens,
+                    "output_tokens": usage.output_tokens,
+                    "cache_write_tokens": usage.cache_write_tokens,
+                    "cache_read_tokens": usage.cache_read_tokens,
+                },
                 "response": data,
             }
             path.write_text(
@@ -149,6 +169,8 @@ class LLMClient:
                 encoding="utf-8",
             )
             usage = usage.model_copy(update={"source": "record"})
+        if self.ledger is not None:
+            self.ledger.add(usage)  # after saving: a paid-for response is never thrown away
         return parsed, usage
 
 
@@ -202,7 +224,12 @@ def build_client(
     if mode not in ("live", "record", "replay"):
         raise LLMError(f"unknown LLM_MODE {mode!r}; use live, record or replay")
 
-    prices = {p: (v.input, v.output) for p, v in settings.llm.prices_per_million_tokens.items()}
+    prices = {
+        m: Prices(
+            input=v.input, output=v.output, cache_write=v.cache_write, cache_read=v.cache_read
+        )
+        for m, v in settings.llm.prices_per_million_tokens.items()
+    }
     llm = None
     if mode != "replay":
         if provider is None:
@@ -210,9 +237,8 @@ def build_client(
                 keys = " or ".join(API_KEY_ENV.get(name, ("an API key",)))
                 raise LLMError(f"{mode} mode needs {keys} in .env (or use LLM_MODE=replay)")
             provider = _provider(name, model=model, api_key=api_key, settings=settings)
-        price_in, price_out = prices.get(name, (0.0, 0.0))
         llm = StructuredLLM(
-            provider, max_attempts=settings.llm.max_attempts, price_in=price_in, price_out=price_out
+            provider, max_attempts=settings.llm.max_attempts, prices=prices.get(model, Prices())
         )
     return LLMClient(
         mode=mode,
@@ -221,4 +247,5 @@ def build_client(
         provider_name=name,
         model=model,
         prices=prices,
+        ledger=SpendLedger(settings.path(settings.llm.spend_ledger), settings.llm.budget_usd),
     )

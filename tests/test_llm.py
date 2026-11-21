@@ -10,8 +10,10 @@ from pydantic import BaseModel
 
 from paysight.config import get_settings
 from paysight.llm.base import (
+    BudgetExceededError,
     LLMError,
     LLMUnavailableError,
+    Prices,
     ReplayMissError,
     SchemaValidationFailedError,
     StructuredLLM,
@@ -19,7 +21,9 @@ from paysight.llm.base import (
 from paysight.llm.prompts import parse_prompt
 from paysight.llm.providers.fake import FakeProvider, FakeTransientError
 from paysight.llm.replay import LLMClient, build_client, cassette_key
-from paysight.llm.usage import total_usage
+from paysight.llm.usage import SpendLedger, total_usage
+
+PRICES = Prices(input=1.0, output=2.0, cache_write=1.25, cache_read=0.1)
 
 PROMPT_TEXT = """---
 template_id: echo
@@ -42,7 +46,7 @@ def _llm(handler, **kw) -> tuple[StructuredLLM, FakeProvider]:
     provider = FakeProvider(handler)
     kw.setdefault("max_attempts", 4)
     return (
-        StructuredLLM(provider, price_in=1.0, price_out=2.0, wait_max_s=0, **kw),
+        StructuredLLM(provider, prices=PRICES, wait_max_s=0, **kw),
         provider,
     )
 
@@ -119,7 +123,7 @@ def _client(tmp_path: Path, mode: str, handler=None) -> LLMClient:
         llm=llm,
         provider_name="fake",
         model="fake-model",
-        prices={"fake": (1.0, 2.0)},
+        prices={"fake-model": PRICES},
     )
 
 
@@ -215,3 +219,48 @@ def test_record_mode_reuses_existing_cassettes(tmp_path: Path) -> None:
     again = _client(tmp_path, "record", lambda s, u, sc: {"label": "second", "score": 2})
     parsed, usage = again.complete(prompt, Answer, question="q")
     assert parsed.label == "first" and usage.source == "replay"
+
+
+def test_cost_includes_cache_writes_and_reads() -> None:
+    from paysight.llm.base import RawResponse
+
+    raw = RawResponse(
+        text="{}",
+        input_tokens=100,
+        output_tokens=10,
+        cache_write_tokens=1000,
+        cache_read_tokens=4000,
+    )
+    assert PRICES.cost(raw) == pytest.approx((100 * 1 + 10 * 2 + 1000 * 1.25 + 4000 * 0.1) / 1e6)
+
+
+def test_spend_ledger_stops_live_calls_at_the_budget(tmp_path: Path) -> None:
+    prompt = parse_prompt(PROMPT_TEXT)
+    ledger = SpendLedger(tmp_path / "spend.json", budget_usd=0.000_05)
+    client = _client(tmp_path, "live", lambda s, u, sc: {"label": "a", "score": 1})
+    client.ledger = ledger
+    with pytest.raises(BudgetExceededError, match="went over"):
+        for q in ("a", "b", "c", "d", "e", "f"):
+            client.complete(prompt, Answer, question=q)
+    spent = ledger.total_usd
+    assert spent > ledger.budget_usd
+    with pytest.raises(BudgetExceededError, match="reached"):
+        client.complete(prompt, Answer, question="z")  # refused before any call
+    assert ledger.total_usd == spent  # nothing more was spent
+
+
+def test_ledger_persists_across_instances(tmp_path: Path) -> None:
+    from paysight.llm.base import Usage
+
+    usage = Usage(
+        template_id="t",
+        provider="p",
+        model="m",
+        input_tokens=1,
+        output_tokens=1,
+        latency_ms=0,
+        cost_usd=0.5,
+        source="live",
+    )
+    SpendLedger(tmp_path / "s.json", 4.0).add(usage)
+    assert SpendLedger(tmp_path / "s.json", 4.0).total_usd == pytest.approx(0.5)
