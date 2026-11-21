@@ -6,7 +6,7 @@ from datetime import date, datetime, timedelta
 
 import pandas as pd
 
-from paysight.analysis.anomaly import detect_anomalies
+from paysight.analysis.anomaly import detect_anomalies, outage_windows
 from paysight.analysis.drilldown import rate_series
 from paysight.config import get_settings
 from paysight.semantic.models import Filter, TimeWindow
@@ -87,3 +87,39 @@ def test_s1_outage_window_found_hourly(small_engine, policies) -> None:
     assert biggest.direction == "drop"
     assert biggest.start.date() == date(2026, 9, 17)
     assert biggest.end.date() == date(2026, 9, 18)
+
+
+def test_small_deviation_on_a_stable_series_is_not_an_anomaly() -> None:
+    """Kestrel on 4 Sep: about -1.3pp on a very stable series passes robust z, not 2pp (D37)."""
+    rates = [0.898, 0.899, 0.897, 0.885, 0.898, 0.899, 0.897, 0.898, 0.899, 0.770, 0.780, 0.898]
+    loose = detect_anomalies(_series(rates), step=DAY, z_threshold=Z)
+    strict = detect_anomalies(_series(rates), step=DAY, z_threshold=Z, min_delta=0.02)
+    assert [w.start.day for w in loose] == [4, 10]
+    assert [(w.start.day, w.end.day) for w in strict] == [(10, 11)]
+
+
+def test_long_outage_is_found_against_a_reference_rate() -> None:
+    """A third of the window is down: the window's own median is pulled down, the reference
+    rate is not. One normal hour inside the outage does not split it."""
+    hour = timedelta(hours=1)
+    rates = [0.87] * 10 + [0.55] * 8 + [0.86] + [0.55] * 8 + [0.87] * 10
+    series = _series(rates, [60.0] * len(rates)).assign(
+        period=[datetime(2026, 9, 17) + i * hour for i in range(len(rates))]
+    )
+    robust = detect_anomalies(series, step=hour, z_threshold=Z, min_delta=0.02)
+    found = outage_windows(series, reference_rate=0.87, step=hour, z_threshold=Z, min_delta=0.02)
+    assert len(found) == 1
+    w = found[0]
+    assert (w.start.hour, w.end_exclusive.hour, w.periods) == (10, 3, 17)
+    assert w.worst_rate == 0.55 and w.baseline_rate == 0.87
+    assert sum(x.periods for x in robust) < 16  # the robust test alone misses part of it
+
+
+def test_two_normal_hours_end_an_outage() -> None:
+    hour = timedelta(hours=1)
+    rates = [0.87] * 5 + [0.5] * 3 + [0.87, 0.87] + [0.5] * 3 + [0.87] * 5
+    series = _series(rates, [60.0] * len(rates)).assign(
+        period=[datetime(2026, 9, 17) + i * hour for i in range(len(rates))]
+    )
+    found = outage_windows(series, reference_rate=0.87, step=hour, z_threshold=Z, min_delta=0.02)
+    assert [w.periods for w in found] == [3, 3]

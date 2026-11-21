@@ -62,6 +62,7 @@ class AnalysisSettings(_Frozen):
     min_delta_for_shares_pp: float
     denominator_divergence_pp: float
     anomaly_z_threshold: float
+    anomaly_min_delta_pp: float
     reconcile_unexplained_flag_pct: float
 
 

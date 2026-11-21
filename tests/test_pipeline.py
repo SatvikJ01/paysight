@@ -328,6 +328,9 @@ def test_ranking_that_asks_when_drills_into_the_top_segment(app) -> None:
     assert "CARD" in methods.key_numbers["affected_methods"]  # S1 hit cards, not UPI
     hourly = next(e for e in result.evidence if e.title.startswith(f"Hourly timeline for {top}"))
     assert hourly.time_window == "2026-09-16..2026-09-19"  # around the 17-18 Sep drop
+    assert hourly.key_numbers["reference_window"] == "2026-09-10..2026-09-16"
+    daily = next(e for e in result.evidence if e.title == "Daily success rate")
+    assert {"lowest_day", "median_daily_rate_pct", "anomaly_windows"} <= set(daily.key_numbers)
     codes = next(e for e in result.evidence if e.kind == "failure_codes")
     assert codes.key_numbers["top_code"] == "ACQ_TIMEOUT"
     assert_grounding_guarantee(result)

@@ -24,6 +24,7 @@ analysis:
   min_delta_for_shares_pp: 0.1    # below this |delta|, mix/rate shares are unstable: report absolutes only
   denominator_divergence_pp: 1.0  # show a sensitivity note when SR definitions differ by this much
   anomaly_z_threshold: 3.5        # robust z-score (median/MAD) threshold
+  anomaly_min_delta_pp: 2.0       # ...and at least this far from the baseline to count (D37)
   reconcile_unexplained_flag_pct: 0.5  # flag unexplained reconciliation residuals at or above this %
 
 llm:

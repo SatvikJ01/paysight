@@ -113,7 +113,7 @@ def contribution_bar(ev: Evidence) -> go.Figure | None:
 
 
 def _windows(text: str) -> list[tuple[str, str]]:
-    return re.findall(r"(\d{4}-\d\d-\d\d)\.\.(\d{4}-\d\d-\d\d) \(drop\)", text or "")
+    return re.findall(r"(\d{4}-\d\d-\d\d)\.\.(\d{4}-\d\d-\d\d) \(drop", text or "")
 
 
 def daily_line(ev: Evidence) -> go.Figure | None:

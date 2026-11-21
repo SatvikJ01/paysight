@@ -19,7 +19,7 @@ from typing import Any
 
 import pandas as pd
 
-from paysight.analysis.anomaly import detect_anomalies
+from paysight.analysis.anomaly import detect_anomalies, outage_windows
 from paysight.analysis.compare import RateComparison, compare_periods, denominator_sensitivity
 from paysight.analysis.decompose import Decomposition
 from paysight.analysis.drilldown import (
@@ -549,14 +549,10 @@ def _series(
     *,
     llm_suggested: bool = False,
     purpose: str = "Daily success rate",
+    summary: bool = False,
 ) -> pd.DataFrame:
     series, result = rate_series(ctx.engine, ctx.role, window=window, filters=filters)
-    windows = detect_anomalies(
-        series,
-        step=timedelta(days=1),
-        min_den=50,
-        z_threshold=ctx.settings.analysis.anomaly_z_threshold,
-    )
+    windows = _daily_anomalies(ctx, series)
     series_rows = [
         {"date": r.period.date().isoformat(), "attempts": int(r.den), "rate_pct": pct(r.rate)}
         for r in series.itertuples()
@@ -570,16 +566,57 @@ def _series(
         window=window.label(),
         rows=series_rows,
         chart_data=series_rows,
-        key_numbers={
-            "anomaly_windows": "; ".join(
-                f"{w.start:%Y-%m-%d}..{w.end:%Y-%m-%d} ({w.direction})" for w in windows
-            )
-            or "none"
-        },
+        # The narrator sees only the first rows, so a series that answers "when" is summarised
+        # in full here; context series keep the short form (D37).
+        key_numbers=_daily_summary(series, windows)
+        if summary
+        else {"anomaly_windows": _window_list(windows)},
         chart="daily_line",
         llm_suggested=llm_suggested,
     )
     return series
+
+
+def _daily_anomalies(ctx: RunContext, series: pd.DataFrame) -> list:
+    """Daily anomaly windows: robust z plus the practical-magnitude threshold (D37)."""
+    a = ctx.settings.analysis
+    return detect_anomalies(
+        series,
+        step=timedelta(days=1),
+        min_den=50,
+        z_threshold=a.anomaly_z_threshold,
+        min_delta=a.anomaly_min_delta_pp / 100,
+    )
+
+
+def _daily_summary(series: pd.DataFrame, windows: list) -> dict[str, Any]:
+    """Days, median, lowest and highest day, and anomaly windows with their size."""
+    judged = series.loc[series["den"] > 0]
+    if judged.empty:
+        return {"anomaly_windows": "none"}
+    low, high = judged.loc[judged["rate"].idxmin()], judged.loc[judged["rate"].idxmax()]
+    return {
+        "days": len(judged),
+        "median_daily_rate_pct": pct(float(judged["rate"].median())),
+        "lowest_day": low.period.date().isoformat(),
+        "lowest_day_rate_pct": pct(float(low.rate)),
+        "highest_day": high.period.date().isoformat(),
+        "highest_day_rate_pct": pct(float(high.rate)),
+        "anomaly_windows": "; ".join(
+            f"{w.start:%Y-%m-%d}..{w.end:%Y-%m-%d} ({w.direction}; worst day "
+            f"{pct(w.worst_rate)}% vs median {pct(w.baseline_rate)}%)"
+            for w in windows
+        )
+        or "none",
+    }
+
+
+def _window_list(windows: list) -> str:
+    """The short form: 'start..end (drop)' per window."""
+    return (
+        "; ".join(f"{w.start:%Y-%m-%d}..{w.end:%Y-%m-%d} ({w.direction})" for w in windows)
+        or "none"
+    )
 
 
 def _hour_profile(
@@ -634,23 +671,27 @@ def _hour_profile(
 
 
 def _hourly_timeline(
-    ctx: RunContext, window: TimeWindow, filters: list[Filter], *, title: str
+    ctx: RunContext, window: TimeWindow, filters: list[Filter], *, title: str, reference: TimeWindow
 ) -> None:
-    """Hourly success rate with the main drop window: when it started, ended and its impact."""
+    """Hourly success rate and the outage: hours significantly and practically below the
+    rate in ``reference`` (merged, one normal hour allowed inside), with start, end, duration
+    and worst hour computed here, because the narrator sees only the first rows."""
+    a = ctx.settings.analysis
     hours, hresult = rate_series(
         ctx.engine, ctx.role, window=window, filters=filters, granularity="hour"
     )
-    hw = [
-        x
-        for x in detect_anomalies(
-            hours,
-            step=timedelta(hours=1),
-            min_den=10,
-            z_threshold=ctx.settings.analysis.anomaly_z_threshold,
-        )
-        if x.direction == "drop"
-    ]
-    main = max(hw, key=lambda x: x.excess_failures) if hw else None
+    ref, rresult = rate_series(ctx.engine, ctx.role, window=reference, filters=filters)
+    ref_den = float(ref["den"].sum())
+    ref_rate = float(ref["num"].sum()) / ref_den if ref_den else 0.0
+    found = outage_windows(
+        hours,
+        reference_rate=ref_rate,
+        step=timedelta(hours=1),
+        z_threshold=a.anomaly_z_threshold,
+        min_delta=a.anomaly_min_delta_pp / 100,
+        min_den=10,
+    )
+    main = max(found, key=lambda x: x.excess_failures) if found else None
     hour_rows = [
         {
             "hour": r.period.isoformat(sep=" ", timespec="minutes"),
@@ -659,26 +700,36 @@ def _hourly_timeline(
         }
         for r in hours.itertuples()
     ]
+    key: dict[str, Any] = {
+        "reference_window": reference.label(),
+        "reference_rate_pct": pct(ref_rate),
+    }
+    if main is not None:
+        inside = hours.loc[(hours["period"] >= main.start) & (hours["period"] <= main.end)]
+        worst = inside.loc[(inside["num"] / inside["den"]).idxmin()] if len(inside) else None
+        key |= {
+            "outage_start": main.start.isoformat(sep=" ", timespec="minutes"),
+            "outage_end": main.end_exclusive.isoformat(sep=" ", timespec="minutes"),
+            "outage_hours": round((main.end_exclusive - main.start).total_seconds() / 3600),
+            "worst_hour": None
+            if worst is None
+            else pd.Timestamp(worst.period).isoformat(sep=" ", timespec="minutes"),
+            "worst_hour_rate_pct": pct(main.worst_rate),
+            "excess_failed_attempts": round(main.excess_failures),
+            "affected_attempts": int(main.attempts),
+        }
+    else:
+        key["outage"] = "none found"
     ctx.add(
         title=title,
         kind="anomaly",
         purpose="When the problem started and ended, and its impact",
-        results=[hresult],
+        results=[hresult, rresult],
         filters=filters,
         window=window.label(),
         rows=hour_rows,
         chart_data=hour_rows,
-        key_numbers={}
-        if main is None
-        else {
-            "outage_start": main.start.isoformat(sep=" ", timespec="minutes"),
-            "outage_end": main.end_exclusive.isoformat(sep=" ", timespec="minutes"),
-            "outage_hours": round((main.end_exclusive - main.start).total_seconds() / 3600),
-            "baseline_rate_pct": pct(main.baseline_rate),
-            "worst_hour_rate_pct": pct(main.worst_rate),
-            "excess_failed_attempts": round(main.excess_failures),
-            "affected_attempts": int(main.attempts),
-        },
+        key_numbers=key,
         chart="daily_line",
     )
 
@@ -733,6 +784,7 @@ def _explain_drop(
         hourly_window,
         focus,
         title=f"Hourly timeline for {seg}" + (f" ({', '.join(affected)})" if affected else ""),
+        reference=base,
     )
 
 
@@ -868,10 +920,8 @@ def run_anomaly(ctx: RunContext, scope: Scope) -> None:
         start=max(d.start_date, target.start - timedelta(days=14)),
         end=min(d.as_of_date, target.end + timedelta(days=7)),
     )
-    series = _series(ctx, context, flt, purpose="Daily success rate around the date")
-    windows = detect_anomalies(
-        series, step=timedelta(days=1), z_threshold=a.anomaly_z_threshold, min_den=50
-    )
+    series = _series(ctx, context, flt, purpose="Daily success rate around the date", summary=True)
+    windows = _daily_anomalies(ctx, series)
     hit = [
         w
         for w in windows
@@ -932,7 +982,7 @@ def run_trend(ctx: RunContext, scope: Scope) -> None:
     base = scope.baseline or TimeWindow(
         start=cur.start - timedelta(days=cur.days), end=cur.start - timedelta(days=1)
     )
-    _series(ctx, TimeWindow(start=base.start, end=cur.end), flt)
+    _series(ctx, TimeWindow(start=base.start, end=cur.end), flt, summary=True)
     headline_step(ctx, SR, cur, base, flt)
     fixed = {f.dimension for f in flt}
     dims = tuple(d for d in TREND_DIMENSIONS if d not in fixed)
@@ -1261,17 +1311,10 @@ def _timing_drilldown(ctx: RunContext, scope: Scope, dim: str, value: Any) -> No
     # the segment's full traffic.
     traffic = [f for f in seg if f.dimension not in FAILURE_DIMENSIONS]
     win, d = scope.current, ctx.settings.data
-    series = _series(ctx, win, traffic, purpose=f"When it happened: daily success rate for {value}")
-    drops = [
-        w
-        for w in detect_anomalies(
-            series,
-            step=timedelta(days=1),
-            min_den=50,
-            z_threshold=ctx.settings.analysis.anomaly_z_threshold,
-        )
-        if w.direction == "drop"
-    ]
+    series = _series(
+        ctx, win, traffic, purpose=f"When it happened: daily success rate for {value}", summary=True
+    )
+    drops = [w for w in _daily_anomalies(ctx, series) if w.direction == "drop"]
     main = max(drops, key=lambda w: w.excess_failures) if drops else None
     if main is not None:
         drop = TimeWindow(start=main.start.date(), end=main.end.date())
