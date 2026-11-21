@@ -225,6 +225,9 @@ def render_answer(result: AskResult) -> str:
             out.append(f"Confidence: {result.confidence.summary()}")
         out.append("\nFacts")
         out += [f"  - {f.text} [{', '.join(f.evidence_ids)}]" for f in a.facts]
+        if result.sql_source:
+            source = {"governed": "Governed", "ad_hoc": "Ad-hoc SQL"}[result.sql_source]
+            out.append(f"Queries: {source}")
         if a.hypotheses:
             out.append("Hypotheses")
             out += [

@@ -251,3 +251,14 @@ class AskResult(BaseModel):
     queries_executed: int = 0
     llm_mode: str = ""
     trace_path: str | None = None
+
+    @property
+    def sql_source(self) -> Literal["governed", "ad_hoc"] | None:
+        """Where the answer's SQL came from: governed, ad_hoc, or None when no query ran.
+
+        Governed queries come from the semantic-layer compiler or from reviewed fixed SQL
+        (data quality, reconciliation); ad-hoc queries come from the SPEC §9.6 fallback.
+        """
+        if not self.evidence:
+            return None
+        return "ad_hoc" if any(e.ad_hoc for e in self.evidence) else "governed"

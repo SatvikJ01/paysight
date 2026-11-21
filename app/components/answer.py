@@ -24,6 +24,23 @@ def _chips(ids: list[str]) -> str:
     )
 
 
+SOURCE_BADGE = {
+    "governed": ("#1f6f8b", "Governed", "Every query came from the semantic layer."),
+    "ad_hoc": ("#8b5a1f", "Ad-hoc SQL", "Part of this answer uses validated, AI-written SQL."),
+}
+
+
+def _source_badge(result: AskResult) -> str:
+    """HTML badge: Governed (semantic-layer queries only) or Ad-hoc SQL."""
+    if result.sql_source is None:
+        return ""
+    color, label, tip = SOURCE_BADGE[result.sql_source]
+    return (
+        f"<span title='{tip}' style='border:2px solid {color};color:{color};border-radius:6px;"
+        f"padding:1px 8px;font-weight:600'>{label}</span>"
+    )
+
+
 def render_answer(result: AskResult, on_choice: Callable[[str], None]) -> None:
     """Restatement, then the answer card or the clarification / denial / refusal message."""
     if result.restatement:
@@ -56,6 +73,7 @@ def render_answer(result: AskResult, on_choice: Callable[[str], None]) -> None:
         st.markdown(
             f"<span style='background:{color};color:white;border-radius:6px;padding:3px 10px;"
             f"font-weight:600'>Confidence: {result.confidence.level}</span> "
+            f"{_source_badge(result)} "
             f"<span style='color:#555'>{'; '.join(result.confidence.reasons)}</span>",
             unsafe_allow_html=True,
         )
