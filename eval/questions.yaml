@@ -1,0 +1,39 @@
+# Paysight evaluation questions (SPEC §14.1). The remaining categories are added in M7.
+#
+# expected.type:
+#   numeric  - a gold SQL file computes the value at eval time on the same data; tolerance is in
+#              the gold value's units
+#   behavior - one of clarify, deny_access, refuse_unsafe, warn_dq, reconcile_flag, adhoc,
+#              adhoc_repaired
+questions:
+  - id: adhoc_retry_share
+    question: What share of October orders needed more than one payment attempt?
+    role: leadership
+    category: adhoc
+    expected:
+      type: numeric
+      gold: gold/adhoc_retry_share.sql
+      tolerance: 0.001
+      behavior: adhoc
+
+  - id: adhoc_novamart_median_ticket
+    question: What was the median successful payment amount at NovaMart during its festive sale (18–31 October)?
+    role: leadership
+    category: adhoc
+    expected:
+      type: numeric
+      gold: gold/adhoc_novamart_median_ticket.sql
+      tolerance: 1.0
+      behavior: adhoc
+
+  # Asks for two years of data; the validator caps windows at 400 days, so the first SQL is
+  # expected to fail validation and be repaired.
+  - id: adhoc_failed_latency_two_years
+    question: What was the average authorization latency of failed payments over the past two years?
+    role: leadership
+    category: adhoc
+    expected:
+      type: numeric
+      gold: gold/adhoc_failed_latency.sql
+      tolerance: 1.0
+      behavior: adhoc_repaired

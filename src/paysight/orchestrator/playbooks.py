@@ -106,6 +106,10 @@ PLAYBOOK_STEPS: dict[str, list[tuple[str, str]]] = {
         ("data_quality", "Data-quality scan over the window"),
     ],
     "data_quality": [("data_quality", "All data-quality checks over the period")],
+    "adhoc": [
+        ("adhoc_sql", "AI-written SQL over the governed views; validated, one repair, flagged"),
+        ("data_quality", "Data-quality scan over the period"),
+    ],
 }
 __doc__ = (__doc__ or "") + "\n".join(
     f"* ``{k}``: " + "; ".join(name for name, _ in v) for k, v in PLAYBOOK_STEPS.items()
@@ -114,6 +118,10 @@ __doc__ = (__doc__ or "") + "\n".join(
 
 class PlanError(RuntimeError):
     """The question cannot be analysed as planned (shown to the user, nothing fabricated)."""
+
+
+class NotExpressibleError(PlanError):
+    """The question cannot be expressed as a QuerySpec; the ad-hoc SQL fallback may answer it."""
 
 
 @dataclass
@@ -158,7 +166,7 @@ class RunContext:
         ad_hoc: bool = False,
     ) -> Evidence:
         """Record one evidence item with the SQL and validation of every query behind it."""
-        self.queries += sum(1 for r in results if not r.cache_hit)
+        self.queries += sum(1 for r in results if r.status != "blocked" and not r.cache_hit)
         datasets = sorted(
             {m for r in results for m in re.findall(r"\b(v_\w+|fact_\w+|dim_\w+)\b", r.sql or "")}
         )
@@ -996,7 +1004,9 @@ def run_lookup(ctx: RunContext, scope: Scope, *, compare: bool = False) -> None:
         try:
             _, result = ctx.engine.run_spec(spec, ctx.role)
         except CompileError as exc:
-            raise PlanError(f"cannot express this with the semantic layer: {exc}") from exc
+            raise NotExpressibleError(
+                f"cannot express this with the semantic layer: {exc}"
+            ) from exc
         if not result.ok:
             raise PlanError(
                 "; ".join(c.detail for c in result.report.failures) or str(result.error)

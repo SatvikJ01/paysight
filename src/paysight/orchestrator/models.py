@@ -78,6 +78,15 @@ class IntentResult(BaseModel):
     entities: list[Entity] = Field(default_factory=list)
     extra_steps: list[ExtraStep] = Field(default_factory=list)
     unsafe_reason: str | None = None
+    needs_custom_sql: bool = False
+    custom_sql_reason: str | None = None
+
+
+class AdhocSQL(BaseModel):
+    """LLM-written SQL for a question the semantic layer cannot express (SPEC §9.6)."""
+
+    sql: str
+    explanation: str
 
 
 # --------------------------------------------------------------------------------------------

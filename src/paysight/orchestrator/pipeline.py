@@ -21,6 +21,7 @@ from paysight.llm.base import LLMError
 from paysight.llm.replay import LLMClient
 from paysight.observability.trace import Trace, new_run_id
 from paysight.orchestrator import planner
+from paysight.orchestrator.adhoc import run_adhoc
 from paysight.orchestrator.confidence import score_confidence
 from paysight.orchestrator.grounding import (
     check_draft,
@@ -36,7 +37,15 @@ from paysight.orchestrator.intent import (
 )
 from paysight.orchestrator.models import AskResult, ClarificationOption
 from paysight.orchestrator.narrator import narrate
-from paysight.orchestrator.playbooks import RUNNERS, PlanError, RunContext, Scope, plan_steps
+from paysight.orchestrator.playbooks import (
+    RUNNERS,
+    NotExpressibleError,
+    PlanError,
+    RunContext,
+    Scope,
+    dq_step,
+    plan_steps,
+)
 from paysight.safety.access import RolePolicy, precheck
 from paysight.semantic.dates import DateResolutionError
 from paysight.semantic.models import SemanticLayer
@@ -99,6 +108,21 @@ class Paysight:
         return result
 
     # ----------------------------------------------------------------------------------------
+
+    def _adhoc(
+        self,
+        ctx: RunContext,
+        question: str,
+        reason: str,
+        windows: planner.Windows,
+        trace: Trace,
+        result: AskResult,
+        extras: list,
+    ) -> None:
+        """SPEC §9.6: answer with validated, AI-written SQL, then scan data quality."""
+        result.plan = plan_steps("adhoc", extras, [])
+        run_adhoc(ctx, self.llm, trace, question=question, reason=reason)
+        dq_step(ctx, windows.current, [], [])
 
     def _run(
         self,
@@ -208,7 +232,22 @@ class Paysight:
         ctx.caveats.extend(windows.notes)
         with trace.step(f"playbook:{qtype}") as step:
             try:
-                RUNNERS[qtype](ctx, scope)
+                if intent.needs_custom_sql:
+                    self._adhoc(
+                        ctx,
+                        question,
+                        intent.custom_sql_reason or "",
+                        windows,
+                        trace,
+                        result,
+                        extras,
+                    )
+                else:
+                    try:
+                        RUNNERS[qtype](ctx, scope)
+                    except NotExpressibleError as exc:
+                        ctx.evidence.clear()
+                        self._adhoc(ctx, question, str(exc), windows, trace, result, extras)
             except (AnalysisError, PlanError) as exc:
                 step.status = "error"
                 step.summary = str(exc)

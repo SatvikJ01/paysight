@@ -273,3 +273,48 @@ Non-retryable provider errors (bad requests, auth failures, an exhausted daily q
 wrapped as `LLMUnavailableError`, like exhausted retries. The pipeline therefore reports which
 step failed and still shows the evidence computed so far, instead of crashing (SPEC §12.2).
 A daily-quota 429 is not retried, because it cannot recover within the retry window.
+
+## D27. Claude request shape: structured outputs, no temperature, thinking off, cached prefix
+
+**Model.** All cassettes, the Paysight eval and the baseline use `claude-sonnet-5-5`: one model,
+chosen from a measured cost estimate. The Gemini cassettes are replaced.
+
+**Request shape.**
+- **Structured outputs.** Forcing a tool call with `tool_choice` returns a 400 on Sonnet 5.5 and
+  Opus 5.5, so the provider sends the pydantic schema as `output_config.format`, converted with
+  the SDK's `transform_schema` (strict: every property required, `additionalProperties: false`).
+- **No `temperature`.** Current Claude models reject non-default sampling parameters.
+  Determinism comes from cassettes, not sampling settings.
+- **Thinking.** Thinking is billed as output and is not needed to fill a schema or narrate
+  precomputed evidence: `between_tools` on Sonnet 5.5, `disabled` on Haiku 5.5, and low effort
+  on Opus 5.5, where it cannot be turned off.
+- **Prompt caching.** A `cache_control` breakpoint sits on the system block, which is static per
+  template. The intent system prompt (catalog plus examples) is about 98% of that request.
+- **No server-side refusal fallback.** It is not enabled, because it would answer with a
+  different model and break the one-model rule. A refusal surfaces as an `LLMError`, and the
+  pipeline degrades gracefully.
+
+## D28. A persistent spend ledger enforces the LLM budget
+
+`runs/llm_spend.json` accumulates the cost of every live call: input, output, cache writes and
+cache reads, priced per model from `config/settings.yaml`. It persists across separate CLI runs.
+Before each live call the client refuses if spend has reached `llm.budget_usd` ($4). After each
+call, the response is saved first and then the ledger raises if the new total went over, so
+recording or an eval stops at the first call that crosses the budget.
+
+## D29. When the ad-hoc SQL fallback runs
+
+There are two triggers.
+- **The intent says so.** `needs_custom_sql` is set when a calculation is outside the catalog:
+  a median, a share of orders meeting a condition, distinct counts, a segment compared with the
+  overall figure.
+- **A compile error.** A playbook raises `NotExpressibleError` when a spec cannot compile.
+
+**What the LLM sees.** Only the views the role may query, with columns of denied sensitivity
+left out of the schema. **Repair.** One attempt, given the validator's exact failures. Both
+attempts' validation reports are kept on the evidence, which is tagged `ad_hoc` and caps
+confidence at Medium. A caveat says the SQL was AI-written and validated, but not governed.
+
+**The repair eval case.** It asks for "the past two years". The prompt states the time-bound
+rules but not the validator's 400-day maximum, so a natural first SQL fails validation and must
+be repaired. The prompt does not withhold any rule in order to force failures.

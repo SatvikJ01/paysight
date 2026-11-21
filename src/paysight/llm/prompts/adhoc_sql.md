@@ -14,10 +14,12 @@ RULES
   created_at >= TIMESTAMP '2026-10-01' AND created_at < TIMESTAMP '2026-11-01'.
 - Success rate = SUM(CASE WHEN status = 'SUCCESS' THEN 1 ELSE 0 END) / COUNT(*).
 - Aggregate; return at most 50 rows; include a LIMIT.
+- Every SELECT that reads v_attempts_clean or v_orders, including subqueries and CTEs,
+  needs its own created_at bounds.
 - The data's "today" is $as_of.
 
 VIEW SCHEMA
-$schema
+$view_schema
 $errors
 Respond with a JSON object: {"sql": "...", "explanation": "one sentence"}.
 
