@@ -1,0 +1,57 @@
+{
+  "key": "e1b21be69bdc4561f6e43d6451fb3f1c028e9d2a27f044fae1892ee4432722a2",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [
+      {
+        "field": "decline_scope",
+        "materiality": "low",
+        "options": [
+          "all failed card attempts",
+          "issuer declines only (failure_category = issuer_decline)"
+        ],
+        "proposed_default": "all failed card attempts"
+      }
+    ],
+    "dimensions": [
+      "issuer_name"
+    ],
+    "extra_steps": [
+      {
+        "dimension": null,
+        "reason": "Show which decline codes the top issuers contributed.",
+        "tool": "failure_codes"
+      },
+      {
+        "dimension": "failure_category",
+        "reason": "Split card failures into issuer, technical, risk and customer drop-off categories.",
+        "tool": "breakdown"
+      }
+    ],
+    "filters": [
+      {
+        "dimension": "method_family",
+        "op": "=",
+        "values": [
+          "card"
+        ]
+      }
+    ],
+    "metrics": [
+      "failed_attempts"
+    ],
+    "question_type": "ranking",
+    "restatement": "Issuers ranked by number of failed card attempts (declines) in August 2026.",
+    "time_expr": "month:2026-08"
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 58,
+    "output_tokens": 290
+  }
+}

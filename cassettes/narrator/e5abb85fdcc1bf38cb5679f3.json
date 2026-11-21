@@ -1,0 +1,78 @@
+{
+  "key": "e5abb85fdcc1bf38cb5679f3a03b052047e7c73a1a1a319829fda308c1ff3438",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "'Success rate' means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "Period analysed: 1 October 2026 to 31 October 2026."
+    ],
+    "caveats": [
+      "Success rate depends on the denominator: attempt-level is 89.2%, order-level 91.6% and technical 92.9%; retries and drop-offs explain the gap.",
+      "Duplicate records on 12 Oct (341 attempts ingested twice) were removed, keeping the first ingestion.",
+      "The 18-31 Oct volume spike is not a data error by itself, but check it before comparing totals across this period."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The attempt-level success rate for 1-31 October 2026 was 89.2%, from 384,193 successful attempts out of 430,580 total attempts."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "The order-level success rate was 91.6% (384,192 successful out of 419,385 orders) and the technical success rate was 92.9% (384,193 successful out of 413,684). The widest gap between the three definitions is 3.64pp."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "On 12 Oct, 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts); each attempt is counted once in the figures above."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "Attempt volume from 18 Oct to 31 Oct was 39% above the usual level for those weekdays, over 14 days."
+      }
+    ],
+    "headline": "October 2026 attempt success rate was 89.2% (384,193 successful out of 430,580 attempts), counting every retry as its own attempt.",
+    "hypotheses": [
+      {
+        "confidence": "med",
+        "how_to_verify": "Compare attempts per order and the share of orders that succeeded only after a retry in October.",
+        "rationale": "Attempt-level counts every retry as a separate attempt, so failed first tries that later succeed pull the attempt rate down, while order-level rates credit the eventual success.",
+        "text": "The gap between the attempt-level rate (89.2%) and the order-level (91.6%) and technical (92.9%) rates is largely explained by retries and customer drop-offs."
+      },
+      {
+        "confidence": "low",
+        "how_to_verify": "Check the sale/campaign calendar and compare order counts and revenue for 18-31 Oct against ingestion logs.",
+        "rationale": "Real business events and data gaps both produce volume spikes of this kind, and the evidence cannot tell them apart.",
+        "text": "The 18-31 Oct volume spike may reflect a sale or promotion rather than a data gap."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "The order-level success rate was 91.6% and the technical success rate was 92.9%.",
+        "rationale": "The three definitions differ by up to 3.64pp, so comparing numbers across teams without a shared definition can mislead.",
+        "text": "When reporting October's success rate, state the definition used (attempt-level 89.2%) and show order-level and technical rates alongside."
+      },
+      {
+        "linked_fact_or_hypothesis": "The 18-31 Oct volume spike may reflect a sale or promotion rather than a data gap.",
+        "rationale": "A +39% volume change can distort period-over-period comparisons if it is not understood.",
+        "text": "Confirm whether the 18-31 Oct volume spike was a planned sale before comparing October totals with other months."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 1132,
+    "output_tokens": 1164
+  }
+}

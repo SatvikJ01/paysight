@@ -1,0 +1,90 @@
+{
+  "key": "dedc2202d64d271ed4f6bea0e1df37db4a4f9cead5bffadf70f4647a00246218",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "Declines are taken to mean all failed card attempts.",
+      "The period analysed is 1 August 2026 to 31 August 2026."
+    ],
+    "caveats": [
+      "8.0% of Meridian Bank's card attempts in August 2026 (2,856 of 35,507) have no issuer ID where 0% is expected, so issuer-level results for this scope are understated.",
+      "This was not corrected: those rows are kept and shown as a '(missing)' issuer.",
+      "These are counts of failed attempts, not decline rates, so issuers with higher volume naturally show more declines."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "There were 17,027 failed card attempts in August 2026 across all issuers."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Harbor Bank had the most failed card attempts: 3,489, or 20.5% of the total."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Lotus Bank was second with 3,206 failed attempts (18.8%), and Ridge Bank third with 2,782 (16.3%)."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The top three issuers together account for 55.7% of all failed card attempts."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The remaining ranked issuers were Indigo Bank (2,598; 15.3%), Coral Bank (2,558; 15.0%) and Banyan Bank (2,004; 11.8%)."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "390 failed attempts (2.3%) have no issuer name and appear as a '(missing)' issuer."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "8.0% of Meridian Bank's card attempts in August 2026 (2,856 of 35,507) have no issuer ID, against an expected 0%."
+      }
+    ],
+    "headline": "Harbor Bank drove the most card declines in August 2026 (3,489 failed attempts, 20.5% of the 17,027 total), followed by Lotus Bank and Ridge Bank; these top three account for 55.7% of all declines.",
+    "hypotheses": [
+      {
+        "confidence": "low",
+        "how_to_verify": "Fix or backfill the missing issuer_id values for Meridian Bank card attempts and re-run the ranking to see if any issuer's count or rank changes.",
+        "rationale": "Meridian Bank card attempts have 8.0% missing issuer IDs, and a '(missing)' issuer holds 390 failed attempts, so the ranking may be slightly understated for some issuers.",
+        "text": "Some declines actually belong to named issuers but are sitting in the '(missing)' bucket because of the missing issuer IDs on Meridian Bank card traffic."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "The top three issuers together account for 55.7% of all failed card attempts.",
+        "rationale": "Concentrated declines are the quickest place to find fixable issues.",
+        "text": "Review decline reasons and approval rates for Harbor Bank, Lotus Bank and Ridge Bank first, since they account for over half of all declines."
+      },
+      {
+        "linked_fact_or_hypothesis": "8.0% of Meridian Bank's card attempts in August 2026 (2,856 of 35,507) have no issuer ID, against an expected 0%.",
+        "rationale": "Missing IDs understate issuer-level counts and could hide the true ranking.",
+        "text": "Ask the data team to fix the missing issuer IDs on Meridian Bank card attempts and refresh the issuer ranking."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 1035,
+    "output_tokens": 1167
+  }
+}

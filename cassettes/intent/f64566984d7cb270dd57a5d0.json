@@ -1,0 +1,72 @@
+{
+  "key": "f64566984d7cb270dd57a5d0416dd7c33e3d09df4216ed2e35dddeb03b7f9738",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [
+      {
+        "field": "time",
+        "materiality": "low",
+        "options": [
+          "1-10 September 2026",
+          "1-7 September 2026",
+          "1-15 September 2026"
+        ],
+        "proposed_default": "1-10 September 2026"
+      },
+      {
+        "field": "metric",
+        "materiality": "low",
+        "options": [
+          "attempt_success_rate",
+          "order_success_rate",
+          "technical_success_rate"
+        ],
+        "proposed_default": "attempt_success_rate"
+      }
+    ],
+    "compare_time_expr": null,
+    "custom_sql_reason": null,
+    "dimensions": [],
+    "entities": [],
+    "extra_steps": [
+      {
+        "dimension": null,
+        "reason": "Show the day-by-day success rate across early September to reveal any dips.",
+        "tool": "daily_series"
+      },
+      {
+        "dimension": null,
+        "reason": "Identify the main UPI failure reasons during the period.",
+        "tool": "failure_codes"
+      }
+    ],
+    "filters": [
+      {
+        "dimension": "payment_method",
+        "op": "=",
+        "values": [
+          "UPI"
+        ]
+      }
+    ],
+    "metrics": [
+      "attempt_success_rate",
+      "attempts"
+    ],
+    "needs_custom_sql": false,
+    "question_type": "trend",
+    "restatement": "How UPI payment attempt success rate (with attempt volume) performed in early September 2026 (1-10 Sep).",
+    "time_expr": "explicit:2026-09-01..2026-09-10",
+    "unsafe_reason": null
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 56,
+    "output_tokens": 418
+  }
+}

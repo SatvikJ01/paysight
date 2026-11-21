@@ -1,0 +1,47 @@
+{
+  "key": "6d65b73adeedf1b8d2e30d28de1144dacd841ef5058e3dba53719a2d5505f406",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [],
+    "compare_time_expr": "previous_period",
+    "custom_sql_reason": null,
+    "dimensions": [],
+    "entities": [],
+    "extra_steps": [
+      {
+        "dimension": "payment_method",
+        "reason": "Check whether the drop is concentrated in specific payment methods.",
+        "tool": "breakdown"
+      },
+      {
+        "dimension": null,
+        "reason": "Identify which failure codes increased between the two periods.",
+        "tool": "failure_codes"
+      },
+      {
+        "dimension": null,
+        "reason": "See when within the period the drop began.",
+        "tool": "daily_series"
+      }
+    ],
+    "filters": [],
+    "metrics": [
+      "attempt_success_rate"
+    ],
+    "needs_custom_sql": false,
+    "question_type": "root_cause",
+    "restatement": "Why attempt success rate changed over the last 2 weeks compared with the 2 weeks before.",
+    "time_expr": "last_n_weeks:2",
+    "unsafe_reason": null
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 6284,
+    "input_tokens": 72,
+    "output_tokens": 287
+  }
+}

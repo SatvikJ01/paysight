@@ -1,0 +1,46 @@
+{
+  "key": "9f40affff380bacab4dde36faf5d4c8b5e3fdac541b73dff8148133fd47c435a",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "Period analysed: 12 Oct 2026 only (2026-10-12 to 2026-10-12).",
+      "The count is of unique payment attempts from the clean view, not raw rows."
+    ],
+    "caveats": [
+      "Duplicate records on 12 Oct: 341 attempts were ingested twice (11,704 raw rows vs 11,363 unique attempts, +3.0%). Paysight counts each attempt once, keeping the first ingestion and removing the repeats in the clean view."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "11,363 unique payment attempts were processed on 12 Oct 2026."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "The raw data held 11,704 rows for 12 Oct; after removing 341 duplicate ingestions, 11,363 unique attempts remain."
+      }
+    ],
+    "headline": "We processed 11,363 payment attempts on 12 October 2026, with each attempt counted once.",
+    "hypotheses": [],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "The raw data held 11,704 rows for 12 Oct; after removing 341 duplicate ingestions, 11,363 unique attempts remain.",
+        "rationale": "Duplicates inflate the raw row count by 3.0%; the clean view hides this, but the root cause should be fixed upstream.",
+        "text": "Ask the data engineering team to check why 341 attempts were ingested twice on 12 Oct and fix the source of the duplication."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 621,
+    "output_tokens": 494
+  }
+}

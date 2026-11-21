@@ -1,0 +1,38 @@
+{
+  "key": "89806c64c4fc1efda1f35270466befe6fb8b316ef3ace119f2aac1037c6c2795",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [],
+    "dimensions": [
+      "card_bin"
+    ],
+    "entities": [],
+    "extra_steps": [],
+    "filters": [
+      {
+        "dimension": "method_family",
+        "op": "=",
+        "values": [
+          "card"
+        ]
+      }
+    ],
+    "metrics": [
+      "failed_attempts"
+    ],
+    "needs_custom_sql": false,
+    "question_type": "ranking",
+    "restatement": "Card BINs ranked by number of failed attempts (declines) for the last 7 days.",
+    "time_expr": "last_n_days:7"
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 61,
+    "output_tokens": 151
+  }
+}

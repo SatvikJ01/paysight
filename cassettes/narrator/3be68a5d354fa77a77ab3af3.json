@@ -1,0 +1,102 @@
+{
+  "key": "3be68a5d354fa77a77ab3af399d20cc2c2dc46f90ac6aef40a7559fd2cd6bb09",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "'Success rate' means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "Period compared: 25-31 Oct 2026 versus 18-24 Oct 2026, the immediately preceding period of equal length, since no period was specified."
+    ],
+    "caveats": [
+      "Attempt volume was about 39% above the usual level for these weekdays over 18-31 Oct. This looks like a real business event such as a sale, or possibly a data gap, so check before comparing totals across this period.",
+      "Success rate depends on the denominator: attempt-level 88.5%, order-level 90.7%, technical 92.0%. Retries and drop-offs explain the gap.",
+      "Failure codes are quoted per 100 attempts for Harbor Bank debit cards only, not across all traffic."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Attempt success rate was 88.5% in 25-31 Oct versus 88.6% in 18-24 Oct, a fall of 0.18pp. The p-value is 0.178, so the change is neither statistically nor practically significant."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "Payment-method mix explains almost none of the change (about 0.0pp, 0.06% of it). The rate effect is -0.18pp, so the dip is within-method rate change rather than a shift in mix."
+      },
+      {
+        "evidence_ids": [
+          "E3",
+          "E4"
+        ],
+        "text": "Debit card is 16.4% of volume but accounts for -0.23pp of the -0.18pp change. Its rate fell from 84.0% to 82.7%. UPI, credit card, EMI and wallet were flat to slightly up."
+      },
+      {
+        "evidence_ids": [
+          "E5"
+        ],
+        "text": "The largest rate drop inside a segment is Harbor Bank debit cards, where the success rate fell 3.89pp from 78.6% to 74.7%, contributing -0.16pp to the overall change (q-value 0.00069)."
+      },
+      {
+        "evidence_ids": [
+          "E6"
+        ],
+        "text": "For Harbor Bank debit cards, ISSUER_RISK_DECLINE rose from 8.42 to 13.86 per 100 attempts (658 failures in the current week versus 407 in the baseline week). Most other failure codes moved little or fell."
+      },
+      {
+        "evidence_ids": [
+          "E7"
+        ],
+        "text": "Harbor Bank debit card daily success rate was 84.1%, 83.7% and 86.3% on 18-20 Oct, then dropped to 73.3% on 21 Oct and stayed around 72.6%-75.2% through 29 Oct. The step down began on 21 Oct, inside the baseline week."
+      },
+      {
+        "evidence_ids": [
+          "E8"
+        ],
+        "text": "The result depends on the definition: attempt-level 88.5%, order-level 90.7% and technical 92.0% for 25-31 Oct."
+      }
+    ],
+    "headline": "Success rate fell only 0.18pp, from 88.6% to 88.5%, and that change is not statistically significant. There is essentially no payment-mix effect; the small dip is a like-for-like rate effect, concentrated in Harbor Bank debit cards.",
+    "hypotheses": [
+      {
+        "confidence": "med",
+        "how_to_verify": "Ask Harbor Bank whether risk rules or thresholds changed around 21 Oct. Check whether the decline rate differs by merchant, amount band or device on Harbor Bank debit traffic from 21 Oct.",
+        "rationale": "The drop is sharp and sustained from one day, is isolated to one issuer and payment method, and is almost entirely in the ISSUER_RISK_DECLINE code, which is consistent with a rule change rather than gradual customer behaviour.",
+        "text": "A change in Harbor Bank's risk or fraud rules (or a risk-scoring change on traffic sent to them) raised risk declines on debit cards from about 21 Oct."
+      },
+      {
+        "confidence": "low",
+        "how_to_verify": "Compare merchant, category and amount distributions of Harbor Bank debit attempts before and after 21 Oct.",
+        "rationale": "Issuer risk declines can respond to changes in traffic characteristics, and volume was elevated in this period. No evidence directly shows a change in traffic type.",
+        "text": "A change in the transactions we send (for example a new merchant category, higher-value orders or a new integration) is triggering Harbor Bank's risk checks."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "A change in Harbor Bank's risk or fraud rules (or a risk-scoring change on traffic sent to them) raised risk declines on debit cards from about 21 Oct.",
+        "rationale": "The decline is concentrated in one issuer-method pair and one failure code, which makes it actionable with a single counterparty.",
+        "text": "Raise the 21 Oct step-change in Harbor Bank debit card risk declines with Harbor Bank's issuer relations team and ask for the rule or threshold change."
+      },
+      {
+        "linked_fact_or_hypothesis": "A change in the transactions we send (for example a new merchant category, higher-value orders or a new integration) is triggering Harbor Bank's risk checks.",
+        "rationale": "This tests whether our traffic changed and could allow targeted fixes such as retries or stronger authentication.",
+        "text": "Break down Harbor Bank debit risk declines by merchant, amount and channel from 21 Oct to see if specific traffic is being declined."
+      },
+      {
+        "linked_fact_or_hypothesis": "Attempt success rate was 88.5% in 25-31 Oct versus 88.6% in 18-24 Oct, a fall of 0.18pp. The p-value is 0.178, so the change is neither statistically nor practically significant.",
+        "rationale": "The overall change is not statistically significant and the within-segment drop is localised.",
+        "text": "Do not treat the overall 0.18pp dip as a platform-wide problem; monitor it, but focus effort on Harbor Bank debit cards."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 5863,
+    "output_tokens": 1977
+  }
+}

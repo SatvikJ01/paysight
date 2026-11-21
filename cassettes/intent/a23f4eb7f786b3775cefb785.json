@@ -1,0 +1,70 @@
+{
+  "key": "a23f4eb7f786b3775cefb78533b804df53d29bc1fae876d65067d615e80fe542",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [
+      {
+        "field": "time",
+        "materiality": "low",
+        "options": [
+          "last 7 days: 2026-10-25 to 2026-10-31",
+          "calendar week ending 2026-10-31 (Mon-Sun): 2026-10-26 to 2026-11-01 is not available, so 2026-10-25..2026-10-31"
+        ],
+        "proposed_default": "explicit:2026-10-25..2026-10-31 (the last 7 days of October)"
+      },
+      {
+        "field": "settlement_measure",
+        "materiality": "low",
+        "options": [
+          "settled_gross_inr",
+          "settled_net_inr"
+        ],
+        "proposed_default": "settled_gross_inr"
+      }
+    ],
+    "compare_time_expr": null,
+    "custom_sql_reason": null,
+    "dimensions": [],
+    "entities": [
+      {
+        "dimension": "merchant_group",
+        "text": "NovaMart"
+      }
+    ],
+    "extra_steps": [
+      {
+        "dimension": null,
+        "reason": "Show day-by-day GMV against settlements to locate any timing gap in the week.",
+        "tool": "daily_series"
+      }
+    ],
+    "filters": [
+      {
+        "dimension": "merchant_group",
+        "op": "=",
+        "values": [
+          "NovaMart"
+        ]
+      }
+    ],
+    "metrics": [
+      "gmv_inr",
+      "settled_gross_inr"
+    ],
+    "needs_custom_sql": false,
+    "question_type": "reconciliation",
+    "restatement": "Compare NovaMart group GMV from transactions with gross settled amount for the last week of October 2026 (24-31 October).",
+    "time_expr": "explicit:2026-10-25..2026-10-31",
+    "unsafe_reason": null
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 73,
+    "output_tokens": 488
+  }
+}
