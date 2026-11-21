@@ -24,6 +24,8 @@ data_app = typer.Typer(help="Generate and inspect the synthetic dataset.", no_ar
 app.add_typer(data_app, name="data")
 debug_app = typer.Typer(help="Run analyses directly, without an LLM.", no_args_is_help=True)
 app.add_typer(debug_app, name="debug")
+eval_app = typer.Typer(help="Evaluate Paysight against the naive baseline.", no_args_is_help=True)
+app.add_typer(eval_app, name="eval")
 
 
 @app.command()
@@ -223,11 +225,11 @@ def render_answer(result: AskResult) -> str:
         out.append(f"\n{a.headline}")
         if result.confidence:
             out.append(f"Confidence: {result.confidence.summary()}")
-        out.append("\nFacts")
-        out += [f"  - {f.text} [{', '.join(f.evidence_ids)}]" for f in a.facts]
         if result.sql_source:
             source = {"governed": "Governed", "ad_hoc": "Ad-hoc SQL"}[result.sql_source]
             out.append(f"Queries: {source}")
+        out.append("\nFacts")
+        out += [f"  - {f.text} [{', '.join(f.evidence_ids)}]" for f in a.facts]
         if a.hypotheses:
             out.append("Hypotheses")
             out += [
@@ -263,6 +265,25 @@ def render_answer(result: AskResult) -> str:
     if result.trace_path:
         out.append(f"Trace: {result.trace_path}")
     return "\n".join(out)
+
+
+@eval_app.command("run")
+def eval_run(
+    mode: Annotated[
+        str | None, typer.Option(help="replay (default without a key) or record.")
+    ] = None,
+    only: Annotated[list[str] | None, typer.Option(help="Run only these case ids.")] = None,
+) -> None:
+    """Score Paysight and the baseline on eval/questions.yaml; write eval/reports/latest.*."""
+    from paysight.evaluation.runner import run_eval
+
+    report = run_eval(get_settings(), mode=mode, only=only)
+    typer.echo(f"{report['n_questions']} questions, mode {report['mode']}")
+    for row in report["summary"]:
+        typer.echo(
+            f"  {row['metric']:<45} paysight={row['paysight']!s:<14} baseline={row['baseline']}"
+        )
+    typer.echo(f"Failures: {len(report['failures'])} (see eval/reports/latest.md)")
 
 
 @app.command()

@@ -22,6 +22,19 @@ st.caption(
 )
 st.markdown("### Paysight vs naive text-to-SQL baseline")
 st.dataframe(pd.DataFrame(report["summary"]), hide_index=True, use_container_width=True)
+rob = report.get("robustness") or {}
+if rob.get("groups"):
+    st.markdown("### Phrasing robustness (Paysight)")
+    st.metric(
+        "Robustness score",
+        f"{rob['score_pct']}%",
+        help="Share of question groups where the original and every paraphrase pass.",
+    )
+    st.dataframe(
+        pd.DataFrame(rob["groups"])[["id", "phrasings", "passed", "all_passed", "same_parse"]],
+        hide_index=True,
+        use_container_width=True,
+    )
 st.markdown("### Per question")
 st.dataframe(pd.DataFrame(report["questions"]), hide_index=True, use_container_width=True)
 if report.get("failures"):
