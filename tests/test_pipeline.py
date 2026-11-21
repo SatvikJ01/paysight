@@ -17,6 +17,7 @@ from paysight.llm.replay import LLMClient
 from paysight.orchestrator.models import AnswerDraft, IntentResult
 from paysight.orchestrator.pipeline import Paysight
 from paysight.semantic.loader import get_semantic_layer
+from tests.guarantees import assert_grounding_guarantee
 
 INTENTS = {
     "why did sr drop over the last two weeks": IntentResult(
@@ -184,6 +185,7 @@ def test_hallucinated_number_is_removed_after_one_retry(small_engine, tmp_path) 
     result = paysight.ask("why did sr drop over the last two weeks", "leadership")
     assert result.kind == "answer"
     assert [r.text for r in result.removed_claims] == ["Refund volume rose 37.4% week on week."]
+    assert_grounding_guarantee(result)
     assert all("37.4" not in f.text for f in result.answer.facts)
     assert result.confidence.level != "High"
     assert len(fake.calls) == 3  # intent, narration, one regeneration
