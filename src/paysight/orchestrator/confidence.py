@@ -17,6 +17,13 @@ Level = Literal["High", "Medium", "Low"]
 _ORDER = {"High": 2, "Medium": 1, "Low": 0}
 
 
+def format_p(p: float | None) -> str:
+    """'p < 0.001' for tiny values (a z of 60 underflows to 0.0), otherwise 'p=0.0123'."""
+    if p is None:
+        return "p not computed"
+    return "p < 0.001" if p < 0.001 else f"p={p:.3g}"
+
+
 def score_confidence(
     *,
     evidence: list[Evidence],
@@ -54,7 +61,7 @@ def score_confidence(
             good.append(f"large samples ({n:,}+ attempts per {unit})")
         if k.get("statistically_significant") and k.get("practically_significant"):
             good.append(
-                f"a statistically and practically significant {what} (p={k.get('p_value')})"
+                f"a statistically and practically significant {what} ({format_p(k.get('p_value'))})"
             )
         elif k.get("statistically_significant"):
             cap("Medium", f"the {what} is statistically significant but small in practice")

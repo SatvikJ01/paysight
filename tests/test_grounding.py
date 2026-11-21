@@ -206,3 +206,12 @@ def test_merge_caveats_drops_paraphrases_keeps_new_points() -> None:
     ]
     merged = merge_caveats(computed, narrated)
     assert merged == [computed[0], narrated[1]]
+
+
+def test_tiny_p_values_read_as_below_a_threshold() -> None:
+    from paysight.orchestrator.confidence import format_p
+
+    assert format_p(0.0) == "p < 0.001"
+    assert format_p(1.12e-48) == "p < 0.001"
+    assert format_p(0.0123) == "p=0.0123"
+    assert format_p(None) == "p not computed"
