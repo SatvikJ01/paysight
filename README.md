@@ -4,8 +4,6 @@
 
 Submission for the Pine Labs campus case study, **Case 2: Enterprise AI Business Analyst**.
 
-**Demo video:** _link added on upload_ · **Script:** [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md)
-
 A business user asks a plain-English question about payment performance. Paysight plans an
 analysis, compiles and safety-checks SQL, runs it on DuckDB, does the statistics in
 deterministic Python, and answers with facts, hypotheses and recommendations kept apart. Every
@@ -285,7 +283,7 @@ app/                      Streamlit UI: Ask, Data health, Eval scorecard, Semant
 cassettes/                recorded LLM responses (replay mode)
 config/                   settings, semantic layer, access policies
 data/ground_truth.yaml    measured answer key for the planted scenarios
-docs/                     SPEC, ARCHITECTURE, DECISIONS, LIMITATIONS, DATA_DICTIONARY, DEMO_SCRIPT
+docs/                     SPEC, ARCHITECTURE, DECISIONS, LIMITATIONS, DATA_DICTIONARY
 eval/                     questions, gold SQL, reports
 src/paysight/
   data/                   deterministic generator and scenarios

@@ -32,3 +32,6 @@ Thumbs.db
 # Local assistant notes and settings (not part of the project)
 CLAUDE.md
 .claude/
+
+# Personal rehearsal notes
+docs/DEMO_SCRIPT.md

@@ -185,7 +185,7 @@ paysight/
 ├── runs/                           # traces (gitignored)
 ├── docs/
 │   ├── SPEC.md, ARCHITECTURE.md, DATA_DICTIONARY.md
-│   ├── DECISIONS.md, LIMITATIONS.md, DEMO_SCRIPT.md
+│   ├── DECISIONS.md, LIMITATIONS.md
 │   └── images/
 └── tests/
 ```
@@ -1140,9 +1140,6 @@ The README is the most important document. Reviewers skim it, so keep it scannab
 - **DECISIONS.md**: short ADR-style entries. Why DuckDB. Why a semantic layer before free-form
   SQL. Why deterministic confidence. Why replay. Why Kitagawa.
 - **LIMITATIONS.md**: honest limitations.
-- **DEMO_SCRIPT.md**: a 4–5 minute video script. Problem (20s), architecture (30s), hero
-  question with the waterfall (90s), ambiguity + access denial + data-quality warning (60s),
-  reconciliation (30s), eval scorecard vs baseline (30s), limitations and close (20s).
 
 ### 18.3 Final checklist (M8)
 
