@@ -35,6 +35,11 @@ def load_semantic_layer(path: Path | None = None) -> SemanticLayer:
         for view in d.sources:
             if d.sources[view] in layer.views[view].pii_columns and d.sensitivity != "pii":
                 raise ValueError(f"dimension {d.name} exposes a pii column but is not marked pii")
+    dims = {d.name: d for d in layer.dimensions}
+    for d in layer.dimensions:
+        for c in d.context:
+            if c not in dims or not set(d.sources) <= set(dims[c].sources):
+                raise ValueError(f"dimension {d.name} has context {c} not on the same views")
     return layer
 
 

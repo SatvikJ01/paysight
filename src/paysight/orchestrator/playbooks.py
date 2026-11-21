@@ -1050,9 +1050,18 @@ def run_ranking(ctx: RunContext, scope: Scope) -> None:
     metrics = scope.metrics or ["failed_attempts"]
     if not scope.dimensions:
         raise PlanError("a ranking needs something to rank (e.g. merchants, issuers, BINs)")
+    # Context dimensions are functionally dependent on the ranked ones (a BIN has one issuer),
+    # so adding them to GROUP BY labels the rows without changing the ranking.
+    denied = set(ctx.role.denied_sensitivities)
+    context = [
+        c
+        for d in scope.dimensions
+        for c in ctx.layer.dimension(d).context
+        if c not in scope.dimensions and ctx.layer.dimension(c).sensitivity not in denied
+    ]
     spec = QuerySpec(
         metrics=metrics[:2],
-        dimensions=scope.dimensions,
+        dimensions=[*scope.dimensions, *dict.fromkeys(context)],
         filters=scope.filters,
         time_window=scope.current,
         order_by=[OrderBy(field=metrics[0], descending=metrics[0] not in RATE_METRICS)],

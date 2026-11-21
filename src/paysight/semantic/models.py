@@ -67,6 +67,9 @@ class Dimension(_Model):
     sources: dict[str, str]
     sensitivity: Sensitivity
     allowed_ops: list[FilterOp]
+    # Dimensions that each value of this one belongs to exactly once (a BIN has one issuer).
+    # Rankings show them next to the ranked value so a reader can act on it.
+    context: list[str] = Field(default_factory=list)
 
 
 class Filter(_Model):

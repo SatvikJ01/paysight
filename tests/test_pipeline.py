@@ -161,7 +161,12 @@ def test_regional_denial_executes_nothing(app) -> None:
 def test_pii_denial_for_leadership_but_not_risk(app) -> None:
     paysight, _ = app
     assert paysight.ask("show card bins", "leadership").kind == "denied"
-    assert paysight.ask("show card bins", "risk_analyst").kind == "answer"
+    result = paysight.ask("show card bins", "risk_analyst")
+    assert result.kind == "answer"
+    # A BIN alone is not actionable: rankings carry its issuer (a context dimension).
+    ranking = next(e for e in result.evidence if e.kind == "ranking")
+    assert all(row["issuer_name"] for row in ranking.result)
+    assert result.sql_source == "governed"
 
 
 def test_unsafe_guard_refuses_before_the_llm(app) -> None:
