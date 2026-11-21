@@ -198,6 +198,43 @@ class Engine:
         self.cache.put(key, frame)
         return done("ok", frame)
 
+    def run_internal(self, sql: str, params: list[object], *, purpose: str) -> QueryResult:
+        """Run fixed, reviewed SQL from the data-quality tool, which may read raw tables.
+
+        This path exists only because the data-quality checks must see duplicates that the
+        governed views remove. It is never given LLM- or user-written SQL: callers pass
+        module-level SQL constants, and every value is a bound parameter. The connection is the
+        same hardened, read-only one, and the timeout still applies.
+        """
+        t0 = time.perf_counter()
+        report = ValidationReport(role="internal", sql_in=sql, sql_out=sql)
+        report.add("internal_reviewed_query", "pass", f"fixed SQL for {purpose}; raw-table read")
+        with self._lock:
+            timer = threading.Timer(self.limits.query_timeout_s, self._con.interrupt)
+            timer.start()
+            try:
+                frame = self._con.execute(sql, params).df()
+                status: RunStatus = "ok"
+                error = None
+                report.add("execution_guard", "pass", "completed within the timeout")
+            except duckdb.InterruptException:
+                frame, status, error = None, "timeout", "query timed out"
+                report.add("execution_guard", "fail", "interrupted by the timeout")
+            except duckdb.Error as exc:
+                frame, status, error = None, "error", str(exc)
+                report.add("execution_guard", "fail", f"execution error: {exc}")
+            finally:
+                timer.cancel()
+        return QueryResult(
+            status=status,
+            report=report,
+            frame=frame,
+            sql=sql,
+            runtime_ms=(time.perf_counter() - t0) * 1000,
+            cache_hit=False,
+            error=error,
+        )
+
     def run_spec(self, spec: QuerySpec, role: RolePolicy) -> tuple[CompiledQuery, QueryResult]:
         """Compile a :class:`QuerySpec` and run it through the same validator as ad-hoc SQL."""
         compiled = compile_query(spec, self.layer)
