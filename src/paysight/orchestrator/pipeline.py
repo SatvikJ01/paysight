@@ -17,7 +17,7 @@ from pathlib import Path
 from paysight.analysis.compare import AnalysisError
 from paysight.config import Settings
 from paysight.execution.engine import Engine
-from paysight.llm.base import LLMError
+from paysight.llm.base import LLMError, ReplayMissError
 from paysight.llm.replay import LLMClient
 from paysight.observability.trace import Trace, new_run_id
 from paysight.orchestrator import planner
@@ -59,6 +59,16 @@ REFUSAL = (
 OUT_OF_SCOPE = (
     "That question is outside what Paysight covers. I can answer questions about payment success "
     "rates, volumes, GMV, failures, data quality and settlements."
+)
+
+
+REPLAY_MISS = (
+    "Replay mode can answer the example questions (sidebar). Add an API key to .env to ask "
+    "your own questions."
+)
+REPLAY_MISS_NARRATION = (
+    "Replay mode has no recorded written answer for this exact question, so only the computed "
+    "evidence is shown below. Add an API key to .env to get the written answer."
 )
 
 
@@ -156,6 +166,9 @@ class Paysight:
                 )
                 trace.add_usage(step, usage)
                 step.summary = f"{intent.question_type}: {intent.restatement}"
+        except ReplayMissError:
+            result.kind, result.message = "unavailable", REPLAY_MISS
+            return
         except LLMError as exc:
             result.kind, result.message = "error", f"Intent step failed: {exc}"
             return
@@ -245,7 +258,11 @@ class Paysight:
                     except NotExpressibleError as exc:
                         ctx.evidence.clear()
                         self._adhoc(ctx, question, str(exc), scope, trace, result)
-            except (AnalysisError, PlanError) as exc:
+            except ReplayMissError:
+                step.status = "skipped"
+                step.summary = "no recorded ad-hoc SQL in replay mode"
+                result.kind, result.message = "unavailable", REPLAY_MISS
+            except (AnalysisError, PlanError, LLMError) as exc:
                 step.status = "error"
                 step.summary = str(exc)
                 result.kind = "error"
@@ -258,7 +275,7 @@ class Paysight:
                     "evidence_meta": {e.id: e.meta for e in ctx.evidence if e.meta},
                     "queries": ctx.queries,
                 }
-        if result.kind == "error":
+        if result.kind in ("error", "unavailable"):
             return
 
         year = settings.data.as_of_date.year
@@ -295,6 +312,9 @@ class Paysight:
                         f"{report.claims_supported}/{report.claims_total} claims supported"
                     )
                     step.details = {"failures": [f.model_dump() for f in report.failures]}
+        except ReplayMissError:
+            result.kind, result.message = "unavailable", REPLAY_MISS_NARRATION
+            return
         except LLMError as exc:
             result.kind = "error"
             result.message = (

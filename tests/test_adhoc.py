@@ -138,3 +138,20 @@ def test_resolved_entities_reach_the_sql_writer(small_engine, tmp_path) -> None:
         in (seen["adhoc_prompts"][0])
     )
     assert result.evidence[0].filters == ["merchant_group = NovaMart"]
+
+
+def test_llm_failure_while_writing_sql_is_reported_not_raised(small_engine, tmp_path) -> None:
+    from paysight.llm.base import LLMUnavailableError
+
+    app, fake, _ = _build(small_engine, tmp_path, CUSTOM, [GOOD])
+    original = fake._handler
+
+    def failing(system: str, user: str, schema: type[BaseModel]):
+        if schema is AdhocSQL:
+            return LLMUnavailableError("provider down")
+        return original(system, user, schema)
+
+    fake._handler = failing
+    result = app.ask("What share of October orders needed more than one attempt?", "leadership")
+    assert result.kind == "error"
+    assert result.message.startswith("The analysis could not be completed")

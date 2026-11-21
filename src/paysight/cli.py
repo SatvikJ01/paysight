@@ -215,7 +215,8 @@ def render_answer(result: AskResult) -> str:
     if result.restatement:
         out.append(f"I understood: {result.restatement}")
     if result.kind != "answer":
-        out.append(f"\n[{result.kind.upper()}] {result.message}")
+        label = "REPLAY MODE" if result.kind == "unavailable" else result.kind.upper()
+        out.append(f"\n[{label}] {result.message}")
         if result.suggestion:
             out.append(f"Suggestion: {result.suggestion}")
         for o in result.options:

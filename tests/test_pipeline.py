@@ -15,7 +15,7 @@ from paysight.llm.base import StructuredLLM
 from paysight.llm.providers.fake import FakeProvider
 from paysight.llm.replay import LLMClient
 from paysight.orchestrator.models import META_KEYS, AnswerDraft, Evidence, IntentResult
-from paysight.orchestrator.pipeline import Paysight
+from paysight.orchestrator.pipeline import REPLAY_MISS, REPLAY_MISS_NARRATION, Paysight
 from paysight.semantic.loader import get_semantic_layer
 from tests.guarantees import assert_grounding_guarantee
 
@@ -342,3 +342,62 @@ def test_plain_ranking_does_not_drill_down(app) -> None:
     assert result.kind == "answer", result.message
     assert [e.kind for e in result.evidence] == ["ranking", "dq"]
     assert "failure_rate_pct" in result.evidence[0].result[0]
+
+
+def _replay_app(engine, cassettes: Path, tmp_path: Path) -> Paysight:
+    """Replay mode with no API key: only what is in ``cassettes`` can be answered."""
+    from paysight.safety.access import get_policies
+
+    llm = LLMClient(
+        mode="replay", cassette_dir=cassettes, llm=None, provider_name="fake", model="fake-model"
+    )
+    return Paysight(
+        settings=get_settings(),
+        layer=get_semantic_layer(),
+        engine=engine,
+        llm=llm,
+        policies=get_policies(),
+        runs_dir=tmp_path / "runs",
+    )
+
+
+def test_unrecorded_question_in_replay_mode_gets_a_friendly_message(small_engine, tmp_path):
+    app = _replay_app(small_engine, tmp_path / "empty", tmp_path)
+    result = app.ask("Which merchant category grew fastest in September?", "leadership")
+    assert result.kind == "unavailable"
+    assert result.message == REPLAY_MISS
+    assert "LLM_MODE" not in result.message and "cassette" not in result.message.lower()
+    assert result.evidence == [] and result.queries_executed == 0
+
+    from paysight.cli import render_answer
+
+    text = render_answer(result)
+    assert "[REPLAY MODE] Replay mode can answer the example questions" in text
+    assert "ERROR" not in text and "Traceback" not in text
+
+
+def test_unrecorded_narration_still_shows_the_evidence(small_engine, tmp_path):
+    """Intent recorded, narration not (e.g. a new clarification choice): evidence is kept."""
+    cassettes = tmp_path / "cassettes"
+
+    def handler(system: str, user: str, schema: type[BaseModel]):
+        if schema is IntentResult:
+            return INTENTS[_question(user)].model_dump()
+        return _grounded_draft(user, invent=False)
+
+    recorder = LLMClient(
+        mode="record",
+        cassette_dir=cassettes,
+        llm=StructuredLLM(FakeProvider(handler), max_attempts=1, wait_max_s=0),
+        provider_name="fake",
+        model="fake-model",
+    )
+    app = _replay_app(small_engine, cassettes, tmp_path)
+    app.llm = recorder  # record mode writes a cassette for the intent and the narration
+    assert app.ask("show card bins", "risk_analyst").kind == "answer"
+    for f in (cassettes / "narrator").glob("*.json"):
+        f.unlink()
+    replay = _replay_app(small_engine, cassettes, tmp_path)
+    result = replay.ask("show card bins", "risk_analyst")
+    assert result.kind == "unavailable" and result.message == REPLAY_MISS_NARRATION
+    assert result.evidence and result.answer is None

@@ -64,6 +64,10 @@ def render_answer(result: AskResult, on_choice: Callable[[str], None]) -> None:
         st.error(result.message)
         if not result.evidence:
             return
+    if result.kind == "unavailable":
+        st.info(result.message)
+        if not result.evidence:
+            return
 
     a = result.answer
     if a is not None:

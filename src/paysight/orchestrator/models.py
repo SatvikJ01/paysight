@@ -239,7 +239,8 @@ class RemovedClaim(BaseModel):
     reason: str
 
 
-AnswerKind = Literal["answer", "clarification", "denied", "refused", "error"]
+# "unavailable": replay mode has no recording for this question and no API key is set.
+AnswerKind = Literal["answer", "clarification", "denied", "refused", "error", "unavailable"]
 
 
 class AskResult(BaseModel):
