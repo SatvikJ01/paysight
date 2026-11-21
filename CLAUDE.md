@@ -56,6 +56,7 @@ Makefile may exist as a convenience, but must never be the only entry point.
 ```
 uv sync
 uv run paysight data generate            # builds data/paysight.duckdb + data/ground_truth.yaml
+uv run paysight debug hero               # hero (B1) root-cause analysis without an LLM
 uv run paysight ask "..." --role leadership
 uv run streamlit run app/streamlit_app.py
 uv run paysight eval run --mode replay
