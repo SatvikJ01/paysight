@@ -97,7 +97,9 @@ class Paysight:
             kind="answer",
             llm_mode=f"{self.llm.info.mode} · {self.llm.info.provider} · {self.llm.info.model}",
         )
-        chosen = next((o for o in (options or planner.TIME_OPTIONS) if o.id == choice), None)
+        chosen = next(
+            (o for o in (options or planner.TIME_OPTIONS) if o.id == choice), None
+        ) or planner.option_from_choice(choice, self.settings)
         if chosen and chosen.append_text:
             question = f"{question} {chosen.append_text}"
         try:
@@ -175,6 +177,7 @@ class Paysight:
             intent = parsed.intent
             result.intent = intent
             step.summary = "; ".join(parsed.notes) or "all names valid"
+            step.details = {"intent": intent.model_dump(mode="json")}
             clar = planner.clarification(parsed)
             if clar:
                 step.status = "skipped"
@@ -204,15 +207,18 @@ class Paysight:
         try:
             windows = planner.resolve_windows(intent, settings)
         except DateResolutionError as exc:
-            result.kind, result.message = "clarification", f"I couldn't use that period: {exc}"
-            result.options = planner.TIME_OPTIONS
+            result.kind = "clarification"
+            result.message, result.options = planner.period_fallback(intent, settings, exc)
             return
 
         if chosen is not None and chosen.time_expr:
             # Display only: the narrator still receives the parsed restatement.
             result.restatement = f"{intent.restatement} Period chosen: {chosen.label}."
         qtype = intent.question_type
-        result.plan = plan_steps(qtype, extras, intent.metrics)
+        if planner.segment_comparison_filter(intent) is not None:
+            result.plan = plan_steps("segment_comparison", [], intent.metrics)
+        else:
+            result.plan = plan_steps(qtype, extras, intent.metrics)
         result.assumptions = [
             *planner.standard_assumptions(intent),
             *windows.assumptions,

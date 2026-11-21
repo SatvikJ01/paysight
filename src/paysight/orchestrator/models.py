@@ -214,6 +214,7 @@ class ClarificationOption(BaseModel):
     time_expr: str | None = None
     compare_time_expr: str | None = None
     append_text: str | None = None
+    question_type: str | None = None  # e.g. "metric_lookup" for "<period> on its own"
 
 
 class Confidence(BaseModel):

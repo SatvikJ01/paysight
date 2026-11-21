@@ -5,16 +5,26 @@
 * Other questions with no time window default to the last 7 days, recorded as an assumption.
 * The LLM may suggest at most 3 extra steps; each must name a known, non-PII dimension that the
   attempts view supports, or it is dropped.
+* A comparison that names two or more values of one dimension and no second period compares
+  those segments within one window; it needs no baseline (D36).
+* When a stated period cannot be compared because the comparison falls outside the data, the
+  options keep the stated period instead of replacing it (D36).
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import timedelta
 
 from paysight.config import Settings
 from paysight.orchestrator.intent import ParsedIntent
-from paysight.orchestrator.models import ClarificationOption, ExtraStep, IntentResult
-from paysight.semantic.dates import resolve, resolve_compare
+from paysight.orchestrator.models import (
+    ClarificationOption,
+    ExtraStep,
+    IntentFilter,
+    IntentResult,
+)
+from paysight.semantic.dates import DateResolutionError, resolve, resolve_compare
 from paysight.semantic.models import Filter, SemanticLayer, TimeWindow
 
 MAX_EXTRA_STEPS = 3
@@ -91,7 +101,120 @@ def apply_choice(intent: IntentResult, option: ClarificationOption) -> IntentRes
         update["time_expr"] = option.time_expr
         update["compare_time_expr"] = option.compare_time_expr
         update["ambiguities"] = [a for a in intent.ambiguities if a.field != "time"]
+    if option.question_type:
+        update["question_type"] = option.question_type
     return intent.model_copy(update=update)
+
+
+def segment_comparison_filter(intent: IntentResult) -> IntentFilter | None:
+    """The filter naming the segments to compare, if this compares segments within one period.
+
+    "Compare UPI and card success rates in August" parses as a comparison with
+    ``method_family in [upi, card]`` and no second period: it compares the segments, not August
+    with July.
+    """
+    if intent.question_type != "comparison" or intent.compare_time_expr:
+        return None
+    return next((f for f in intent.filters if f.op == "in" and len(f.values) >= 2), None)
+
+
+# Choice ids for period options encode the option itself, so the UI and the CLI can send them
+# back without the server keeping state: "period:<time_expr>~<compare or none>~<type or ''>".
+_PERIOD_PREFIX = "period:"
+_CHOICE_TYPES = {"", "metric_lookup"}
+
+
+def _nice(w: TimeWindow) -> str:
+    """'August 2026' for a whole calendar month, otherwise '1–10 Sep 2026'-style ranges."""
+    if _is_month(w):
+        return f"{w.start:%B %Y}"
+    return f"{w.start.day} {w.start:%b %Y} to {w.end.day} {w.end:%b %Y}"
+
+
+def _is_month(w: TimeWindow) -> bool:
+    return w.start.day == 1 and (w.end + timedelta(days=1)).day == 1 and w.days >= 28
+
+
+def _following(w: TimeWindow) -> TimeWindow:
+    """The next calendar month after a whole month, otherwise the next period of equal length."""
+    start = w.end + timedelta(days=1)
+    if _is_month(w):
+        end = (start.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
+        return TimeWindow(start=start, end=end)
+    return TimeWindow(start=start, end=w.end + timedelta(days=w.days))
+
+
+def _explicit(w: TimeWindow) -> str:
+    return f"explicit:{w.start.isoformat()}..{w.end.isoformat()}"
+
+
+def _period_option(
+    label: str, time_expr: str, compare: str | None, question_type: str | None = None
+) -> ClarificationOption:
+    choice_id = f"{_PERIOD_PREFIX}{time_expr}~{compare or 'none'}~{question_type or ''}"
+    return ClarificationOption(
+        id=choice_id,
+        label=label,
+        time_expr=time_expr,
+        compare_time_expr=compare,
+        question_type=question_type,
+    )
+
+
+def option_from_choice(choice: str | None, settings: Settings) -> ClarificationOption | None:
+    """Rebuild a period option from its id; anything that does not resolve is ignored."""
+    if not choice or not choice.startswith(_PERIOD_PREFIX):
+        return None
+    parts = choice.removeprefix(_PERIOD_PREFIX).split("~")
+    if len(parts) != 3 or parts[2] not in _CHOICE_TYPES:
+        return None
+    time_expr, compare, qtype = parts[0], None if parts[1] == "none" else parts[1], parts[2]
+    d = settings.data
+    try:
+        cur = resolve(time_expr, as_of=d.as_of_date, data_start=d.start_date).window
+        base = (
+            resolve(compare, as_of=d.as_of_date, data_start=d.start_date).window
+            if compare
+            else None
+        )
+    except DateResolutionError:
+        return None
+    label = _nice(cur) + (f" vs {_nice(base)}" if base else " on its own")
+    return _period_option(label, time_expr, compare, qtype or None)
+
+
+def period_fallback(
+    intent: IntentResult, settings: Settings, error: DateResolutionError
+) -> tuple[str, list[ClarificationOption]]:
+    """Message and options when a period cannot be used, keeping what the user stated."""
+    d = settings.data
+    start = f"{d.start_date.day} {d.start_date:%b %Y}"
+    end = f"{d.as_of_date.day} {d.as_of_date:%b %Y}"
+    try:
+        cur = resolve(
+            intent.time_expr or DEFAULT_TIME, as_of=d.as_of_date, data_start=d.start_date
+        ).window
+    except DateResolutionError:
+        return (
+            f"I couldn't use that period: {error}. The data covers {start} to {end}; "
+            "pick a period inside it.",
+            TIME_OPTIONS,
+        )
+    options = []
+    nxt = _following(cur)
+    if nxt.end <= d.as_of_date:
+        options.append(
+            _period_option(f"{_nice(nxt)} vs {_nice(cur)}", _explicit(nxt), _explicit(cur))
+        )
+    if intent.question_type != "root_cause":
+        options.append(
+            _period_option(f"{_nice(cur)} on its own", _explicit(cur), None, "metric_lookup")
+        )
+    message = (
+        f"The data starts on {start}, so there is nothing before {_nice(cur)} to compare it "
+        f"with ({error})."
+    )
+    return message + (" Choose one of these instead:" if options else ""), options
 
 
 @dataclass
@@ -114,7 +237,13 @@ def resolve_windows(intent: IntentResult, settings: Settings) -> Windows:
         assumptions.append("No period was given; using the last 7 days of data.")
     current = resolve(expr, as_of=d.as_of_date, data_start=d.start_date)
     baseline = None
-    if intent.question_type in NEEDS_BASELINE or intent.compare_time_expr:
+    segments = segment_comparison_filter(intent)
+    if segments is not None:
+        assumptions.append(
+            f"Comparing {', '.join(segments.values)} ({segments.dimension}) within "
+            f"{current.window.label()}; no second period was asked for."
+        )
+    elif intent.question_type in NEEDS_BASELINE or intent.compare_time_expr:
         baseline = resolve_compare(
             current, intent.compare_time_expr, as_of=d.as_of_date, data_start=d.start_date
         )
@@ -126,7 +255,7 @@ def resolve_windows(intent: IntentResult, settings: Settings) -> Windows:
                 else "."
             )
         )
-    else:
+    if segments is None and baseline is None:
         assumptions.append(f"Period: {current.window.label()}.")
     notes = [*current.notes, *(baseline.notes if baseline else [])]
     return Windows(current.window, baseline.window if baseline else None, assumptions, notes)

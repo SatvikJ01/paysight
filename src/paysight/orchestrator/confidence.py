@@ -40,19 +40,26 @@ def score_confidence(
     tests = [e for e in evidence if e.kind == "test"]
     if tests:
         k = tests[0].key_numbers
-        n = min(k.get("baseline_attempts", 0), k.get("current_attempts", 0))
-        if n < settings.min_sample_attempts:
-            cap("Low", f"small samples ({n:,} attempts in the smaller window)")
+        # Period tests report both windows; segment comparisons have one row per segment.
+        segments = "highest_segment" in k
+        unit, what = ("segment", "difference") if segments else ("window", "change")
+        if segments:
+            sizes = [int(r.get("attempts") or 0) for r in tests[0].result]
         else:
-            good.append(f"large samples ({n:,}+ attempts per window)")
+            sizes = [k.get("baseline_attempts", 0), k.get("current_attempts", 0)]
+        n = min(sizes) if sizes else 0
+        if n < settings.min_sample_attempts:
+            cap("Low", f"small samples ({n:,} attempts in the smaller {unit})")
+        else:
+            good.append(f"large samples ({n:,}+ attempts per {unit})")
         if k.get("statistically_significant") and k.get("practically_significant"):
             good.append(
-                f"a statistically and practically significant change (p={k.get('p_value')})"
+                f"a statistically and practically significant {what} (p={k.get('p_value')})"
             )
         elif k.get("statistically_significant"):
-            cap("Medium", "the change is statistically significant but small in practice")
+            cap("Medium", f"the {what} is statistically significant but small in practice")
         else:
-            cap("Low", "the change is not statistically significant")
+            cap("Low", f"the {what} is not statistically significant")
     else:
         sizes = [
             int(r.get("attempts") or 0) for e in evidence if e.kind == "query" for r in e.result

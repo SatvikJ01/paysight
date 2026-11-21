@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import math
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 from typing import Any
@@ -32,6 +32,7 @@ from paysight.analysis.drilldown import (
 from paysight.analysis.drivers import ROOT_CAUSE_DIMENSIONS, localize_rate_effect, scan_drivers
 from paysight.analysis.quality import QualityReport, data_quality_report
 from paysight.analysis.reconcile import reconcile
+from paysight.analysis.stats import two_proportion_z_test, wilson_interval
 from paysight.config import Settings
 from paysight.execution.engine import Engine, QueryResult
 from paysight.orchestrator.models import ChartKind, Evidence, EvidenceKind, ExtraStep, PlanStep
@@ -96,6 +97,10 @@ PLAYBOOK_STEPS: dict[str, list[tuple[str, str]]] = {
         ("lookup", "Compile the metric query from the semantic layer and run it"),
         ("data_quality", "Data-quality scan over the period; raw vs clean counts"),
         ("denominators", "Alternative success-rate definitions (success-rate questions)"),
+    ],
+    "segment_comparison": [
+        ("segments", "Metric per segment in one window, with intervals and a significance test"),
+        ("data_quality", "Data-quality scan"),
     ],
     "ranking": [
         ("ranking", "Rank segments by the metric (top 10)"),
@@ -628,6 +633,109 @@ def _hour_profile(
     return rows
 
 
+def _hourly_timeline(
+    ctx: RunContext, window: TimeWindow, filters: list[Filter], *, title: str
+) -> None:
+    """Hourly success rate with the main drop window: when it started, ended and its impact."""
+    hours, hresult = rate_series(
+        ctx.engine, ctx.role, window=window, filters=filters, granularity="hour"
+    )
+    hw = [
+        x
+        for x in detect_anomalies(
+            hours,
+            step=timedelta(hours=1),
+            min_den=10,
+            z_threshold=ctx.settings.analysis.anomaly_z_threshold,
+        )
+        if x.direction == "drop"
+    ]
+    main = max(hw, key=lambda x: x.excess_failures) if hw else None
+    hour_rows = [
+        {
+            "hour": r.period.isoformat(sep=" ", timespec="minutes"),
+            "attempts": int(r.den),
+            "rate_pct": pct(r.rate),
+        }
+        for r in hours.itertuples()
+    ]
+    ctx.add(
+        title=title,
+        kind="anomaly",
+        purpose="When the problem started and ended, and its impact",
+        results=[hresult],
+        filters=filters,
+        window=window.label(),
+        rows=hour_rows,
+        chart_data=hour_rows,
+        key_numbers={}
+        if main is None
+        else {
+            "outage_start": main.start.isoformat(sep=" ", timespec="minutes"),
+            "outage_end": main.end_exclusive.isoformat(sep=" ", timespec="minutes"),
+            "outage_hours": round((main.end_exclusive - main.start).total_seconds() / 3600),
+            "baseline_rate_pct": pct(main.baseline_rate),
+            "worst_hour_rate_pct": pct(main.worst_rate),
+            "excess_failed_attempts": round(main.excess_failures),
+            "affected_attempts": int(main.attempts),
+        },
+        chart="daily_line",
+    )
+
+
+def _explain_drop(
+    ctx: RunContext, seg_filter: list[Filter], seg: str, win: TimeWindow, base: TimeWindow
+) -> None:
+    """Inside a drop window: which payment methods fell, their failure codes, and an hourly
+    timeline of the affected traffic (when it started and ended)."""
+    d = ctx.settings.data
+    methods, mresult = breakdown(
+        ctx.engine,
+        ctx.role,
+        dimension="payment_method",
+        current=win,
+        baseline=base,
+        filters=seg_filter,
+        settings=ctx.settings.analysis,
+    )
+    affected = [m.segment for m in methods if m.significant and (m.delta_pp or 0) < -2]
+    ctx.add(
+        title=f"Payment methods within {seg}",
+        kind="query",
+        purpose="Which methods were affected",
+        results=[mresult],
+        filters=seg_filter,
+        window=_window_label(win, base),
+        rows=[
+            {
+                "payment_method": m.segment,
+                "attempts": m.den1,
+                "rate0_pct": pct(m.rate0),
+                "rate1_pct": pct(m.rate1),
+                "delta_pp": m.delta_pp and round(m.delta_pp, 2),
+                "significant": m.significant,
+            }
+            for m in methods
+        ],
+        key_numbers={"affected_methods": ", ".join(affected) or "none"},
+        chart="bar",
+    )
+    focus = seg_filter + (
+        [Filter(dimension="payment_method", op="in", values=affected)] if affected else []
+    )
+    _failure_codes(ctx, win, base, focus, purpose=f"Failure codes for {seg}")
+    hourly_window = TimeWindow(
+        start=max(d.start_date, win.start - timedelta(days=1)),
+        end=min(d.as_of_date, win.end + timedelta(days=1)),
+    )
+    _hourly_timeline(
+        ctx,
+        hourly_window,
+        focus,
+        title=f"Hourly timeline for {seg}" + (f" ({', '.join(affected)})" if affected else ""),
+    )
+
+
 # --------------------------------------------------------------------------------------------
 # Playbooks
 # --------------------------------------------------------------------------------------------
@@ -812,87 +920,7 @@ def run_anomaly(ctx: RunContext, scope: Scope) -> None:
         chart="contribution_bar",
     )
     seg_filter = [*flt, Filter(dimension=top_dim.dimension, op="=", values=[seg])]
-    methods, mresult = breakdown(
-        ctx.engine,
-        ctx.role,
-        dimension="payment_method",
-        current=win,
-        baseline=base,
-        filters=seg_filter,
-        settings=a,
-    )
-    affected = [m.segment for m in methods if m.significant and (m.delta_pp or 0) < -2]
-    ctx.add(
-        title=f"Payment methods within {seg}",
-        kind="query",
-        purpose="Which methods were affected",
-        results=[mresult],
-        filters=seg_filter,
-        window=_window_label(win, base),
-        rows=[
-            {
-                "payment_method": m.segment,
-                "attempts": m.den1,
-                "rate0_pct": pct(m.rate0),
-                "rate1_pct": pct(m.rate1),
-                "delta_pp": m.delta_pp and round(m.delta_pp, 2),
-                "significant": m.significant,
-            }
-            for m in methods
-        ],
-        key_numbers={"affected_methods": ", ".join(affected) or "none"},
-        chart="bar",
-    )
-    focus = seg_filter + (
-        [Filter(dimension="payment_method", op="in", values=affected)] if affected else []
-    )
-    _failure_codes(ctx, win, base, focus, purpose=f"Failure codes for {seg}")
-
-    hourly_window = TimeWindow(
-        start=max(d.start_date, win.start - timedelta(days=1)),
-        end=min(d.as_of_date, win.end + timedelta(days=1)),
-    )
-    hours, hresult = rate_series(
-        ctx.engine, ctx.role, window=hourly_window, filters=focus, granularity="hour"
-    )
-    hw = [
-        x
-        for x in detect_anomalies(
-            hours, step=timedelta(hours=1), min_den=10, z_threshold=a.anomaly_z_threshold
-        )
-        if x.direction == "drop"
-    ]
-    main = max(hw, key=lambda x: x.excess_failures) if hw else None
-    hour_rows = [
-        {
-            "hour": r.period.isoformat(sep=" ", timespec="minutes"),
-            "attempts": int(r.den),
-            "rate_pct": pct(r.rate),
-        }
-        for r in hours.itertuples()
-    ]
-    ctx.add(
-        title=f"Hourly timeline for {seg}" + (f" ({', '.join(affected)})" if affected else ""),
-        kind="anomaly",
-        purpose="When the problem started and ended, and its impact",
-        results=[hresult],
-        filters=focus,
-        window=hourly_window.label(),
-        rows=hour_rows,
-        chart_data=hour_rows,
-        key_numbers={}
-        if main is None
-        else {
-            "outage_start": main.start.isoformat(sep=" ", timespec="minutes"),
-            "outage_end": main.end_exclusive.isoformat(sep=" ", timespec="minutes"),
-            "outage_hours": round((main.end_exclusive - main.start).total_seconds() / 3600),
-            "baseline_rate_pct": pct(main.baseline_rate),
-            "worst_hour_rate_pct": pct(main.worst_rate),
-            "excess_failed_attempts": round(main.excess_failures),
-            "affected_attempts": int(main.attempts),
-        },
-        chart="daily_line",
-    )
+    _explain_drop(ctx, seg_filter, seg, win, base)
     dq_step(ctx, win, [SR, "attempts"], [top_dim.dimension])
     _extras(ctx, scope, flt, win, base)
 
@@ -973,8 +1001,13 @@ def run_trend(ctx: RunContext, scope: Scope) -> None:
 
 
 def run_comparison(ctx: RunContext, scope: Scope) -> None:
-    """Compare two windows, decomposing by the requested (or default) dimensions."""
-    assert scope.baseline is not None
+    """Compare two windows, decomposing by the requested (or default) dimensions.
+
+    With no baseline, the planner decided this compares segments within one window.
+    """
+    if scope.baseline is None:
+        run_segment_comparison(ctx, scope)
+        return
     cur, base, flt = scope.current, scope.baseline, scope.filters
     metric = next((m for m in scope.metrics if m in RATE_METRICS), None)
     if metric is None:
@@ -996,6 +1029,73 @@ def run_comparison(ctx: RunContext, scope: Scope) -> None:
     dq_step(ctx, TimeWindow(start=base.start, end=cur.end), [metric], list(dims))
     sensitivity_step(ctx, cur, flt)
     _extras(ctx, scope, flt, cur, base)
+
+
+def _pct2(x: float) -> str:
+    """A percentage with exactly two decimals, so close values read consistently (89.40 vs
+    89.45, not 89.4 vs 89.45)."""
+    return f"{x * 100:.2f}"
+
+
+def run_segment_comparison(ctx: RunContext, scope: Scope) -> None:
+    """Compare segments of one dimension within one window (e.g. UPI vs card in August)."""
+    seg = next((f for f in scope.filters if f.op == "in" and len(f.values) >= 2), None)
+    if seg is None:
+        raise PlanError("name two or more segments to compare, or a second period")
+    metric = next((m for m in scope.metrics if m in RATE_METRICS), None)
+    if metric is None:
+        run_lookup(ctx, replace(scope, dimensions=[seg.dimension]))
+        return
+    dim, cur = seg.dimension, scope.current
+    spec = QuerySpec(metrics=[metric], dimensions=[dim], filters=scope.filters, time_window=cur)
+    _, result = ctx.engine.run_spec(spec, ctx.role)
+    if not result.ok:
+        raise PlanError("; ".join(c.detail for c in result.report.failures) or str(result.error))
+    stats = []
+    for row in result.frame.to_dict("records"):
+        num, den = float(row[f"{metric}_num"] or 0), float(row[f"{metric}_den"] or 0)
+        if den > 0:
+            stats.append((str(row[dim]), num, den, num / den, *wilson_interval(num, den)))
+    if len(stats) < 2:
+        names = ", ".join(seg.values)
+        raise PlanError(f"found data for fewer than two of {names} in {cur.label()}")
+    stats.sort(key=lambda s: -s[3])
+    hi, lo = stats[0], stats[-1]
+    z, p = two_proportion_z_test(lo[1], lo[2], hi[1], hi[2])
+    a = ctx.settings.analysis
+    gap_pp = (hi[3] - lo[3]) * 100
+    ctx.add(
+        title=f"{metric} by {dim}: {' vs '.join(s[0] for s in stats)}",
+        kind="test",
+        purpose="Rate per segment in the same window, with 95% Wilson intervals and a "
+        "two-proportion z-test between the highest and the lowest",
+        results=[result],
+        filters=scope.filters,
+        window=cur.label(),
+        rows=[
+            {
+                dim: s[0],
+                "successes": int(s[1]),
+                "attempts": int(s[2]),
+                "rate_pct": _pct2(s[3]),
+                "ci_low_pct": _pct2(s[4]),
+                "ci_high_pct": _pct2(s[5]),
+            }
+            for s in stats
+        ],
+        chart_data=[{dim: s[0], "rate_pct": round(s[3] * 100, 2)} for s in stats],
+        key_numbers={
+            "highest_segment": hi[0],
+            "lowest_segment": lo[0],
+            "gap_pp": f"{gap_pp:.2f}",
+            "z": round(z, 2),
+            "p_value": float(f"{p:.3g}"),
+            "statistically_significant": p < a.alpha,
+            "practically_significant": p < a.alpha and gap_pp >= a.practical_significance_pp,
+        },
+        chart="bar",
+    )
+    dq_step(ctx, cur, [metric], [dim])
 
 
 def run_lookup(ctx: RunContext, scope: Scope, *, compare: bool = False) -> None:
@@ -1085,6 +1185,11 @@ def run_ranking(ctx: RunContext, scope: Scope) -> None:
         for m in metrics:
             if m in RATE_METRICS and row.get(m) is not None:
                 row[f"{m}_pct"] = pct(row.pop(m))
+    results = [top, total]
+    purpose = "Rank segments by the requested metric"
+    if m0 == "failed_attempts" and len(scope.dimensions) == 1 and rows:
+        results.append(_add_failure_rates(ctx, scope, rows))
+        purpose += "; failure_rate_pct is each segment's failures as a share of its own attempts"
     key: dict[str, Any] = {f"total_{m0}": grand} if grand is not None else {}
     if rows:
         key["top_segment"] = " | ".join(str(rows[0][d]) for d in scope.dimensions)
@@ -1092,18 +1197,117 @@ def run_ranking(ctx: RunContext, scope: Scope) -> None:
         key["top3_share_of_total_pct"] = round(
             sum(r.get("share_of_total_pct") or 0 for r in rows[:3]), 2
         )
+        if "failure_rate_pct" in rows[0]:
+            key["top_segment_failure_rate_pct"] = rows[0]["failure_rate_pct"]
     ctx.add(
         title=f"Top {len(rows)} by {m0}",
         kind="ranking",
-        purpose="Rank segments by the requested metric",
-        results=[top, total],
+        purpose=purpose,
+        results=results,
         filters=scope.filters,
         window=scope.current.label(),
         rows=rows,
         key_numbers=key,
         chart="bar",
     )
+    focus = next((d for d in scope.dimensions if d not in TIME_DIMENSIONS), None)
+    if rows and focus and pd.notna(rows[0][focus]) and _timing_requested(scope):
+        _timing_drilldown(ctx, scope, focus, rows[0][focus])
     dq_step(ctx, scope.current, metrics, scope.dimensions)
+
+
+TIME_DIMENSIONS = {"date", "hour_of_day", "day_of_week"}
+FAILURE_DIMENSIONS = {"failure_category", "failure_code"}
+
+
+def _add_failure_rates(ctx: RunContext, scope: Scope, rows: list[dict[str, Any]]) -> QueryResult:
+    """Add each ranked segment's failure rate: a count alone favours the biggest segments.
+
+    The denominator is the segment's attempts under the same filters minus the failure-type
+    ones (for "technical failures by acquirer": technical failures / all attempts).
+    """
+    dim = scope.dimensions[0]
+    values = [r[dim] for r in rows if pd.notna(r[dim])]
+    base = [f for f in scope.filters if f.dimension not in FAILURE_DIMENSIONS]
+    spec = QuerySpec(
+        metrics=["attempts"],
+        dimensions=[dim],
+        filters=[*base, Filter(dimension=dim, op="in", values=values)],
+        time_window=scope.current,
+    )
+    _, result = ctx.engine.run_spec(spec, ctx.role)
+    if not result.ok:
+        raise PlanError("; ".join(c.detail for c in result.report.failures) or str(result.error))
+    attempts = {r[dim]: float(r["attempts"] or 0) for r in result.frame.to_dict("records")}
+    for row in rows:
+        den = attempts.get(row[dim]) if pd.notna(row[dim]) else None
+        row["segment_attempts"] = int(den) if den else None
+        row["failure_rate_pct"] = pct(float(row["failed_attempts"] or 0) / den) if den else None
+    return result
+
+
+def _timing_requested(scope: Scope) -> bool:
+    """The intent asked when it happened: a daily or hourly step, or a time dimension."""
+    return any(e.tool in ("daily_series", "hourly_profile") for e in scope.extra_steps) or any(
+        d in TIME_DIMENSIONS for d in scope.dimensions
+    )
+
+
+def _timing_drilldown(ctx: RunContext, scope: Scope, dim: str, value: Any) -> None:
+    """When did it happen for the top segment? Find its main daily drop, then explain that
+    drop the way the anomaly playbook does (methods, failure codes, hourly timeline)."""
+    seg = [*scope.filters, Filter(dimension=dim, op="=", values=[value])]
+    # Success rate is meaningless inside "technical failures only", so the timing view uses
+    # the segment's full traffic.
+    traffic = [f for f in seg if f.dimension not in FAILURE_DIMENSIONS]
+    win, d = scope.current, ctx.settings.data
+    series = _series(ctx, win, traffic, purpose=f"When it happened: daily success rate for {value}")
+    drops = [
+        w
+        for w in detect_anomalies(
+            series,
+            step=timedelta(days=1),
+            min_den=50,
+            z_threshold=ctx.settings.analysis.anomaly_z_threshold,
+        )
+        if w.direction == "drop"
+    ]
+    main = max(drops, key=lambda w: w.excess_failures) if drops else None
+    if main is not None:
+        drop = TimeWindow(start=main.start.date(), end=main.end.date())
+        base = TimeWindow(start=drop.start - timedelta(days=7), end=drop.start - timedelta(days=1))
+        if base.start >= d.start_date:
+            _explain_drop(ctx, traffic, str(value), drop, base)
+            return
+    ctx.caveats.append(f"No unusual daily drop was found for {value} in {win.label()}.")
+    spec = QuerySpec(
+        metrics=["failed_attempts"],
+        dimensions=["failure_code"],
+        filters=seg,
+        time_window=win,
+        order_by=[OrderBy(field="failed_attempts", descending=True)],
+        limit=10,
+    )
+    _, result = ctx.engine.run_spec(spec, ctx.role)
+    if not result.ok:
+        raise PlanError("; ".join(c.detail for c in result.report.failures) or str(result.error))
+    codes = result.frame.to_dict("records")
+    total = sum(float(r["failed_attempts"] or 0) for r in codes)
+    for r in codes:
+        r["share_of_failures_pct"] = (
+            pct(float(r["failed_attempts"] or 0) / total) if total else None
+        )
+    ctx.add(
+        title=f"Failure codes for {value}",
+        kind="failure_codes",
+        purpose=f"Which failure codes make up {value}'s failures in the window",
+        results=[result],
+        filters=seg,
+        window=win.label(),
+        rows=codes,
+        key_numbers={"top_code": codes[0]["failure_code"]} if codes else {},
+        chart="bar",
+    )
 
 
 def run_reconciliation(ctx: RunContext, scope: Scope) -> None:
