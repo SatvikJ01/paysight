@@ -179,3 +179,22 @@ Orbit's 1.8% shortfall on one day is only −0.22% of its weekly GMV, below the 
 threshold. Each batch is therefore also checked against the GMV of its own covered dates, and
 any batch at or above the threshold is flagged as unexplained. "Missing batch" (no batch
 covers a date and none is due) is reported as explained but marked for follow-up.
+
+## D18. LLM layer details
+
+- **Schema validation lives in one place.** Providers return raw JSON text. Malformed JSON and
+  schema mismatches are both pydantic validation errors, and share the single re-ask path.
+- **Retries belong to tenacity, not the SDKs.** SDK-level retries are disabled
+  (`max_retries=0`), so every call has at most 4 attempts, retried only on 429, 5xx or a
+  timeout, with jittered exponential backoff.
+- **HTTP stack.** The pinned SDK versions use `httpx2`, a fork of `httpx`, not `httpx`.
+  Transport-error detection checks whichever of the two is installed. The stubbed provider
+  tests caught the original `import httpx`, which would have crashed on the first transient
+  error.
+- **Temperature.** OpenAI requests omit `temperature`, because several current OpenAI models
+  accept only the default. Gemini and Anthropic use temperature 0.
+- **Default models.** `gemini-3.8-flash` (the current stable Flash model, pinned rather than
+  `gemini-flash-latest` so recordings stay reproducible), `claude-sonnet-5-5` and `gpt-5-mini`.
+  They are set only in `config/settings.yaml` and documented in `.env.example`.
+- **Cassette fallback.** In live mode, if the provider is unavailable after its retries and a
+  cassette exists for the exact prompt, the cassette is used and labelled `replay-fallback`.
