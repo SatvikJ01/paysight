@@ -305,6 +305,16 @@ Plotly, typer. LLM providers: Anthropic (used for all recordings, `claude-sonnet
 and OpenAI, selected by environment variable. Tests: pytest. Lint: ruff. CI runs on Ubuntu and
 Windows.
 
+## How I built this
+
+I chose the problem and designed the architecture and the evaluation strategy: a dataset with
+planted ground truth, a naive baseline that shares the model and the validator, and a grounding
+check enforced in code. I used AI coding assistants for the implementation, under my direction,
+and reviewed each milestone before moving on ([SPEC §17](docs/SPEC.md#17-milestones)). I
+verified the result by hand: the fresh-clone reviewer path with no API key, live unscripted
+questions, and two planner bugs that this testing found and that were fixed with tests and new
+eval cases ([Manual verification](docs/SUBMISSION_CHECKLIST.md#manual-verification-21-nov-2026-by-the-author)).
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
