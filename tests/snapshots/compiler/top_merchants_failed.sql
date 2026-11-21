@@ -14,5 +14,6 @@ WHERE
 GROUP BY
   merchant_name
 ORDER BY
-  failed_attempts DESC
+  failed_attempts DESC,
+  merchant_name
 LIMIT 10

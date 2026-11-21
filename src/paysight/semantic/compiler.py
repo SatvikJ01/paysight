@@ -210,6 +210,11 @@ def compile_query(spec: QuerySpec, layer: SemanticLayer) -> CompiledQuery:
         if ob.field not in known_outputs:
             raise CompileError(f"cannot order by {ob.field!r}; not an output column")
         order.append(exp.Ordered(this=exp.column(ob.field), desc=ob.descending))
+    if order:
+        # Tie-breakers: with ties on the sort key, DuckDB's parallel aggregation can return rows
+        # in a different order per run, which would change evidence and break replay.
+        chosen = {ob.field for ob in spec.order_by}
+        order += [o for o in default_order if o.this.name not in chosen]
     order = order or default_order
     if order:
         query = query.order_by(*order)

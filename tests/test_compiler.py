@@ -172,3 +172,9 @@ def test_negative_filters_keep_null_dimension_values(small_engine: Engine, polic
         total = float(everything.frame["settled_gross_inr"].iloc[0])
         part = float(stellar.frame["settled_gross_inr"].iloc[0])
         assert float(rest.frame["settled_gross_inr"].iloc[0]) == pytest.approx(total - part)
+
+
+def test_explicit_order_gets_deterministic_tie_breakers() -> None:
+    sql = compile_query(QuerySpec(**SPECS["top_merchants_failed"]), get_semantic_layer()).sql
+    order_clause = sql.split("ORDER BY", 1)[1]
+    assert order_clause.index("failed_attempts DESC") < order_clause.index("merchant_name")
