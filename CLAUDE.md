@@ -62,6 +62,7 @@ uv run streamlit run app/streamlit_app.py
 uv run paysight eval run --mode replay
 uv run pytest -q
 uv run ruff check . && uv run ruff format --check .
+docker build -t paysight . && docker run --rm -p 8501:8501 paysight
 ```
 
 ## Working rules
