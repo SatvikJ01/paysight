@@ -50,6 +50,7 @@ class LimitSettings(_Frozen):
     max_time_window_days: int
     max_joins: int
     max_estimated_rows: int
+    cache_max_entries: int
 
 
 class AnalysisSettings(_Frozen):

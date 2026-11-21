@@ -15,6 +15,7 @@ limits:
   max_time_window_days: 400       # maximum created_at span for queries over attempt/order views
   max_joins: 4
   max_estimated_rows: 50000000    # EXPLAIN cardinality guard
+  cache_max_entries: 256          # in-memory query result cache (LRU)
 
 analysis:
   alpha: 0.05                     # significance level before multiple-testing correction
