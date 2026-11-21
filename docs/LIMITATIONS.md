@@ -26,3 +26,35 @@ Honest limitations of Paysight. Every `TODO` in the code has a matching entry he
 - Only `card_bin` declares a context dimension (`issuer_name`, D34). `merchant_name` →
   `merchant_group` would fit the same rule, but adding it changes several recorded answers and
   needs a re-recording run, so it was left for later.
+
+## Evaluation
+
+- **Our own questions, on our own data.** The 36 questions, their gold SQL and the paraphrases
+  were written by us against scenarios we planted. The results show that the system finds what
+  it was designed to find; they do not measure accuracy on real enterprise data or on
+  questions written by someone else.
+- **A deliberately naive baseline.** It shares the model, validator and role filters but has
+  no semantic layer, playbooks, statistics or grounding. A stronger baseline (for example, one
+  with metric definitions in its prompt) would narrow the gap.
+- **One model.** Every recording uses `claude-sonnet-5-5`. Other providers are implemented and
+  unit-tested, but they are not evaluated.
+- **Latency.** Replay latencies exclude LLM time. Live latency is roughly the intent call plus
+  the narration call, with an extra narration when grounding needs a regeneration.
+
+## Out of scope
+
+- **Real authentication.** The role selector simulates SSO; anyone running the app can pick
+  any role.
+- **Multi-tenancy.** One dataset and one set of policies.
+- **Streaming or real-time data.** A fixed three-month snapshot with `AS_OF_DATE` = 31 Oct 2026.
+- **A production warehouse.** DuckDB runs locally. See "Path to production" in the README.
+- **Write-back of any kind.** Paysight is read-only by design and refuses write requests.
+- **Real PII handling beyond allowlisting.** All data is synthetic; card BINs are fictional
+  (they start with 9) and customer references are hashes. Column sensitivity is enforced by
+  allowlists, not by masking or tokenisation.
+- **Causal inference.** Decomposition and driver ranking attribute a change to segments; they
+  do not prove why it happened. Causes are offered as hypotheses, each with a way to verify it.
+- **Guaranteed LLM correctness.** Structured outputs, validation and grounding reduce errors
+  but do not eliminate them. Grounding checks that numbers come from evidence, not that the
+  reasoning connecting them is right, and the ad-hoc SQL path can still answer a slightly
+  different question than the one asked (see D34).
