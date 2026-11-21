@@ -14,7 +14,7 @@ from paysight.config import get_settings
 from paysight.llm.base import StructuredLLM
 from paysight.llm.providers.fake import FakeProvider
 from paysight.llm.replay import LLMClient
-from paysight.orchestrator.models import AnswerDraft, IntentResult
+from paysight.orchestrator.models import META_KEYS, AnswerDraft, Evidence, IntentResult
 from paysight.orchestrator.pipeline import Paysight
 from paysight.semantic.loader import get_semantic_layer
 from tests.guarantees import assert_grounding_guarantee
@@ -194,3 +194,26 @@ def test_hallucinated_number_is_removed_after_one_retry(small_engine, tmp_path) 
     assert all("37.4" not in f.text for f in result.answer.facts)
     assert result.confidence.level != "High"
     assert len(fake.calls) == 3  # intent, narration, one regeneration
+
+
+def test_pipeline_counters_never_reach_the_narrator(app) -> None:
+    """Counters such as segments tested or heatmap cells are metadata, not business facts."""
+    paysight, fake = app
+    result = paysight.ask("why did sr drop over the last two weeks", "leadership")
+    assert result.kind == "answer", result.message
+    meta = {k for e in result.evidence for k in e.meta}
+    assert "segments_tested" in meta  # kept on the evidence...
+    trace = json.loads(Path(result.trace_path).read_text())
+    playbook = next(s for s in trace["steps"] if s["name"].startswith("playbook:"))
+    assert playbook["details"]["evidence_meta"]  # ...and in the trace
+    narrator_inputs = [user for _, user, schema in fake.calls if schema == "AnswerDraft"]
+    assert narrator_inputs
+    for user in narrator_inputs:
+        bundle = user.split("Evidence bundle (JSON):", 1)[1]
+        assert not [k for k in META_KEYS if f'"{k}"' in bundle]
+        assert '"meta"' not in bundle
+
+
+def test_evidence_rejects_counters_in_key_numbers() -> None:
+    with pytest.raises(ValueError, match="belong in meta"):
+        Evidence(id="E1", title="t", kind="query", purpose="", key_numbers={"repair_attempts": 0})

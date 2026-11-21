@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from paysight.safety.validator import ValidationReport
 
@@ -158,6 +158,12 @@ ChartKind = Literal[
 ]
 
 
+# Pipeline counters describe how an analysis ran, not the business. They live in
+# ``Evidence.meta`` (and the trace) and must never be in ``key_numbers``, which the narrator
+# reads and may state as facts.
+META_KEYS = frozenset({"repair_attempts", "segments_tested", "cells", "queries", "cache_hits"})
+
+
 class Evidence(BaseModel):
     """One analysis step's verifiable output (SPEC §11.1)."""
 
@@ -175,9 +181,17 @@ class Evidence(BaseModel):
     result: list[dict[str, Any]] = Field(default_factory=list)
     key_numbers: dict[str, Any] = Field(default_factory=dict)
     chart_data: list[dict[str, Any]] = Field(default_factory=list)  # full series for charts only
+    meta: dict[str, Any] = Field(default_factory=dict)  # pipeline counters; never narrated
     ad_hoc: bool = False
     llm_suggested: bool = False
     chart: ChartKind | None = None
+
+    @model_validator(mode="after")
+    def _no_meta_in_key_numbers(self) -> Evidence:
+        leaked = META_KEYS & set(self.key_numbers)
+        if leaked:
+            raise ValueError(f"pipeline counters belong in meta, not key_numbers: {sorted(leaked)}")
+        return self
 
 
 class PlanStep(BaseModel):

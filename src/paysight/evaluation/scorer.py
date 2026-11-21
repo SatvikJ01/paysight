@@ -90,7 +90,7 @@ def from_paysight(result: AskResult, *, latency_ms: float, trace: dict[str, Any]
         removed_claims=len(result.removed_claims),
         adhoc=any(e.ad_hoc for e in result.evidence),
         adhoc_repaired=any(
-            e.ad_hoc and e.key_numbers.get("repair_attempts", 0) >= 1 for e in result.evidence
+            e.ad_hoc and e.meta.get("repair_attempts", 0) >= 1 for e in result.evidence
         ),
         intent=result.intent,
         latency_ms=latency_ms,

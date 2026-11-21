@@ -165,6 +165,7 @@ class RunContext:
         llm_suggested: bool = False,
         ad_hoc: bool = False,
         chart_data: list[dict[str, Any]] | None = None,
+        meta: dict[str, Any] | None = None,
     ) -> Evidence:
         """Record one evidence item with the SQL and validation of every query behind it."""
         self.queries += sum(1 for r in results if r.status != "blocked" and not r.cache_hit)
@@ -189,6 +190,7 @@ class RunContext:
             llm_suggested=llm_suggested,
             ad_hoc=ad_hoc,
             chart_data=[_clean(row) for row in (chart_data or [])],
+            meta=meta or {},
         )
         self.evidence.append(ev)
         return ev
@@ -682,11 +684,11 @@ def run_root_cause(ctx: RunContext, scope: Scope) -> None:
             for d in ranking.dimensions
         ],
         key_numbers={
-            "segments_tested": ranking.segments_tested,
             "delta_pp": round(ranking.delta_pp, 2),
             "top_dimension": ranking.dimensions[0].dimension,
         },
         chart="contribution_bar",
+        meta={"segments_tested": ranking.segments_tested},
     )
     by_dim = {d.dimension: (d, r) for d, r in zip(decomps, results, strict=True)}
     # The mix/rate split is reported by payment method only. Splitting by merchant group would
@@ -961,8 +963,9 @@ def run_trend(ctx: RunContext, scope: Scope) -> None:
         window=f"{base.start}..{cur.end}",
         rows=grid_rows[:50],
         chart_data=grid_rows,
-        key_numbers={"cells": len(grid)},
+        key_numbers={},
         chart="heatmap",
+        meta={"cells": len(grid)},
     )
     _failure_codes(ctx, cur, base, seg_filter, purpose=f"Failure codes for {top.segment}")
     dq_step(ctx, cur, [SR, "attempts"], [top_dim.dimension])

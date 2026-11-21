@@ -249,6 +249,7 @@ class Paysight:
                 result.queries_executed = ctx.queries
                 step.details = {
                     "evidence": [e.id + " " + e.title for e in ctx.evidence],
+                    "evidence_meta": {e.id: e.meta for e in ctx.evidence if e.meta},
                     "queries": ctx.queries,
                 }
         if result.kind == "error":

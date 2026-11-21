@@ -118,7 +118,6 @@ def run_adhoc(
     rows = [_clean(r) for r in result.frame.head(50).to_dict("records")]
     key = dict(rows[0]) if len(rows) == 1 else {}
     key = {k: v for k, v in key.items() if isinstance(v, int | float)}
-    key["repair_attempts"] = len(attempts) - 1
     evidence = Evidence(
         id=f"E{len(ctx.evidence) + 1}",
         title="Custom SQL (AI-written, validated)",
@@ -134,6 +133,7 @@ def run_adhoc(
         result=rows,
         key_numbers=key,
         ad_hoc=True,
+        meta={"repair_attempts": len(attempts) - 1},
         chart="table" if len(rows) <= 1 else "bar",
     )
     ctx.evidence.append(evidence)

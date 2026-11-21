@@ -14,6 +14,7 @@ from paysight.llm.base import StructuredLLM
 from paysight.llm.providers.fake import FakeProvider
 from paysight.llm.replay import LLMClient
 from paysight.orchestrator.models import AdhocSQL, AnswerDraft, IntentResult
+from paysight.orchestrator.narrator import compact_bundle
 from paysight.orchestrator.pipeline import Paysight
 from paysight.safety.access import get_policies
 from paysight.semantic.loader import get_semantic_layer
@@ -81,7 +82,9 @@ def test_first_sql_blocked_then_repaired(small_engine, tmp_path) -> None:
     adhoc = next(e for e in result.evidence if e.ad_hoc)
     assert [v.passed for v in adhoc.validation] == [False, True]
     assert adhoc.validation[0].failures[0].name == "time_window"
-    assert adhoc.key_numbers["repair_attempts"] == 1
+    assert adhoc.meta["repair_attempts"] == 1
+    # Process metadata never reaches the narrator as a number it could state as a fact.
+    assert "repair_attempts" not in compact_bundle(result.evidence)
     assert 0 < adhoc.key_numbers["retry_share"] < 0.2
     assert "YOUR PREVIOUS SQL FAILED VALIDATION" in seen["adhoc_prompts"][1]
     assert result.confidence.level != "High"
