@@ -63,6 +63,7 @@ with st.form("ask", clear_on_submit=False):
 
 result = ss.result
 if result is not None:
+    st.markdown(f"**Question** ({app.policies[result.role].label}): {result.question}")
     render_answer(
         result, on_choice=lambda cid: (ask(result.question, result.role, cid), st.rerun())
     )
