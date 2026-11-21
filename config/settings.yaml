@@ -38,7 +38,7 @@ llm:
   max_attempts: 4                 # tenacity: retries on 429 / 5xx / timeouts, with jittered backoff
   request_timeout_s: 60
   cassette_dir: cassettes
-  budget_usd: 4.0                 # hard stop on cumulative live spend (recording + eval)
+  budget_usd: 4.5                 # hard stop on cumulative live spend (recording + eval)
   spend_ledger: runs/llm_spend.json
   # USD per 1M tokens, keyed by model. Source: platform.claude.com/docs/en/about-claude/pricing
   # (checked 2026-11-21). Gemini was used on the free tier. Unknown models count as $0.
