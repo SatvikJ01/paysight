@@ -1,4 +1,4 @@
-"""Shared fixtures: a small (scale 0.1) dataset built once per test session."""
+"""Shared fixtures: a small (scale 0.1) dataset and engine, built once per test session."""
 
 from __future__ import annotations
 
@@ -10,6 +10,9 @@ import pytest
 
 from paysight.config import get_settings
 from paysight.data.generator import GenerationResult, generate
+from paysight.execution.engine import Engine
+from paysight.safety.access import RolePolicy, get_policies
+from paysight.semantic.loader import get_semantic_layer
 
 TEST_SCALE = 0.1
 
@@ -37,9 +40,28 @@ def small_dataset(tmp_path_factory: pytest.TempPathFactory) -> GenerationResult:
 
 @pytest.fixture()
 def small_con(small_dataset: GenerationResult) -> Iterator[duckdb.DuckDBPyConnection]:
-    """A read-only connection to the small dataset."""
-    con = duckdb.connect(str(small_dataset.path), read_only=True)
+    """A read-only connection to the small dataset (same config as the engine's, which DuckDB
+    requires for two connections to one file in one process)."""
+    con = duckdb.connect(
+        str(small_dataset.path), read_only=True, config={"enable_external_access": False}
+    )
     try:
         yield con
     finally:
         con.close()
+
+
+@pytest.fixture(scope="session")
+def small_engine(small_dataset: GenerationResult) -> Iterator[Engine]:
+    """A validated, read-only engine over the small dataset."""
+    engine = Engine(small_dataset.path, layer=get_semantic_layer(), limits=get_settings().limits)
+    try:
+        yield engine
+    finally:
+        engine.close()
+
+
+@pytest.fixture(scope="session")
+def policies() -> dict[str, RolePolicy]:
+    """Role policies keyed by role name."""
+    return get_policies()
