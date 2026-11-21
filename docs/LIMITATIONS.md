@@ -14,9 +14,15 @@ Honest limitations of Paysight. Every `TODO` in the code has a matching entry he
   pin seed 42, which passes at both scales. The committed ground truth is always measured at
   full scale.
 
-## Recording status (temporary)
+## Replay covers recorded questions only
 
-- Cassettes exist for B1, B2 and the B3 clarification; B9 needs none. The remaining Appendix B
-  questions and the B3 choice narrations still have to be recorded. The Gemini free tier
-  stopped recording at 20 requests per day. Until they are recorded, those questions fail in
-  replay with a "No recorded response" message, and one replay test is skipped.
+- Every Appendix B question and every eval question (with its paraphrases) has a cassette,
+  all from `claude-sonnet-5-5`. A new question, or a changed prompt or evidence bundle, needs
+  one recording run with an API key (`LLM_MODE=record`); in replay mode it fails with a
+  "No recorded response" message rather than guessing.
+
+## Context dimensions
+
+- Only `card_bin` declares a context dimension (`issuer_name`, D34). `merchant_name` →
+  `merchant_group` would fit the same rule, but adding it changes several recorded answers and
+  needs a re-recording run, so it was left for later.
