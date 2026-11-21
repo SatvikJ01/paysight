@@ -36,7 +36,7 @@ from paysight.orchestrator.intent import (
     unsafe_reason,
 )
 from paysight.orchestrator.models import AskResult, ClarificationOption
-from paysight.orchestrator.narrator import narrate
+from paysight.orchestrator.narrator import merge_caveats, narrate
 from paysight.orchestrator.playbooks import (
     RUNNERS,
     NotExpressibleError,
@@ -305,11 +305,12 @@ class Paysight:
             )
             return
 
-        draft, removed = strip_unsupported(draft, report)
-        result.answer = draft
+        result.draft_before_grounding = draft
+        shown, removed = strip_unsupported(draft, report)
+        result.answer = shown
         result.removed_claims = removed
         result.grounding_score = report.score
-        result.caveats = list(dict.fromkeys([*result.caveats, *draft.caveats]))
+        result.caveats = merge_caveats(result.caveats, draft.caveats)
         with trace.step("confidence") as step:
             result.confidence = score_confidence(
                 evidence=ctx.evidence,

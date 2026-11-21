@@ -174,6 +174,7 @@ class Evidence(BaseModel):
     time_window: str = ""
     result: list[dict[str, Any]] = Field(default_factory=list)
     key_numbers: dict[str, Any] = Field(default_factory=dict)
+    chart_data: list[dict[str, Any]] = Field(default_factory=list)  # full series for charts only
     ad_hoc: bool = False
     llm_suggested: bool = False
     chart: ChartKind | None = None
@@ -240,6 +241,7 @@ class AskResult(BaseModel):
     options: list[ClarificationOption] = Field(default_factory=list)
     answer: AnswerDraft | None = None
     removed_claims: list[RemovedClaim] = Field(default_factory=list)
+    draft_before_grounding: AnswerDraft | None = None  # the narrator's draft, kept for audit
     grounding_score: float | None = None
     confidence: Confidence | None = None
     plan: list[PlanStep] = Field(default_factory=list)

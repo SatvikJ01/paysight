@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import difflib
 import json
+import re
 
 from paysight.llm.base import Usage
 from paysight.llm.prompts import load_prompt
@@ -57,3 +59,27 @@ def narrate(
         evidence=compact_bundle(evidence),
         failures=failures,
     )
+
+
+def _numbers(text: str) -> set[str]:
+    return set(re.findall(r"\d+(?:\.\d+)?", text.replace(",", "")))
+
+
+def merge_caveats(computed: list[str], narrated: list[str]) -> list[str]:
+    """Computed caveats, plus narrator caveats that are not restatements of them.
+
+    The narrator is asked to restate every computed caveat in plain words, so its list mostly
+    paraphrases ours. A narrated caveat is dropped when it is textually close to a computed one,
+    or when all of its numbers already appear in a single computed caveat.
+    """
+    out = list(dict.fromkeys(computed))
+    for caveat in narrated:
+        nums = _numbers(caveat)
+        duplicate = any(
+            difflib.SequenceMatcher(None, caveat.lower(), c.lower()).ratio() >= 0.6
+            or (nums and nums <= _numbers(c))
+            for c in out
+        )
+        if not duplicate:
+            out.append(caveat)
+    return out

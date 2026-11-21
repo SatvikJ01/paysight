@@ -164,6 +164,7 @@ class RunContext:
         chart: ChartKind | None = None,
         llm_suggested: bool = False,
         ad_hoc: bool = False,
+        chart_data: list[dict[str, Any]] | None = None,
     ) -> Evidence:
         """Record one evidence item with the SQL and validation of every query behind it."""
         self.queries += sum(1 for r in results if r.status != "blocked" and not r.cache_hit)
@@ -187,6 +188,7 @@ class RunContext:
             chart=chart,
             llm_suggested=llm_suggested,
             ad_hoc=ad_hoc,
+            chart_data=[_clean(row) for row in (chart_data or [])],
         )
         self.evidence.append(ev)
         return ev
@@ -548,6 +550,10 @@ def _series(
         min_den=50,
         z_threshold=ctx.settings.analysis.anomaly_z_threshold,
     )
+    series_rows = [
+        {"date": r.period.date().isoformat(), "attempts": int(r.den), "rate_pct": pct(r.rate)}
+        for r in series.itertuples()
+    ]
     ctx.add(
         title="Daily success rate",
         kind="series",
@@ -555,10 +561,8 @@ def _series(
         results=[result],
         filters=filters,
         window=window.label(),
-        rows=[
-            {"date": r.period.date().isoformat(), "attempts": int(r.den), "rate_pct": pct(r.rate)}
-            for r in series.itertuples()
-        ],
+        rows=series_rows,
+        chart_data=series_rows,
         key_numbers={
             "anomaly_windows": "; ".join(
                 f"{w.start:%Y-%m-%d}..{w.end:%Y-%m-%d} ({w.direction})" for w in windows
@@ -685,9 +689,10 @@ def run_root_cause(ctx: RunContext, scope: Scope) -> None:
         chart="contribution_bar",
     )
     by_dim = {d.dimension: (d, r) for d, r in zip(decomps, results, strict=True)}
-    shown = [d.dimension for d in ranking.dimensions[:2]]
-    if "payment_method" in by_dim and "payment_method" not in shown:
-        shown.append("payment_method")
+    # The mix/rate split is reported by payment method only. Splitting by merchant group would
+    # call a group's internal method-mix change a "rate" effect (NovaMart's rate falls because
+    # its sale is EMI-heavy). Group-level drivers stay visible in the ranking. DECISIONS D32.
+    shown = ["payment_method"] if "payment_method" in by_dim else [ranking.dimensions[0].dimension]
     for dim in shown:
         decomposition, result = by_dim[dim]
         _decomposition_evidence(ctx, decomposition, flt, label, [result])
@@ -856,6 +861,14 @@ def run_anomaly(ctx: RunContext, scope: Scope) -> None:
         if x.direction == "drop"
     ]
     main = max(hw, key=lambda x: x.excess_failures) if hw else None
+    hour_rows = [
+        {
+            "hour": r.period.isoformat(sep=" ", timespec="minutes"),
+            "attempts": int(r.den),
+            "rate_pct": pct(r.rate),
+        }
+        for r in hours.itertuples()
+    ]
     ctx.add(
         title=f"Hourly timeline for {seg}" + (f" ({', '.join(affected)})" if affected else ""),
         kind="anomaly",
@@ -863,14 +876,8 @@ def run_anomaly(ctx: RunContext, scope: Scope) -> None:
         results=[hresult],
         filters=focus,
         window=hourly_window.label(),
-        rows=[
-            {
-                "hour": r.period.isoformat(sep=" ", timespec="minutes"),
-                "attempts": int(r.den),
-                "rate_pct": pct(r.rate),
-            }
-            for r in hours.itertuples()
-        ],
+        rows=hour_rows,
+        chart_data=hour_rows,
         key_numbers={}
         if main is None
         else {
@@ -936,6 +943,15 @@ def run_trend(ctx: RunContext, scope: Scope) -> None:
     grid, gresult = hour_by_date(
         ctx.engine, ctx.role, window=TimeWindow(start=base.start, end=cur.end), filters=seg_filter
     )
+    grid_rows = [
+        {
+            "date": r.date.isoformat(),
+            "hour": r.hour_of_day,
+            "attempts": int(r.den),
+            "rate_pct": pct(r.rate),
+        }
+        for r in grid.itertuples()
+    ]
     ctx.add(
         title=f"Hour x date success rate for {top.segment}",
         kind="series",
@@ -943,15 +959,8 @@ def run_trend(ctx: RunContext, scope: Scope) -> None:
         results=[gresult],
         filters=seg_filter,
         window=f"{base.start}..{cur.end}",
-        rows=[
-            {
-                "date": r.date.isoformat(),
-                "hour": r.hour_of_day,
-                "attempts": int(r.den),
-                "rate_pct": pct(r.rate),
-            }
-            for r in grid.itertuples()
-        ][:50],
+        rows=grid_rows[:50],
+        chart_data=grid_rows,
         key_numbers={"cells": len(grid)},
         chart="heatmap",
     )
@@ -969,7 +978,7 @@ def run_comparison(ctx: RunContext, scope: Scope) -> None:
         run_lookup(ctx, scope, compare=True)
         return
     headline_step(ctx, metric, cur, base, flt)
-    dims = tuple(scope.dimensions) or ("payment_method", "merchant_group", "issuer_name")
+    dims = tuple(scope.dimensions) or ROOT_CAUSE_DIMENSIONS
     _, decomps, results = scan_drivers(
         ctx.engine,
         ctx.role,
