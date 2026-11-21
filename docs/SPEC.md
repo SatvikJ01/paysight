@@ -1,4 +1,4 @@
-# Paysight: build specification
+# Paysight: design specification
 
 > An AI payments analyst that shows its work and catches the traps naive AI falls into.
 
@@ -143,7 +143,6 @@ Everything else is deterministic code.
 
 ```
 paysight/
-├── CLAUDE.md
 ├── README.md
 ├── LICENSE                         # MIT
 ├── pyproject.toml
@@ -1084,22 +1083,22 @@ on port 8501. `docker run -p 8501:8501 paysight` works with **no API key**, usin
 
 ## 17. Milestones
 
-After every milestone: ruff + pytest pass, commit, and print a summary. ⏸ means stop and wait
-for me.
+The system is built in nine milestones. Each one ends with ruff and pytest passing and a
+commit. Milestones marked **(review)** end with a review of the results before work continues.
 
 | # | Milestone | Done when |
 |---|---|---|
 | M0 | Scaffold | uv project, pyproject, ruff config, pytest, typer CLI skeleton, config loader, `.env.example`, `.gitignore`, LICENSE, CI workflow, README stub. `paysight --help` works. |
-| M1 ⏸ | Data generator + scenarios + realized ground truth + DATA_DICTIONARY | `paysight data generate` runs in under 60s and writes `ground_truth.yaml`. Scenario detectability tests pass. **Print a table of each scenario's realized numbers for my review.** |
+| M1 (review) | Data generator + scenarios + realized ground truth + DATA_DICTIONARY | `paysight data generate` runs in under 60s and writes `ground_truth.yaml`. Scenario detectability tests pass. Each scenario's realized numbers are reviewed against its targets. |
 | M2 | Semantic layer, date resolver, compiler, access policies, validator, executor | Validator attack corpus passes. Row-filter rewrite verified. Compiler snapshots pass. |
 | M3 | Analysis toolkit | All §10 functions implemented and unit-tested. A CLI debug command runs the hero decomposition *without an LLM* and prints the numbers. |
 | M4 | LLM layer | Providers, structured output, retries, replay/record, FakeProvider, usage and cost tracking. |
-| M5 ⏸ | Orchestrator + `paysight ask` | Intent, clarification, pre-check, playbooks, narration, grounding, confidence, traces. Record cassettes for all Appendix B questions. **Show me the full CLI output for B1, B3, B5, B7 and B9.** |
+| M5 (review) | Orchestrator + `paysight ask` | Intent, clarification, pre-check, playbooks, narration, grounding, confidence, traces. Record cassettes for all Appendix B questions. The full CLI output for B1, B3, B5, B7 and B9 is reviewed. |
 | M6 | Streamlit UI | All pages working. Every Appendix B question works in replay mode from the sidebar buttons. Screenshots saved to `docs/images/`. |
 | M7 | Evaluation + baseline | `eval/reports/latest.{md,json}` generated, with the scorecard page rendering it. |
-| M8 ⏸ | Docs, Docker, polish | README and all docs complete, Docker verified, final checklist (§18.3) passes. |
+| M8 (review) | Docs, Docker, polish | README and all docs complete, Docker verified, final checklist (§18.3) passes. |
 
-**Stretch, only if M0–M8 are done and solid:**
+**Stretch ideas beyond M0–M8 (not implemented):**
 
 1. A thin FastAPI `POST /ask` endpoint reusing the pipeline, with an OpenAPI page.
 2. Query-plan caching for repeated questions.

@@ -46,7 +46,7 @@ Checked on 21 Nov 2026 against commit `HEAD` of `main`. Each item lists how it w
 
 Trace files for every run are in `runs/<run id>.json`.
 
-**Reviewer path (passed).** A fresh clone from GitHub into `/tmp/paysight`, with no `.env` and
+**Reviewer path (passed).** A fresh clone from GitHub into an empty temporary directory, with no `.env` and
 no key: `uv sync`, `paysight data generate` and `streamlit run` all worked, and the badge
 showed REPLAY. Every Appendix B example (B1–B12, plus a B3 choice) behaved as expected, each
 with the confidence badge and the Governed / Ad-hoc SQL badge. The Data health, Eval scorecard
