@@ -8,12 +8,13 @@ Claims extracted:
   whole numbers of 100 or more);
 * dates (``17 September``, ``17 Sep 2026``, ``2026-09-17``, ranges such as ``18–31 Oct``).
 
-A numeric claim matches when some number in the cited evidence (key numbers or result cells)
-equals it within half a unit of its last displayed digit. Fractions are also compared as
-percentages (0.885 matches 88.5%), and signs are ignored ("fell 1.47pp" matches -1.47). A date
+A numeric claim matches when some number in the cited evidence (key numbers, result cells, or
+numbers inside code-generated text cells such as driver reasons) equals it within half a unit
+of its last displayed digit. Fractions are also compared as percentages (0.885 matches 88.5%),
+and signs are ignored ("fell 1.47pp" matches -1.47). A date
 matches when it falls inside a cited evidence item's time window or appears in its results.
 Small bare whole numbers (under 100, e.g. "top 5", "2 weeks"), clock times and unit phrases such as
-"per 100 attempts" are not treated as claims.
+"per 100 attempts" or "95% confidence interval" are not treated as claims.
 """
 
 from __future__ import annotations
@@ -48,7 +49,9 @@ _DATE_MD = re.compile(
 )
 _TIME = re.compile(r"\b\d{1,2}:\d\d\b")
 _UNIT_PHRASE = re.compile(
-    r"\b(?:per|out of|every)\s+(?:100|1,?000|hundred|thousand)\b", re.IGNORECASE
+    r"\b(?:per|out of|every)\s+(?:100|1,?000|hundred|thousand)\b"
+    r"|\b(?:90|95|99)\s?%\s+(?:confidence|CI\b|intervals?|Wilson)",
+    re.IGNORECASE,
 )
 _NUM = r"(\d{1,3}(?:,\d{2,3})+(?:\.\d+)?|\d+(?:\.\d+)?)"
 _INR = re.compile(
@@ -163,10 +166,9 @@ def _numbers(value: Any) -> list[float]:
     if isinstance(value, int | float | Decimal):
         return [float(value)]
     if isinstance(value, str):
-        try:
-            return [float(value.replace(",", ""))]
-        except ValueError:
-            return []
+        # Code-generated text in evidence (driver reasons, data-quality details) carries computed
+        # numbers too, e.g. "share 39.9% -> 55.4%" or "+39%".
+        return [float(n.replace(",", "")) for n in re.findall(r"\d[\d,]*(?:\.\d+)?", value)]
     return []
 
 

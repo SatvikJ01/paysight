@@ -171,3 +171,38 @@ def test_confidence_high_and_low() -> None:
         settings=a,
     )
     assert low.level == "Low"
+
+
+def test_numbers_inside_evidence_text_count_as_evidence() -> None:
+    ev = Evidence(
+        id="E3",
+        title="Drivers",
+        kind="drivers",
+        purpose="p",
+        time_window="",
+        result=[{"reason": "'enterprise' share 39.9% -> 55.4%, rate 90.0% -> 87.8%"}],
+    )
+    draft = _draft("A.", ("Enterprise share rose from 39.9% to 55.4%.", ["E3"]))
+    assert check_draft(draft, [ev], year=YEAR).failures == []
+    bad = _draft("A.", ("Enterprise share rose to 61.2%.", ["E3"]))
+    assert check_draft(bad, [ev], year=YEAR).failures
+
+
+def test_confidence_level_phrases_are_not_claims() -> None:
+    claims = extract_claims("The 95% confidence intervals do not overlap (95% CI).", year=YEAR)
+    assert claims == []
+
+
+def test_merge_caveats_drops_paraphrases_keeps_new_points() -> None:
+    from paysight.orchestrator.narrator import merge_caveats
+
+    computed = [
+        "Duplicate records on 12 Oct: 341 attempts were ingested twice (11,704 raw rows "
+        "vs 11,363 unique attempts, +3.0%)."
+    ]
+    narrated = [
+        "On 12 Oct, 341 attempts were ingested twice (11,704 raw vs 11,363 unique, +3.0%).",
+        "Failure codes are quoted per 100 attempts, not as shares of failures.",
+    ]
+    merged = merge_caveats(computed, narrated)
+    assert merged == [computed[0], narrated[1]]
