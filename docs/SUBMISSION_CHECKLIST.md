@@ -20,7 +20,7 @@ Checked on 21 Nov 2026 against commit `HEAD` of `main`. Each item lists how it w
   a fresh clone at commit `335301d` and repeated these checks with the same results. The image
   is 2.5 GB, mostly pyarrow, scipy and the three LLM SDKs.
 - [ ] **CI is green. All tests pass. ruff is clean.** Locally on Ubuntu 24.04: `pytest -q`
-  gives 322 passed; `ruff check .` and `ruff format --check .` are clean. CI
+  gives 327 passed; `ruff check .` and `ruff format --check .` are clean. CI
   (`.github/workflows/ci.yml`) runs the same steps on Ubuntu and Windows on push. The CI result
   for the latest push, and the Windows run in particular, has not been confirmed here.
 - [x] **No secrets in the repo or its git history.** `.env` has never been committed
@@ -90,3 +90,21 @@ evidence keeps its format so that recorded answers stay unchanged (LIMITATIONS.m
 comparison that still compares periods, the clarification that keeps an explicit period
 (including both choices), a ranking with "when" that drills down, and a plain ranking that does
 not. Three eval cases with gold SQL cover these behaviours; all three pass for Paysight.
+
+### Live re-runs after the fixes (21 Nov 2026)
+
+| Run id | Question | Result |
+|---|---|---|
+| `20261121-203507-cde2d0` | Compare UPI and card success rates in August | Correct: 93.1% vs 86.6%, 6.52pp, intervals, z-test, Meridian data-quality caveat. |
+| UI live run (no run id noted) | Which acquiring bank had the most technical payment failures in September, and when did they happen? | Correct ranking with failure rates, 17–18 Sep card-only, `ACQ_TIMEOUT` 0.26 → 32.27 per 100 attempts, High confidence, three charts. |
+
+Three issues remained and were fixed on the `final-polish` branch (D37):
+
+1. **False-positive anomaly.** The daily detector flagged Kestrel on 4 Sep (about −1.3pp) and
+   the headline called it a second dip. Anomalies now also need at least 2pp of practical
+   size; the replayed answer reports only the 17–18 Sep outage.
+2. **Truncated evidence.** The narrator saw only the first hours of the hourly series. The
+   outage window is now computed in code against the week before (17 Sep 10:00 to 18 Sep
+   22:00, 36 hours, worst hour 36.36% against 86.87%) and shaded on the chart; daily series
+   that answer "when" carry a computed summary.
+3. **"p=0.0".** Tiny p-values display as "p < 0.001".

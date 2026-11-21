@@ -513,6 +513,38 @@ in each case the intent was parsed correctly and the planner or playbook ignored
   (`segment_upi_vs_card_august`, `period_compare_outside_data`,
   `ranking_when_kestrel_september`). Every other question replays unchanged.
 
+## D37. Anomalies need practical size; summaries are computed, not left to truncated rows
+
+Found in the live re-run of the Kestrel question on 21 Nov.
+
+- **Practical-magnitude threshold.** The daily detector flagged Kestrel on 4 Sep (88.5% against
+  about 89.9%, roughly −1.3pp): on a very stable series a small dip passes a robust-z test. The
+  headline then presented "two dips" as if equal to the ~11pp outage on 17–18 Sep. A point now
+  counts as anomalous only if it passes the robust-z test *and* is at least
+  `analysis.anomaly_min_delta_pp` (2.0pp) from the median, as practical significance does
+  elsewhere. Kestrel's 4 Sep is no longer an anomaly; 17–18 Sep is.
+- **Hourly outages against a reference rate.** The narrator sees at most 12 rows per evidence
+  item, so on the hourly series it saw only the early hours of 16 Sep and said so in a caveat.
+  The outage is now summarised in code: hours whose rate is significantly (one-sided binomial
+  z against the reference rate) and practically (≥ 2pp) below the rate in the reference
+  window, merged into a run that one normal hour does not split. Its start, end, duration,
+  worst hour, excess failures and affected attempts are key numbers, and the hourly chart
+  shades the window. Judging against the reference period rather than the window's own median
+  also fixes the old limitation that a long outage was never marked: for S1 the window is
+  17 Sep 10:00 to 18 Sep 22:00 (36 hours, about 716 excess failures), matching the answer key
+  (about 721).
+- **Daily summaries.** A daily series that answers *when* (anomaly, trend and the ranking
+  drill-down) now carries days, median, lowest and highest day, and each anomaly window with
+  its worst day against the median. Other daily series (the root-cause segment series and
+  LLM-suggested ones) keep the short form, because summarising them would re-record ten
+  root-cause narrations and exceed the budget; see LIMITATIONS.md.
+- **p-values** below 0.001 display as "p < 0.001" (a z of 60 underflows to 0.0). Evidence
+  keeps the number.
+- **Budget.** `llm.budget_usd` was raised from 4.00 to 4.50 for this work (prepaid credit is
+  $5). Re-recording cost $0.30: seven narrations (B2, B4, the 18 Sep card anomaly, two 17 Sep
+  paraphrases, the October trend paraphrase, and the Kestrel drill-down). Every other question
+  replays unchanged, including all root-cause answers.
+
 ## Related approaches
 
 How Paysight's design relates to published industry systems, as they publicly describe them.

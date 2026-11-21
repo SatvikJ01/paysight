@@ -27,11 +27,14 @@ Honest limitations of Paysight. Every `TODO` in the code has a matching entry he
   so 89.40 is sent as 89.4, and an answer can show "89.4%" next to "89.45%". New
   segment-comparison evidence uses fixed two-decimal text (D36). Changing the older evidence
   would invalidate every recorded narration, so it is left for the next re-recording.
-- **Long outages in short hourly windows.** The hourly timeline marks an outage window by robust
-  z-scores over the hours shown. When the outage covers a large share of them (S1: about 36 of
-  96 hours), the median baseline is pulled down and no window is marked. The answer then relies
-  on the daily anomaly window, the payment-method and failure-code comparison, and the hourly
-  rows. This affects B2 and the ranking drill-down alike.
+- **Daily summaries are not everywhere yet.** Daily series that answer *when* (anomaly, trend,
+  ranking drill-down) carry a computed summary (D37). The root-cause segment series and
+  LLM-suggested daily series still give the narrator only their first 12 rows plus the anomaly
+  windows; summarising them would change ten recorded root-cause answers, which was deferred
+  to keep spend within budget.
+- **Hourly outages need a reference period.** Outage windows are judged against the week
+  before the drop. A drop in the first week of the data has no such week, so no hourly
+  outage is computed for it.
 
 ## Context dimensions
 

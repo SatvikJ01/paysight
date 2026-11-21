@@ -216,7 +216,7 @@ report: [eval/reports/latest.md](eval/reports/latest.md).
 | Grounding pass rate (every stated number in the system's own query results) | 100% | 44.0% |
 | Intent stage: question type / metric / window | 100% / 100% / 100% | – |
 | Phrasing robustness (8 groups × 3 phrasings, all must pass) | 100% | – |
-| LLM calls · estimated cost (recorded usage) | 78 · $0.98 | 78 · $0.29 |
+| LLM calls · estimated cost (recorded usage) | 79 · $1.01 | 78 · $0.29 |
 
 **Read these numbers with their limits in mind:**
 
@@ -297,7 +297,7 @@ src/paysight/
   orchestrator/           intent, planner, playbooks, ad-hoc SQL, narrator, grounding, confidence
   evaluation/             baseline, scorer, runner
   observability/          traces and logging
-tests/                    322 tests: unit, safety corpus, replay of every demo question
+tests/                    327 tests: unit, safety corpus, replay of every demo question
 ```
 
 **Stack:** Python 3.11+, uv, DuckDB, pandas, numpy, scipy, sqlglot, pydantic v2, Streamlit,
