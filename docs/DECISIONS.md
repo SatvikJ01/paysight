@@ -128,3 +128,54 @@ decomposition and the z-tests need.
   `lock_configuration` is on. If not, it refuses to start.
 - **Raw tables.** The raw tables are never reachable through the validator. The data-quality
   tool (M3) runs fixed, reviewed SQL through a separate internal path.
+
+## D13. Per-segment attribution uses centred mix terms
+
+**Context.** The spec's per-segment mix term `(s_i1 − s_i0)·(r_i0 + r_i1)/2` is exact in total,
+but the individual terms are huge and offsetting. On the hero data, UPI shows −10.6pp and EMI
++6.5pp of "mix" for a total change of −1.47pp. A waterfall of those bars would mislead.
+
+**Decision.** Keep the spec terms. Also compute `mix_centered_i = Δs_i·(r̄_i − R̄)` with
+`R̄ = (R_0 + R_1)/2`. Because shares sum to 1 in both windows, `Σ mix_centered = Σ mix` exactly
+(tested). The centred term answers "how much did this segment's share change move the overall
+rate?": EMI −0.61pp and UPI −0.43pp on the hero data. Ranking and charts use it.
+
+## D14. Driver strength measures disproportionality, not size
+
+**Context.** The first implementation ranked dimensions by their largest single-segment
+contribution. `merchant_tier` came first, because enterprise merchants are most of the volume
+and so "explain" most of any change. `payment_method`, the real mix story, came 5th.
+
+**Decision.**
+- **Strength** is the total-variation distance between a dimension's attribution and its
+  volume shares: `½·Σ|a_i − s̄_i·ΔR| / |ΔR|`. A uniform change scores about 0 (tested). On the
+  hero data the ranking is merchant_group 0.47, payment_method 0.47, issuer_name 0.27.
+- **Rate-effect localization.** Decompose by `payment_method × dimension`, so mix inside a
+  segment counts as mix and what remains is a genuine rate change. This correctly isolates
+  Harbor Bank | DEBIT_CARD (86.1% → 76.7%, q ≈ 1e-49), not NovaMart. NovaMart's own rate dip is
+  its EMI-heavy mix.
+
+## D15. Low-volume periods do not end an anomaly window
+
+Periods with too few attempts to judge (for example night hours of an hourly series) are
+treated as unknown, not normal. Without this the Kestrel outage split into two windows at
+night. With it, the detected window is exactly 17 Sep 10:00 → 18 Sep 22:00.
+
+## D16. Data-quality checks use an internal, reviewed-SQL path
+
+**Raw-table access.** The data-quality tool must read the raw table to see duplicates. It does
+so through `Engine.run_internal`, which accepts only module-level SQL constants with bound
+parameters. Evidence records it as `internal_reviewed_query`. The connection is the same
+hardened, read-only one, and the timeout still applies. The role's row filters are applied
+through `dim_merchant`, so a regional analyst sees only their region's findings.
+
+**Daily volume.** Volume is compared with the same weekday's median rather than a global median,
+because weekends run about 15% higher. Spikes are reported as `info` (a sale is not a data
+error) and drops as `warning`.
+
+## D17. Reconciliation flags individual batches, not only the window total
+
+Orbit's 1.8% shortfall on one day is only −0.22% of its weekly GMV, below the 0.5% flag
+threshold. Each batch is therefore also checked against the GMV of its own covered dates, and
+any batch at or above the threshold is flagged as unexplained. "Missing batch" (no batch
+covers a date and none is due) is reported as explained but marked for follow-up.
