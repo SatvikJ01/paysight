@@ -1,6 +1,6 @@
 # Paysight evaluation
 
-36 questions · mode `replay` · model `claude-sonnet-5-5` · generated 2026-11-21T16:08:28
+36 questions · mode `replay` · model `claude-sonnet-5-5` · generated 2026-11-21T17:23:49
 
 ## Paysight vs naive text-to-SQL baseline
 
@@ -20,11 +20,11 @@
 | Intent stage: metric (%) | 100.0 | – |
 | Intent stage: window (%) | 100.0 | – |
 | Grounding pass rate (%) | 100.0 | 39.1 |
-| Latency p50 (ms, this run) | 566.0 | 177.0 |
-| Latency p95 (ms, this run) | 5538.0 | 425.0 |
+| Latency p50 (ms, this run) | 558.0 | 155.0 |
+| Latency p95 (ms, this run) | 4166.0 | 414.0 |
 | LLM calls | 72 | 72 |
-| Tokens in / out | 382,668 / 54,185 | 92,733 / 16,722 |
-| Estimated cost (USD, recorded usage) | 0.853 | 0.264 |
+| Tokens in / out | 382,522 / 55,737 | 92,733 / 16,722 |
+| Estimated cost (USD, recorded usage) | 0.873 | 0.264 |
 
 ## Phrasing robustness (Paysight)
 

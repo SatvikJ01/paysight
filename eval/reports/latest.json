@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T16:08:28",
+  "generated_at": "2026-11-21T17:23:49",
   "mode": "replay",
   "model": "claude-sonnet-5-5",
   "n_questions": 36,
@@ -76,13 +76,13 @@
     },
     {
       "metric": "Latency p50 (ms, this run)",
-      "paysight": 566.0,
-      "baseline": 177.0
+      "paysight": 558.0,
+      "baseline": 155.0
     },
     {
       "metric": "Latency p95 (ms, this run)",
-      "paysight": 5538.0,
-      "baseline": 425.0
+      "paysight": 4166.0,
+      "baseline": 414.0
     },
     {
       "metric": "LLM calls",
@@ -91,12 +91,12 @@
     },
     {
       "metric": "Tokens in / out",
-      "paysight": "382,668 / 54,185",
+      "paysight": "382,522 / 55,737",
       "baseline": "92,733 / 16,722"
     },
     {
       "metric": "Estimated cost (USD, recorded usage)",
-      "paysight": 0.853,
+      "paysight": 0.873,
       "baseline": 0.264
     }
   ],

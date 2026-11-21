@@ -448,6 +448,22 @@ the system without touching the checks.
   the overall one, so the numeric check fails. That is model variance on an open-ended SQL
   task; we kept the recording instead of re-rolling until it passed, and the report shows it.
 
+## D35. Pipeline counters live in `Evidence.meta`, never in `key_numbers`
+
+An ad-hoc answer stated "The repair-attempt count in the analysis was 0" as a fact: the count
+sat in `key_numbers`, which the narrator reads as business figures. Grounding could not catch
+it, because the number was genuinely in the evidence.
+
+- Counters that describe how the analysis ran (`repair_attempts`, `segments_tested`, heatmap
+  `cells`) moved to `Evidence.meta`. It is shown in the UI's evidence and written to the trace
+  (`evidence_meta` on the playbook step), and is never sent to the narrator.
+- `Evidence` rejects any name in `META_KEYS` inside `key_numbers`, so the rule is enforced in
+  code rather than by convention. A test runs real playbooks and checks the narrator's input.
+- Data-quality `findings` and reconciliation `flagged_batches` stay in `key_numbers`: they
+  are facts about the data ("the scan found duplicates on 12 Oct"), not about the pipeline.
+- Re-recorded: only the narrations whose evidence bundle changed (ad-hoc, root-cause and
+  anomaly answers), found by replaying every question and listing the missing cassettes.
+
 ## Related approaches
 
 How Paysight's design relates to published industry systems, as they publicly describe them.
