@@ -1,0 +1,84 @@
+{
+  "key": "e140a367c6a119f52a068223cb92061121205179f89b25e93f4b393176f64890",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "The period analysed is 22–31 Oct 2026, as stated explicitly in the question.",
+      "Risk declines mean attempts with failure category risk_decline (issuer risk decline, risk rule decline and suspected fraud).",
+      "Only card payments are included."
+    ],
+    "caveats": [
+      "Attempt volume in 22–31 Oct was 39% above the usual level for those weekdays. This may reflect a real sale or a data gap, so be careful comparing these counts with other periods.",
+      "Rankings are by count of risk declines; BINs with more traffic can rank higher, so the decline rate shown per BIN gives context on how unusual each one is."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "There were 2,516 risk-decline failed card attempts in 22–31 Oct 2026."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "BIN 911001 (Harbor Bank) had the most risk declines: 371, or 14.7% of the total, with 15.7% of its own 2,360 attempts declined for risk."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "BIN 911003 (Harbor Bank) was second with 345 risk declines (13.7% of the total), a risk-decline rate of 15.3% on 2,255 attempts."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "BIN 911002 (Harbor Bank) was third with 297 risk declines (11.8% of the total), a risk-decline rate of 13.3% on 2,239 attempts."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The top three BINs together made up 40.3% of all risk declines."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The remaining BINs in the top 10 each had 68 to 92 risk declines, with risk-decline rates of 2.4% to 2.6% of their own attempts. Examples: 922002 (Lotus Bank) with 92 declines, 922003 (Lotus Bank) with 91, and 912002 (Harbor Bank) with 76."
+      }
+    ],
+    "headline": "Three Harbor Bank BINs — 911001, 911003 and 911002 — had the most risk declines in 22–31 Oct 2026, together accounting for 40.3% of all card risk declines.",
+    "hypotheses": [
+      {
+        "confidence": "low",
+        "how_to_verify": "Break down the risk declines for 911001, 911003 and 911002 by failure code, merchant and day, and check with Harbor Bank whether risk rules changed around 22 Oct.",
+        "rationale": "Their risk-decline rates (13.3% to 15.7%) are several times higher than the 2.4% to 2.6% seen on other top-10 BINs, which points to something specific to these BINs rather than general volume.",
+        "text": "The three leading Harbor Bank BINs may be hit by a stricter issuer-side risk rule or a targeted fraud pattern."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "The three leading Harbor Bank BINs may be hit by a stricter issuer-side risk rule or a targeted fraud pattern.",
+        "rationale": "These three BINs account for over 40% of all risk declines and have unusually high decline rates.",
+        "text": "Investigate the risk-decline spike on Harbor Bank BINs 911001, 911003 and 911002 with the issuer and your risk team."
+      },
+      {
+        "linked_fact_or_hypothesis": "BIN 911001 (Harbor Bank) had the most risk declines: 371, or 14.7% of the total, with 15.7% of its own 2,360 attempts declined for risk.",
+        "rationale": "A rate of about 15% on these BINs could mean lost genuine sales.",
+        "text": "Review whether legitimate customers are being declined on these BINs, for example by sampling declined attempts that later succeeded on retry."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 2066,
+    "input_tokens": 1592,
+    "output_tokens": 1262
+  }
+}

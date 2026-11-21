@@ -1,0 +1,18 @@
+{
+  "key": "a45a46593e74b44a3fd3767f5117711de68fe414a15fc4b484055b8e61c6c463",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "note": "Finds the acquirer with the most September technical failures (assuming failure_category value 'technical' denotes technical failures) and lists its failures by date and hour, top 50 by count.",
+    "sql": "SELECT acquirer_name, txn_date, hour_of_day, COUNT(*) AS technical_failures FROM v_attempts_clean WHERE created_at >= TIMESTAMP '2026-09-01' AND created_at < TIMESTAMP '2026-10-01' AND failure_category = 'technical' AND acquirer_name = (SELECT acquirer_name FROM v_attempts_clean WHERE created_at >= TIMESTAMP '2026-09-01' AND created_at < TIMESTAMP '2026-10-01' AND failure_category = 'technical' GROUP BY acquirer_name ORDER BY COUNT(*) DESC LIMIT 1) GROUP BY acquirer_name, txn_date, hour_of_day ORDER BY technical_failures DESC LIMIT 50"
+  },
+  "schema": "BaselineSQL",
+  "template_id": "baseline_sql",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 1348,
+    "cache_write_tokens": 0,
+    "input_tokens": 33,
+    "output_tokens": 348
+  }
+}

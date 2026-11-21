@@ -1,0 +1,96 @@
+{
+  "key": "131604cdb73c77145dba5dc5159fdba66692211c539b86c10998036e79721949",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "Time window is 22 Oct to 31 Oct 2026, as stated explicitly in the question.",
+      "A risk decline means failure_category = risk_decline, which includes ISSUER_RISK_DECLINE, RISK_RULE_DECLINE and SUSPECTED_FRAUD.",
+      "Only card payments are included."
+    ],
+    "caveats": [
+      "Attempt volume in 22–31 Oct was 39% above the usual level for those weekdays. This can be a real business event such as a sale or a data gap; it is not a data error by itself, but check before comparing totals across this period.",
+      "Failure rates shown are each BIN's risk declines as a share of its own attempts, not of all attempts, so a BIN with high volume can rank high on counts without having a high rate."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "There were 2,516 risk-decline failed card attempts between 22 and 31 October 2026."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "BIN 911001 (Harbor Bank) had the most risk declines: 371, or 14.7% of the total (14.75% in the evidence). Its risk-decline rate was 15.7% of its 2,360 attempts."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "BIN 911003 (Harbor Bank) was second with 345 risk declines (13.7% of the total), a 15.3% risk-decline rate on 2,255 attempts."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "BIN 911002 (Harbor Bank) was third with 297 risk declines (11.8% of the total), a 13.3% risk-decline rate on 2,239 attempts."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The top three BINs together account for 40.3% of all risk declines."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Every other BIN in the top 10 had between 68 and 92 risk declines, with risk-decline rates of 2.4% to 2.6% of attempts. Examples: 922002 (Lotus Bank) 92 declines at 2.4%, 922003 (Lotus Bank) 91 at 2.4%, 912002 (Harbor Bank) 76 at 2.4%."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The three leading BINs have risk-decline rates of 13.3% to 15.7%, roughly five to six times the 2.4%–2.6% rates seen on the other top-10 BINs."
+      }
+    ],
+    "headline": "Three Harbor Bank BINs (911001, 911003 and 911002) had the most risk declines in 22–31 Oct 2026, together making up 40.3% of the 2,516 card risk declines in the period.",
+    "hypotheses": [
+      {
+        "confidence": "med",
+        "how_to_verify": "Break down the 911001/911002/911003 declines by decline code (ISSUER_RISK_DECLINE vs RISK_RULE_DECLINE vs SUSPECTED_FRAUD), by day and by merchant, and check whether any risk-rule change or fraud alert coincided with 22 Oct.",
+        "rationale": "All three top BINs belong to one issuer and share a 911 prefix, and their risk-decline rates are far above the other BINs, so the cause looks specific to this group rather than general volume.",
+        "text": "Harbor Bank's 911xxx BIN range may be hit by a tighter issuer-side or acquirer-side risk rule, or by a fraud pattern targeting these BINs."
+      },
+      {
+        "confidence": "low",
+        "how_to_verify": "Compare the risk-decline rate for these BINs in the 10 days before 22 Oct against this window.",
+        "rationale": "Attempt volume was up 39% versus usual in this window, so counts rise with volume. However, the high rates on the top three BINs are not explained by volume alone.",
+        "text": "Part of the volume of risk declines may reflect the sale-period traffic surge rather than a change in risk behaviour."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "Harbor Bank's 911xxx BIN range may be hit by a tighter issuer-side or acquirer-side risk rule, or by a fraud pattern targeting these BINs.",
+        "rationale": "These three BINs drive about 40% of risk declines with rates far above peers.",
+        "text": "Review risk-rule and fraud-screening settings for Harbor Bank BINs 911001, 911002 and 911003, and speak to Harbor Bank about their risk-decline behaviour."
+      },
+      {
+        "linked_fact_or_hypothesis": "Harbor Bank's 911xxx BIN range may be hit by a tighter issuer-side or acquirer-side risk rule, or by a fraud pattern targeting these BINs.",
+        "rationale": "This separates legitimate protection from avoidable lost sales.",
+        "text": "Split the declines on these BINs by decline code and merchant to see whether they are genuine fraud blocks or over-aggressive rules."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 1920,
+    "input_tokens": 1592,
+    "output_tokens": 1636
+  }
+}

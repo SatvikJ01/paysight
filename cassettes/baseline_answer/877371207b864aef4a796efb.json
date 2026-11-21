@@ -1,0 +1,18 @@
+{
+  "key": "877371207b864aef4a796efbb5af96d673386c97efcf4df6cf811dd50c959c2d",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "answer": "Kestrel Bank had the most technical payment failures in September 2026. The failures were heavily concentrated on September 17 and 18. The worst hours were Sept 17 at 21:00 (56 failures), Sept 17 at 14:00 (51), Sept 18 at 20:00 (46), and Sept 17 at 12:00 (42). Nearly every hour from roughly 08:00 to 23:00 on those two days shows elevated failures (often 20-56 per hour), suggesting a significant technical incident or outage across Sept 17-18. On other days, failures were much lower, typically around 9-15 per hour and clustered in the evening (about 19:00-22:00). Note: the result shows only the top 50 date/hour combinations, so it reflects the peak periods rather than a complete month total, and the overall count per bank was used only to pick Kestrel Bank (the totals themselves were not shown).",
+    "status": "answered"
+  },
+  "schema": "BaselineAnswer",
+  "template_id": "baseline_answer",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 3540,
+    "output_tokens": 310
+  }
+}

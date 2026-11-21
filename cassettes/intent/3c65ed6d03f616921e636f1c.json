@@ -1,0 +1,62 @@
+{
+  "key": "3c65ed6d03f616921e636f1c2307171899f52218033331dca6ea434e78fb3e11",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [
+      {
+        "field": "success_rate_definition",
+        "materiality": "low",
+        "options": [
+          "attempt_success_rate",
+          "order_success_rate",
+          "technical_success_rate"
+        ],
+        "proposed_default": "attempt_success_rate"
+      }
+    ],
+    "compare_time_expr": null,
+    "dimensions": [
+      "method_family"
+    ],
+    "entities": [],
+    "extra_steps": [
+      {
+        "dimension": null,
+        "reason": "Show top failure codes to explain differences between UPI and card success rates.",
+        "tool": "failure_codes"
+      },
+      {
+        "dimension": null,
+        "reason": "Show how each method's success rate moved across August.",
+        "tool": "daily_series"
+      }
+    ],
+    "filters": [
+      {
+        "dimension": "method_family",
+        "op": "in",
+        "values": [
+          "upi",
+          "card"
+        ]
+      }
+    ],
+    "metrics": [
+      "attempt_success_rate"
+    ],
+    "needs_custom_sql": false,
+    "question_type": "comparison",
+    "restatement": "Compare attempt success rate for UPI versus card payments in August 2026.",
+    "time_expr": "month:2026-08"
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 6284,
+    "input_tokens": 58,
+    "output_tokens": 310
+  }
+}

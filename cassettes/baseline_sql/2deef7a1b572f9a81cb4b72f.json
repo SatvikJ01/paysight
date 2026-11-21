@@ -1,0 +1,18 @@
+{
+  "key": "2deef7a1b572f9a81cb4b72f4c69db22221fde539c8580e14b64900f433b45ab",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "note": "Attempt-level success rate by method_family for August 2026; the status value 'SUCCESS' and method_family values 'UPI'/'CARD' are assumed since the schema does not list the exact enum values.",
+    "sql": "SELECT method_family, COUNT(*) AS total_attempts, SUM(CASE WHEN status = 'SUCCESS' THEN 1 ELSE 0 END) AS successful_attempts, ROUND(100.0 * SUM(CASE WHEN status = 'SUCCESS' THEN 1 ELSE 0 END) / COUNT(*), 2) AS success_rate_pct FROM v_attempts_clean WHERE created_at >= TIMESTAMP '2026-08-01' AND created_at < TIMESTAMP '2026-09-01' AND method_family IN ('UPI', 'CARD') GROUP BY method_family ORDER BY method_family LIMIT 50"
+  },
+  "schema": "BaselineSQL",
+  "template_id": "baseline_sql",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 1348,
+    "input_tokens": 19,
+    "output_tokens": 316
+  }
+}

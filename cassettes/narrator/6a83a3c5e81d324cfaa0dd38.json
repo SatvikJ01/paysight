@@ -1,0 +1,88 @@
+{
+  "key": "6a83a3c5e81d324cfaa0dd387ca4f8e2b5df8ff295349fd8821ea39ed9f1efd3",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "Period: 1 to 30 September 2026.",
+      "Technical failures are those with failure category 'technical'; failure rate is each bank's technical failures as a share of its own attempts."
+    ],
+    "caveats": [
+      "The hourly timeline and the day-level view cover only a sample of the data shown, so the exact start and end hour of the 17-18 September incident should be confirmed from the full timeline.",
+      "The data-quality scan found no issues for September."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Kestrel Bank had 2,776 technical failed attempts in September 2026, 33.4% of the 8,322 technical failures across acquirers. That is a technical failure rate of 2.94% of its 94,315 attempts."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "The next highest were Meridian Bank (1,965 failures, 2.14% of its attempts), Northstar Bank (1,806, 2.20%) and Saffron Bank (1,775, 2.09%). The top three banks together account for 78.7% of technical failures."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "Kestrel's daily success rate was mostly steady around 89-90% in the first half of September. Anomaly detection flagged two drop windows: 4 September and 17-18 September."
+      },
+      {
+        "evidence_ids": [
+          "E3"
+        ],
+        "text": "Comparing 17-18 September with 10-16 September, success rates fell sharply for debit cards (30.11pp, from 86.42% to 56.31%), credit cards (28.71pp, from 88.64% to 59.94%) and card EMI (23.87pp, from 80.67% to 56.80%). UPI, wallet and netbanking did not change significantly."
+      },
+      {
+        "evidence_ids": [
+          "E4"
+        ],
+        "text": "Over the same comparison, the ACQ_TIMEOUT failure code rose from 0.26 to 32.27 per 100 attempts on Kestrel's card methods, from 22 to 803 failures. Other failure codes did not rise materially."
+      }
+    ],
+    "headline": "Kestrel Bank had the most technical payment failures in September, with 2,776 failures (33.4% of all 8,322), and they clustered on 17-18 September, when card payments at Kestrel collapsed because of acquirer timeouts.",
+    "hypotheses": [
+      {
+        "confidence": "med",
+        "how_to_verify": "Review the hourly timeline for the exact start and end of the incident, and check Kestrel's incident or maintenance logs and latency metrics for 17-18 September.",
+        "rationale": "The drop is confined to card methods at one acquirer, and ACQ_TIMEOUT jumped from 0.26 to 32.27 per 100 attempts while other failure codes stayed flat or fell.",
+        "text": "A timeout problem on Kestrel Bank's card processing path on 17-18 September drove most of its technical failures."
+      },
+      {
+        "confidence": "low",
+        "how_to_verify": "Run the same payment-method and failure-code breakdown for 4 September.",
+        "rationale": "The daily rate fell to 88.53% that day and was flagged as an anomaly, but the evidence does not break it down by method or failure code.",
+        "text": "The smaller dip on 4 September may be a separate, milder incident at Kestrel."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "A timeout problem on Kestrel Bank's card processing path on 17-18 September drove most of its technical failures.",
+        "rationale": "This is where the failures concentrated and the failure code points to the acquirer side.",
+        "text": "Raise the 17-18 September ACQ_TIMEOUT spike with Kestrel Bank and ask for a root-cause analysis covering debit, credit and EMI card traffic."
+      },
+      {
+        "linked_fact_or_hypothesis": "Kestrel Bank had 2,776 technical failed attempts in September 2026, 33.4% of the 8,322 technical failures across acquirers. That is a technical failure rate of 2.94% of its 94,315 attempts.",
+        "rationale": "Other acquirers kept technical failure rates around 2.1-2.2%, so rerouting could limit impact during an incident.",
+        "text": "Set up an alert on Kestrel's ACQ_TIMEOUT rate per 100 attempts for card methods, and consider routing card traffic to other acquirers during similar episodes."
+      },
+      {
+        "linked_fact_or_hypothesis": "The smaller dip on 4 September may be a separate, milder incident at Kestrel.",
+        "rationale": "It was flagged as an anomaly but is not explained by the evidence.",
+        "text": "Investigate the 4 September dip separately to see whether it is related to the later incident."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 1920,
+    "input_tokens": 3835,
+    "output_tokens": 1531
+  }
+}

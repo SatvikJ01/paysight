@@ -1,0 +1,18 @@
+{
+  "key": "6a0284c3528755c7a421cdde9343ec434b0fce791d0c0be316f36707f2475b86",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "answer": "I can only give you August: the query returned no July data, so a comparison isn't possible from this result. In August 2026 there were 367,651 attempts, of which 330,694 succeeded, a success rate of 89.95%. July may have no records in the data, or the date range may need checking.",
+    "status": "answered"
+  },
+  "schema": "BaselineAnswer",
+  "template_id": "baseline_answer",
+  "template_version": "1",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 0,
+    "input_tokens": 788,
+    "output_tokens": 101
+  }
+}

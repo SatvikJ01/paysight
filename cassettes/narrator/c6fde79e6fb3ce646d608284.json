@@ -1,0 +1,72 @@
+{
+  "key": "c6fde79e6fb3ce646d6082843d4c7e810b0dc96013671420ba22d69369fdccbc",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "'Success rate' means attempt-level success rate: successful attempts divided by all attempts, with each retry counted as a separate attempt. Order-level and technical rates are shown alongside.",
+      "Success rate definition assumed: attempt success rate.",
+      "The comparison covers UPI and card (by method family) within 1 to 31 August 2026."
+    ],
+    "caveats": [
+      "Missing issuer IDs on Meridian Bank card attempts (8.0% in August 2026) understate issuer-level results for that scope. The rows were kept and shown as '(missing)' issuer, not corrected. The overall UPI and card rates above do not depend on issuer ID.",
+      "This is a single-month comparison with no second period, so it says nothing about whether the gap is widening or narrowing."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "UPI attempt success rate in August 2026 was 93.1% (184,077 successful of 197,696 attempts; 95% interval 93.0% to 93.2%)."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Card attempt success rate in August 2026 was 86.6% (109,912 successful of 126,939 attempts; 95% interval 86.4% to 86.8%)."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "UPI's success rate was 6.52pp higher than card's. The two confidence intervals do not overlap, and the two-proportion test marks the gap as statistically significant (z = 62.04) and practically significant."
+      },
+      {
+        "evidence_ids": [
+          "E2"
+        ],
+        "text": "The data-quality scan found one warning: 8.0% of Meridian Bank's card attempts in August 2026 (2,856 of 35,507) have no issuer ID, against an expected 0%."
+      }
+    ],
+    "headline": "UPI succeeded more often than card in August 2026: 93.1% versus 86.6%, a gap of 6.52pp that is statistically and practically significant.",
+    "hypotheses": [
+      {
+        "confidence": "low",
+        "how_to_verify": "Break card and UPI failures down by failure code per 100 attempts, and by issuer and acquirer, to see which failure types drive the gap.",
+        "rationale": "The evidence shows only the size of the gap, not why it exists. This is a common structural explanation for card versus UPI differences but is not tested here.",
+        "text": "Part of the gap may come from card payments having more steps that can fail (issuer authentication such as 3-D Secure/OTP, issuer declines) than UPI's more direct bank-to-bank flow."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "The gap between UPI and card is 6.52pp and statistically and practically significant.",
+        "rationale": "The gap is large and significant, so locating its source is the quickest path to a fix.",
+        "text": "Break down card failures by failure code, issuer and acquirer for August to find where the 6.52pp gap is concentrated."
+      },
+      {
+        "linked_fact_or_hypothesis": "8.0% of Meridian Bank card attempts in August 2026 have no issuer ID.",
+        "rationale": "Missing issuer IDs make issuer-level results for this scope unreliable.",
+        "text": "Ask the data team to fix the missing issuer IDs on Meridian Bank card attempts before running any issuer-level comparison."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 874,
+    "output_tokens": 1073
+  }
+}

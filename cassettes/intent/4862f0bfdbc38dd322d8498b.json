@@ -1,0 +1,29 @@
+{
+  "key": "4862f0bfdbc38dd322d8498bba50f0eed33aaed1f40898fd064fa7b4e3b8a4fa",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [],
+    "compare_time_expr": "month:2026-07",
+    "dimensions": [],
+    "entities": [],
+    "extra_steps": [],
+    "filters": [],
+    "metrics": [
+      "attempt_success_rate"
+    ],
+    "needs_custom_sql": false,
+    "question_type": "comparison",
+    "restatement": "Compare attempt success rate in August 2026 with July 2026.",
+    "time_expr": "month:2026-08"
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 0,
+    "cache_write_tokens": 6284,
+    "input_tokens": 55,
+    "output_tokens": 133
+  }
+}

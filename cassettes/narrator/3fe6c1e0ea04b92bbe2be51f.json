@@ -1,0 +1,83 @@
+{
+  "key": "3fe6c1e0ea04b92bbe2be51f4f5b438848422103aaadcde48769e20558abaa5f",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "assumptions": [
+      "Declines are taken to mean all failed card attempts.",
+      "The period analysed is 1 to 31 August 2026."
+    ],
+    "caveats": [
+      "8.0% of Meridian Bank's card attempts in August 2026 (2,856 of 35,507) have no issuer ID, where 0% is expected. Issuer-level results are therefore understated. These rows were not corrected and appear as a '(missing)' issuer.",
+      "Failure rates are not available for the missing-issuer group, so it cannot be compared with named issuers."
+    ],
+    "facts": [
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "There were 17,027 failed card attempts in August 2026. Harbor Bank had the most at 3,489 (20.5% of all declines), followed by Lotus Bank with 3,206 (18.8%) and Ridge Bank with 2,782 (16.3%). The top three issuers account for 55.7% of declines."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Indigo Bank had 2,598 failed attempts (15.3%), Coral Bank 2,558 (15.0%) and Banyan Bank 2,004 (11.8%)."
+      },
+      {
+        "evidence_ids": [
+          "E1",
+          "E2"
+        ],
+        "text": "390 failed attempts (2.3%) have no issuer name attached, so they cannot be assigned to any issuer."
+      },
+      {
+        "evidence_ids": [
+          "E1"
+        ],
+        "text": "Failure rates (failures as a share of each issuer's own attempts) are fairly close across issuers: Harbor Bank 13.1%, Lotus Bank 13.0%, Ridge Bank 13.5%, Indigo Bank 13.5%, Banyan Bank 13.5% and Coral Bank 14.2%."
+      }
+    ],
+    "headline": "Three issuers drove over half of August's 17,027 failed card attempts: Harbor Bank (20.5%), Lotus Bank (18.8%) and Ridge Bank (16.3%), together 55.7%.",
+    "hypotheses": [
+      {
+        "confidence": "med",
+        "how_to_verify": "Compare each issuer's failure rate with the overall card failure rate and with prior months to see whether any issuer's rate moved unusually.",
+        "rationale": "Failure rates sit in a narrow 13.0% to 14.2% band, while attempt volumes range from 14,880 to 26,638. The highest-volume issuers (Harbor Bank, Lotus Bank) top the decline count despite having some of the lowest failure rates.",
+        "text": "The ranking of issuers by decline count is mostly explained by how many card attempts each issuer handles, not by one issuer being unusually weak."
+      },
+      {
+        "confidence": "low",
+        "how_to_verify": "Check Coral Bank's failure rate trend over recent months and break its declines down by failure code.",
+        "rationale": "Its rate is about one point above the other issuers, but the gap is small and no prior-period comparison is in the evidence.",
+        "text": "Coral Bank may deserve attention on rate rather than count, since it has the highest failure rate (14.2%) despite ranking fifth by number of declines."
+      }
+    ],
+    "recommendations": [
+      {
+        "linked_fact_or_hypothesis": "Fact 1",
+        "rationale": "These three issuers hold 55.7% of declines, so fixes here have the largest absolute impact.",
+        "text": "Break down Harbor Bank, Lotus Bank and Ridge Bank declines by failure code to see which reasons dominate."
+      },
+      {
+        "linked_fact_or_hypothesis": "Fact 3",
+        "rationale": "Missing issuer IDs mean issuer-level counts are understated and 390 declines are unattributed.",
+        "text": "Fix the missing issuer ID capture, starting with Meridian Bank card attempts, and rerun this analysis afterwards."
+      },
+      {
+        "linked_fact_or_hypothesis": "Coral Bank hypothesis",
+        "rationale": "It has the highest failure rate of the named issuers.",
+        "text": "Review Coral Bank's failure rate against its own history."
+      }
+    ]
+  },
+  "schema": "AnswerDraft",
+  "template_id": "narrator",
+  "template_version": "3",
+  "usage": {
+    "cache_read_tokens": 1920,
+    "cache_write_tokens": 0,
+    "input_tokens": 1251,
+    "output_tokens": 1303
+  }
+}

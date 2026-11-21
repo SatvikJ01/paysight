@@ -1,0 +1,54 @@
+{
+  "key": "a3d6dd4d424f908e5a5d0db887d0a6406fa03e12c98230c61a06a41b69753c03",
+  "model": "claude-sonnet-5-5",
+  "provider": "anthropic",
+  "response": {
+    "ambiguities": [],
+    "dimensions": [
+      "acquirer_name"
+    ],
+    "entities": [],
+    "extra_steps": [
+      {
+        "dimension": null,
+        "reason": "Show on which days technical failures occurred for the top acquirer.",
+        "tool": "daily_series"
+      },
+      {
+        "dimension": null,
+        "reason": "Show at what times of day technical failures peaked.",
+        "tool": "hourly_profile"
+      },
+      {
+        "dimension": null,
+        "reason": "Identify which technical failure codes drove the failures.",
+        "tool": "failure_codes"
+      }
+    ],
+    "filters": [
+      {
+        "dimension": "failure_category",
+        "op": "=",
+        "values": [
+          "technical"
+        ]
+      }
+    ],
+    "metrics": [
+      "failed_attempts"
+    ],
+    "needs_custom_sql": false,
+    "question_type": "ranking",
+    "restatement": "Acquiring banks ranked by number of technical payment failures in September 2026, with when those failures occurred (by day and hour).",
+    "time_expr": "month:2026-09"
+  },
+  "schema": "IntentResult",
+  "template_id": "intent",
+  "template_version": "2",
+  "usage": {
+    "cache_read_tokens": 6284,
+    "cache_write_tokens": 0,
+    "input_tokens": 72,
+    "output_tokens": 289
+  }
+}
