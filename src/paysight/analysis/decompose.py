@@ -14,6 +14,14 @@ Edge cases:
 * Segments with a zero denominator in both windows are dropped.
 * When ``|ΔR|`` is tiny, ``mix_share`` is unstable, so it is reported as ``None`` and only the
   absolute contributions are given.
+
+Per-segment attribution. The spec's per-segment ``mix_i`` is exact in total, but individual
+terms are large and offsetting: a segment losing share shows a big negative mix term even if its
+rate is average. Each segment therefore also gets ``mix_centered_i = (s_i1 − s_i0) · (r̄_i − R̄)``,
+where ``R̄ = (R_0 + R_1) / 2``. Because shares sum to 1 in both windows, ``Σ mix_centered = Σ mix``
+exactly. The centred term says how much a segment's share change moved the overall rate, given
+whether the segment is better or worse than average. It is used for ranking and charts.
+See DECISIONS.md D13.
 """
 
 from __future__ import annotations
@@ -40,12 +48,18 @@ class SegmentContribution(BaseModel):
     rate0: float | None
     rate1: float | None
     mix: float
+    mix_centered: float
     rate: float
 
     @property
     def total(self) -> float:
-        """Mix plus rate contribution of this segment."""
+        """Spec-form mix plus rate contribution of this segment."""
         return self.mix + self.rate
+
+    @property
+    def attributed(self) -> float:
+        """Centred mix plus rate: this segment's interpretable share of the total change."""
+        return self.mix_centered + self.rate
 
 
 class Decomposition(BaseModel):
@@ -102,7 +116,11 @@ def decompose_rate_change(
     big_r0 = float(df["num0"].sum()) / total0
     big_r1 = float(df["num1"].sum()) / total1
     delta = big_r1 - big_r0
-    error = abs(float(mix.sum() + rate.sum()) - delta)
+    mix_centered = (s1 - s0) * ((r0 + r1) / 2.0 - (big_r0 + big_r1) / 2.0)
+    error = max(
+        abs(float(mix.sum() + rate.sum()) - delta),
+        abs(float(mix_centered.sum() + rate.sum()) - delta),
+    )
     if error > SUM_TOLERANCE:
         raise ValueError(f"decomposition does not sum to the total (error {error:.3e})")
 
@@ -119,11 +137,12 @@ def decompose_rate_change(
             rate0=float(r0_raw[i]) if row.den0 > 0 else None,
             rate1=float(r1_raw[i]) if row.den1 > 0 else None,
             mix=float(mix[i]),
+            mix_centered=float(mix_centered[i]),
             rate=float(rate[i]),
         )
         for i, row in enumerate(df.itertuples(index=False))
     ]
-    segments.sort(key=lambda s: abs(s.total), reverse=True)
+    segments.sort(key=lambda s: abs(s.attributed), reverse=True)
     return Decomposition(
         dimension=dimension,
         rate0=big_r0,

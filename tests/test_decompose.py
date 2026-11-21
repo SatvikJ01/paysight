@@ -26,6 +26,10 @@ def test_spec_toy_case_is_pure_mix() -> None:
     by_seg = {s.segment: s for s in result.segments}
     assert by_seg["UPI"].mix == pytest.approx(-0.19)
     assert by_seg["Card"].mix == pytest.approx(0.17)
+    # Centred attribution: R̄ = 0.92, so UPI −0.2·0.03 and Card +0.2·(−0.07).
+    assert by_seg["UPI"].mix_centered == pytest.approx(-0.006)
+    assert by_seg["Card"].mix_centered == pytest.approx(-0.014)
+    assert sum(s.mix_centered for s in result.segments) == pytest.approx(-0.02, abs=1e-12)
 
 
 def test_mixed_case_sums_exactly() -> None:
