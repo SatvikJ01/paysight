@@ -325,3 +325,33 @@ questions:
     checks:
       - {type: numeric, gold: gold/adhoc_failed_latency.sql, tolerance: 1.0}
       - {type: adhoc, repaired: true}
+
+  # ------------------------------------------- segment comparison and ranking with timing (3)
+  # Added after manual live testing found both gaps (D36).
+  - id: segment_upi_vs_card_august
+    question: Compare UPI and card success rates in August
+    role: leadership
+    category: comparison
+    intent: {question_type: comparison, metric: attempt_success_rate, window: "2026-08-01..2026-08-31"}
+    checks:
+      - {type: behavior, behavior: answer}
+      - {type: numeric, gold: gold/upi_sr_august.sql, tolerance: 0.001}
+      - {type: numeric, gold: gold/card_sr_august.sql, tolerance: 0.001}
+  # The stated period has no earlier period in the data: Paysight must say so and keep August.
+  - id: period_compare_outside_data
+    question: Compare success rates in August with July
+    role: leadership
+    category: ambiguity
+    intent: {question_type: comparison, metric: attempt_success_rate, window: "2026-08-01..2026-08-31"}
+    checks:
+      - {type: behavior, behavior: clarify}
+      - {type: mentions, all: ["1 Aug 2026"]}
+  - id: ranking_when_kestrel_september
+    question: Which acquiring bank had the most technical payment failures in September, and when did they happen?
+    role: leadership
+    category: anomaly_explain
+    intent: {question_type: ranking, metric: failed_attempts, window: "2026-09-01..2026-09-30"}
+    checks:
+      - {type: numeric, gold: gold/kestrel_technical_failures_september.sql, tolerance: 0}
+      - {type: mentions, all: [Kestrel], any: [ACQ_TIMEOUT, timeout]}
+      - {type: anomaly_window, start: 2026-09-17, end: 2026-09-18, tolerance_days: 0}
