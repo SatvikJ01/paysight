@@ -28,3 +28,7 @@ runs/
 Thumbs.db
 .idea/
 .vscode/
+
+# Local assistant notes and settings (not part of the project)
+CLAUDE.md
+.claude/
