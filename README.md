@@ -14,6 +14,10 @@ All banks, PSPs, wallets and merchants in the data are fictional.
 
 ![Paysight answering the hero question: success rate fell 1.47pp, two-thirds of it a payment-method mix shift](docs/images/ask_hero.png)
 
+## Demo video
+
+_Link to be added._
+
 ## Quickstart (no API key needed)
 
 Needs [uv](https://docs.astral.sh/uv/getting-started/installation/) and Git. Works on Linux,
