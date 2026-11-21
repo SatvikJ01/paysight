@@ -1,0 +1,26 @@
+# Paysight global settings. Every threshold used by code lives here, not in the code.
+
+data:
+  start_date: 2026-08-01          # first transaction date, inclusive
+  end_date: 2026-10-31            # last transaction date, inclusive
+  as_of_date: 2026-10-31          # "today" for all relative dates (end of day); never the wall clock
+  seed: 42
+  default_scale: 1.0
+  duckdb_path: data/paysight.duckdb
+  ground_truth_path: data/ground_truth.yaml
+
+limits:
+  query_timeout_s: 10             # execution guard: con.interrupt() after this many seconds
+  default_row_limit: 10000        # injected when a query has no LIMIT; larger limits are capped
+  max_time_window_days: 400       # maximum created_at span for queries over attempt/order views
+  max_joins: 4
+  max_estimated_rows: 50000000    # EXPLAIN cardinality guard
+
+analysis:
+  alpha: 0.05                     # significance level before multiple-testing correction
+  practical_significance_pp: 0.5  # |delta| in pp needed for a change to be practically significant
+  min_sample_attempts: 1000       # each window needs at least this many attempts
+  min_delta_for_shares_pp: 0.1    # below this |delta|, mix/rate shares are unstable: report absolutes only
+  denominator_divergence_pp: 1.0  # show a sensitivity note when SR definitions differ by this much
+  anomaly_z_threshold: 3.5        # robust z-score (median/MAD) threshold
+  reconcile_unexplained_flag_pct: 0.5  # flag unexplained reconciliation residuals at or above this %

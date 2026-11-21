@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Secrets
+.env
+
+# Generated data (recreated deterministically by `paysight data generate`)
+data/*.duckdb
+data/*.duckdb.wal
+data/*.duckdb.tmp
+data/cache/
+
+# Run traces
+runs/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
