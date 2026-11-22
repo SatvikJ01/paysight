@@ -36,6 +36,15 @@ Honest limitations of Paysight. Every `TODO` in the code has a matching entry he
   before the drop. A drop in the first week of the data has no such week, so no hourly
   outage is computed for it.
 
+## "Revenue" is read as GMV
+
+- The semantic layer lists `revenue` (and `sales`) as synonyms of `gmv_inr`, the gross value of
+  successful payments processed. In payments, "revenue" can also mean a merchant's net sales
+  or the processor's own fee income (MDR), so a question about revenue gets processed volume
+  without a caveat. The synonyms are part of the catalog rendered into the intent prompt, so
+  removing them, or adding a clarification for "revenue", would change every recorded intent;
+  it is left for the next re-recording (found by an independent code review, D38).
+
 ## Context dimensions
 
 - Only `card_bin` declares a context dimension (`issuer_name`, D34). `merchant_name` →
