@@ -8,7 +8,7 @@ from typing import Any
 import pandas as pd
 import plotly.graph_objects as go
 
-from paysight.orchestrator.models import Evidence
+from paysight.orchestrator.models import AskResult, Evidence
 
 GREEN, RED, GREY, AMBER = "#1B6B45", "#C0392B", "#95A5A6", "#D68910"
 LAYOUT: dict[str, Any] = {
@@ -273,3 +273,13 @@ def figure_for(ev: Evidence) -> go.Figure | None:
     """The chart for one evidence item, or ``None`` if it has nothing to plot."""
     fn = CHARTS.get(ev.chart or "")
     return fn(ev) if fn else None
+
+
+def main_chart_evidence(result: AskResult) -> Evidence | None:
+    """The one chart worth showing under the headline of a root-cause or comparison answer:
+    the mix-vs-rate waterfall if there is one, otherwise the first chartable evidence."""
+    if result.intent is None or result.intent.question_type not in ("root_cause", "comparison"):
+        return None
+    waterfalls = [e for e in result.evidence if e.chart == "waterfall"]
+    candidates = waterfalls or [e for e in result.evidence if e.chart and e.chart != "table"]
+    return next((e for e in candidates if figure_for(e) is not None), None)

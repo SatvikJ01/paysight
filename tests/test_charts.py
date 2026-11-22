@@ -50,3 +50,33 @@ def test_generic_bar_finds_text_columns_of_any_string_dtype() -> None:
     )
     fig = bar(ev)
     assert fig is not None and list(fig.data[0].x) == ["Kestrel Bank", "Meridian Bank"]
+
+
+def test_root_cause_answer_leads_with_the_waterfall() -> None:
+    from components.charts import main_chart_evidence
+
+    from paysight.orchestrator.models import AskResult, IntentResult
+
+    waterfall = Evidence(
+        id="E4",
+        title="Mix vs rate decomposition by payment_method",
+        kind="decomposition",
+        purpose="",
+        chart="waterfall",
+        key_numbers={"rate0_pct": 90.0, "rate1_pct": 88.5, "delta_pp": -1.5},
+        result=[{"segment": "UPI", "mix_pp": -0.4, "rate_pp": 0.0}],
+    )
+    other = Evidence(id="E1", title="t", kind="test", purpose="", chart="bar")
+    result = AskResult(
+        run_id="r",
+        question="q",
+        role="leadership",
+        kind="answer",
+        intent=IntentResult(question_type="root_cause", restatement="r"),
+        evidence=[other, waterfall],
+    )
+    assert main_chart_evidence(result) is waterfall
+    lookup = result.model_copy(
+        update={"intent": IntentResult(question_type="metric_lookup", restatement="r")}
+    )
+    assert main_chart_evidence(lookup) is None

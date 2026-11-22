@@ -9,7 +9,7 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-from components.charts import figure_for
+from components.charts import figure_for, main_chart_evidence
 from paysight.orchestrator.models import AskResult, Evidence
 
 BADGE = {"High": "#1B6B45", "Medium": "#D68910", "Low": "#C0392B"}
@@ -81,6 +81,10 @@ def render_answer(result: AskResult, on_choice: Callable[[str], None]) -> None:
             f"<span style='color:#555'>{'; '.join(result.confidence.reasons)}</span>",
             unsafe_allow_html=True,
         )
+    main = main_chart_evidence(result) if a is not None else None
+    if main is not None:  # the key chart first, the full answer below
+        st.plotly_chart(figure_for(main), use_container_width=True, key=f"main-{main.id}")
+        st.caption(f"{main.id} · {main.time_window} · {', '.join(main.filters) or 'no filters'}")
     if a is not None:
         left, right = st.columns([3, 2])
         with left:

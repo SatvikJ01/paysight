@@ -56,7 +56,11 @@ st.markdown("# Ask Paysight")
 st.caption("Every number in an answer is traced to a validated query. All entities are fictional.")
 with st.form("ask", clear_on_submit=False):
     question = st.text_input(
-        "Your question", value=ss.question, placeholder="e.g. Why did success rate drop last week?"
+        "Your question",
+        value=ss.question,
+        placeholder="Choose a recorded example, or connect a model to ask a new question."
+        if app.llm.info.mode == "replay"
+        else "e.g. Why did success rate drop last week?",
     )
     if st.form_submit_button("Ask", type="primary") and question.strip():
         ask(question.strip(), ss.role)
