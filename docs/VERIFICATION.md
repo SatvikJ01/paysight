@@ -21,7 +21,7 @@ were last run on 21–22 Nov 2026.
   `docker exec … paysight ask` answers in replay mode. The image was rebuilt from a fresh
   clone at commit `335301d` and the checks repeated with the same results. The image is 2.5 GB,
   mostly pyarrow, scipy and the three LLM SDKs.
-- **Tests and lint: passed locally.** On Ubuntu 24.04: `pytest -q` gives 327 passed;
+- **Tests and lint: passed locally.** On Ubuntu 24.04: `pytest -q` gives 351 passed;
   `ruff check .` and `ruff format --check .` are clean. CI (`.github/workflows/ci.yml`) runs the
   same steps on Ubuntu and Windows; its latest result, the Windows run in particular, is not
   recorded here.
@@ -108,3 +108,16 @@ Three issues remained and were fixed on the `final-polish` branch (D37):
    22:00, 36 hours, worst hour 36.36% against 86.87%) and shaded on the chart; daily series
    that answer "when" carry a computed summary.
 3. **"p=0.0".** Tiny p-values display as "p < 0.001".
+
+## Independent code review (22 Nov 2026)
+
+An independent code review of commit `a87fa55` reported seven issues
+([D38](DECISIONS.md#d38-fixes-from-an-independent-code-review)). Six were reproduced with a
+failing regression test and fixed: reconciliation scope (NovaMart, north, 25–31 Oct now gives
+₹3.99 crore on both sides), decomposition of the reported metric with a sum-to-headline
+invariant, ranking direction and count from the question, grounding of change direction,
+bar charts under pandas 3, and the driver metric's name. The seventh ("revenue" read as GMV)
+would change the intent prompt and is recorded in LIMITATIONS.md. After every fix, all 70
+replayed Appendix B and eval answers (with paraphrases) were compared with a snapshot taken
+before the work: none changed, and the replayed eval matched the committed report apart from
+the renamed metric.

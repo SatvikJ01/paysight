@@ -67,8 +67,8 @@ To use a live model, copy `.env.example` to `.env` and set one key (`ANTHROPIC_A
   which a naive analysis reports as a performance problem.
 - **Every number is grounded, enforced in code.** The LLM narrates only from computed evidence.
   A grounding checker extracts every number and date from the answer and matches it to the
-  cited evidence at its displayed precision. Unsupported claims are removed and listed, never
-  silently shown.
+  cited evidence at its displayed precision, including the direction of a stated pp change.
+  Unsupported claims are removed and listed, never silently shown.
 - **Safety in depth, not in the prompt.** A semantic layer compiles governed SQL. Every query,
   compiled or AI-written, passes a 9-check AST validator, role-based row filters injected into
   the AST, and a hardened read-only DuckDB connection with timeouts and row caps.
@@ -303,7 +303,7 @@ src/paysight/
   orchestrator/           intent, planner, playbooks, ad-hoc SQL, narrator, grounding, confidence
   evaluation/             baseline, scorer, runner
   observability/          traces and logging
-tests/                    327 tests: unit, safety corpus, replay of every demo question
+tests/                    351 tests: unit, safety corpus, replay of every demo question
 ```
 
 **Stack:** Python 3.11+, uv, DuckDB, pandas, numpy, scipy, sqlglot, pydantic v2, Streamlit,

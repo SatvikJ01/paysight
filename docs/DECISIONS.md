@@ -545,6 +545,42 @@ Found in the live re-run of the Kestrel question on 21 Nov.
   paraphrases, the October trend paraphrase, and the Kestrel drill-down). Every other question
   replays unchanged, including all root-cause answers.
 
+## D38. Fixes from an independent code review
+
+An independent code review of commit `a87fa55` reported correctness bugs. Each fix below
+started with a regression test that reproduced the finding, and every Appendix B and eval
+answer replays unchanged after it (no prompt changed, no LLM calls).
+
+1. **Reconciliation scope.** Reconciling NovaMart in the north for 25–31 Oct showed
+   `region = north` but reported the group's unfiltered GMV (₹43.67 crore, not ₹3.99 crore).
+   Filters other than the merchant scope now narrow both the transactions and the settlement
+   batches; a filter settlements cannot carry (e.g. payment method) is refused up front.
+2. **Metric consistency.** An order-success-rate comparison decomposed the attempt-level
+   change (−1.47pp under a −1.53pp headline). The driver scan now takes the selected metric and
+   only scans dimensions on that metric's view, and an invariant requires each decomposition's
+   mix and rate parts to sum to the headline delta for the same metric, population and windows.
+3. **Ranking direction and count.** Rate rankings always sorted ascending and returned 10.
+   Without touching the intent prompt or schema, direction and count now come from the question
+   text, deterministically (`planner.ranking_request`), and the evidence title states the order
+   (Highest/Lowest, Top/Bottom). "Highest failure rate" means the lowest success rate.
+4. **Grounding direction.** `delta_pp = −1.47` supported "rose 1.47pp" because values were
+   compared by absolute size. A pp claim that states a direction (a sign, or a nearby
+   rose/increased/higher or fell/dropped/lower word) now needs a signed value that agrees.
+   Numbers read out of evidence text have no reliable sign and are not direction-checked. All
+   142 directional claims in the recorded answers still pass. Percentages are still checked by
+   value only.
+5. **Charts.** pandas 3 stores text as a string dtype, so the generic bar chart found no
+   category column and the UPI-vs-card comparison drew nothing. Evidence can name its chart
+   category and value columns (presentation only), and percentages get a % axis.
+6. **Metric naming.** "Driver recall@2" only checks that expected segment names appear
+   anywhere in the answer; it is now called the expected driver mention rate. Scoring is
+   unchanged.
+7. **"Revenue".** It is a synonym of GMV in the catalog rendered into the intent prompt, so
+   changing it would re-record every intent; recorded in LIMITATIONS.md instead.
+
+Alongside: root-cause and comparison answers now lead with their key chart, and in replay mode
+the question box says what can be asked.
+
 ## Related approaches
 
 How Paysight's design relates to published industry systems, as they publicly describe them.

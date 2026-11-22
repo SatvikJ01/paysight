@@ -79,6 +79,7 @@ Honest limitations of Paysight. Every `TODO` in the code has a matching entry he
 - **Causal inference.** Decomposition and driver ranking attribute a change to segments; they
   do not prove why it happened. Causes are offered as hypotheses, each with a way to verify it.
 - **Guaranteed LLM correctness.** Structured outputs, validation and grounding reduce errors
-  but do not eliminate them. Grounding checks that numbers come from evidence, not that the
-  reasoning connecting them is right, and the ad-hoc SQL path can still answer a slightly
+  but do not eliminate them. Grounding checks that numbers come from evidence (and that a
+  stated pp change has the right direction; percentages are checked by value only), not that
+  the reasoning connecting them is right, and the ad-hoc SQL path can still answer a slightly
   different question than the one asked (see D34).
