@@ -215,3 +215,32 @@ def test_tiny_p_values_read_as_below_a_threshold() -> None:
     assert format_p(1.12e-48) == "p < 0.001"
     assert format_p(0.0123) == "p=0.0123"
     assert format_p(None) == "p not computed"
+
+
+def _delta_evidence(delta) -> Evidence:
+    return Evidence(
+        id="E1",
+        title="attempt_success_rate in both windows",
+        kind="test",
+        purpose="",
+        time_window="2026-10-18..2026-10-31 vs 2026-10-04..2026-10-17",
+        key_numbers={"baseline_rate_pct": 90.01, "current_rate_pct": 88.54, "delta_pp": delta},
+    )
+
+
+def test_a_change_claimed_in_the_wrong_direction_is_not_grounded() -> None:
+    """Review finding 4: delta_pp = -1.47 must not support "rose 1.47pp"."""
+    ev = [_delta_evidence(-1.47)]
+    assert check_draft(_draft("Success rate rose 1.47pp."), ev, year=YEAR).failures
+    assert not check_draft(_draft("Success rate fell 1.47pp."), ev, year=YEAR).failures
+    assert not check_draft(_draft("The change was -1.47pp."), ev, year=YEAR).failures
+    assert not check_draft(_draft("A 1.47pp drop in success rate."), ev, year=YEAR).failures
+    assert check_draft(_draft("Success rate was 1.47pp higher."), ev, year=YEAR).failures
+    # No direction word: the value alone is checked, as before.
+    assert not check_draft(_draft("The gap is 1.47pp."), ev, year=YEAR).failures
+
+
+def test_numbers_from_evidence_text_carry_no_sign_and_never_fail_direction() -> None:
+    ev = [_delta_evidence("1.47")]  # text: sign unknown
+    assert not check_draft(_draft("Success rate rose 1.47pp."), ev, year=YEAR).failures
+    assert not check_draft(_draft("Success rate fell 1.47pp."), ev, year=YEAR).failures

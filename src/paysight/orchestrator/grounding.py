@@ -90,6 +90,64 @@ class Claim:
     value: float | None = None
     tolerance: float = 0.0
     dates: tuple[date, ...] = ()
+    direction: int = 0  # for pp changes: +1 rose, -1 fell, 0 not stated
+
+
+_UP = {
+    "rose",
+    "rise",
+    "rises",
+    "risen",
+    "increased",
+    "increase",
+    "increases",
+    "up",
+    "higher",
+    "gained",
+    "grew",
+    "improved",
+    "improvement",
+    "gain",
+    "climbed",
+}
+_DOWN = {
+    "fell",
+    "fall",
+    "falls",
+    "fallen",
+    "dropped",
+    "drop",
+    "drops",
+    "declined",
+    "decline",
+    "declines",
+    "decrease",
+    "decreased",
+    "down",
+    "lower",
+    "lost",
+    "worsened",
+    "slipped",
+    "dip",
+    "dipped",
+}
+
+
+def _direction(text: str, start: int, end: int, signed: str) -> int:
+    """+1/-1 when a pp change states its direction (sign, or the nearest direction word within
+    five words before or two words after the number), else 0."""
+    if signed[:1] in "-−":
+        return -1
+    if signed[:1] == "+":
+        return 1
+    before = re.findall(r"[a-z]+", text[:start].lower())[-5:]
+    after = re.findall(r"[a-z]+", text[end:].lower())[:2]
+    for word in [*after[:1], *reversed(before), *after[1:]]:
+        if word in _UP:
+            return 1
+        if word in _DOWN:
+            return -1
+    return 0
 
 
 def _parse_num(text: str) -> tuple[float, int]:
@@ -147,7 +205,9 @@ def extract_claims(text: str, *, year: int) -> list[Claim]:
     for pattern, kind in ((_PP, "pp"), (_PCT, "percent")):
         for m in list(pattern.finditer(rest)):
             value, decimals = _parse_num(m.group(1))
-            claims.append(Claim(kind, m.group(0).strip(), value, _half_unit(decimals)))  # type: ignore[arg-type]
+            raw = m.group(0).strip()
+            way = _direction(text, m.start(), m.end(), raw) if kind == "pp" else 0
+            claims.append(Claim(kind, raw, value, _half_unit(decimals), direction=way))  # type: ignore[arg-type]
             blank(m)
     for m in list(_COUNT.finditer(rest)):
         raw = m.group(1)
@@ -172,10 +232,11 @@ def _numbers(value: Any) -> list[float]:
     return []
 
 
-def _evidence_numbers(ev: Evidence) -> list[float]:
-    out = [n for v in ev.key_numbers.values() for n in _numbers(v)]
-    out += [n for row in ev.result for v in row.values() for n in _numbers(v)]
-    return out
+def _evidence_numbers(ev: Evidence) -> list[tuple[float, bool]]:
+    """(value, sign known) for every number in the evidence; numbers read out of text carry
+    no reliable sign."""
+    values = [*ev.key_numbers.values(), *(v for row in ev.result for v in row.values())]
+    return [(n, not isinstance(v, str)) for v in values for n in _numbers(v)]
 
 
 def _evidence_dates(ev: Evidence) -> tuple[list[tuple[date, date]], set[date]]:
@@ -203,11 +264,14 @@ def claim_supported(claim: Claim, cited: list[Evidence]) -> bool:
     assert claim.value is not None
     target = abs(claim.value)
     for ev in cited:
-        for n in _evidence_numbers(ev):
+        for n, signed in _evidence_numbers(ev):
             candidates = [abs(n)]
             if claim.kind in ("percent", "pp"):
                 candidates.append(abs(n) * 100)
-            if any(abs(c - target) <= claim.tolerance for c in candidates):
+            if not any(abs(c - target) <= claim.tolerance for c in candidates):
+                continue
+            # A stated direction must agree with a signed value: -1.47 does not support "rose".
+            if claim.direction == 0 or not signed or n == 0 or (n > 0) == (claim.direction > 0):
                 return True
     return False
 
