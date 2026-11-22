@@ -1,6 +1,6 @@
 # Paysight evaluation
 
-39 questions · mode `replay` · model `claude-sonnet-5-5` · generated 2026-11-21T21:07:07
+39 questions · mode `replay` · model `claude-sonnet-5-5` · generated 2026-11-22T05:39:13
 
 ## Paysight vs naive text-to-SQL baseline
 
@@ -8,7 +8,7 @@
 |---|---|---|
 | Cases fully correct (%) | 97.4 | 30.8 |
 | Numeric accuracy (%) | 94.1 | 47.1 |
-| Driver recall@2 (%) | 100.0 | 40.0 |
+| Expected driver mention rate (%) | 100.0 | 40.0 |
 | Root-cause checks passed (%) | 100.0 | 20.0 |
 | Anomaly window hit rate (%) | 100.0 | 100.0 |
 | Behavior accuracy: answer (%) | 100.0 | 50.0 |
@@ -20,8 +20,8 @@
 | Intent stage: metric (%) | 100.0 | – |
 | Intent stage: window (%) | 100.0 | – |
 | Grounding pass rate (%) | 100.0 | 44.0 |
-| Latency p50 (ms, this run) | 489.0 | 147.0 |
-| Latency p95 (ms, this run) | 3591.0 | 307.0 |
+| Latency p50 (ms, this run) | 514.0 | 150.0 |
+| Latency p95 (ms, this run) | 4604.0 | 331.0 |
 | LLM calls | 79 | 78 |
 | Tokens in / out | 424,103 / 62,113 | 101,910 / 18,225 |
 | Estimated cost (USD, recorded usage) | 1.013 | 0.293 |

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-11-21T21:07:07",
+  "generated_at": "2026-11-22T05:39:13",
   "mode": "replay",
   "model": "claude-sonnet-5-5",
   "n_questions": 39,
@@ -15,7 +15,7 @@
       "baseline": 47.1
     },
     {
-      "metric": "Driver recall@2 (%)",
+      "metric": "Expected driver mention rate (%)",
       "paysight": 100.0,
       "baseline": 40.0
     },
@@ -76,13 +76,13 @@
     },
     {
       "metric": "Latency p50 (ms, this run)",
-      "paysight": 489.0,
-      "baseline": 147.0
+      "paysight": 514.0,
+      "baseline": 150.0
     },
     {
       "metric": "Latency p95 (ms, this run)",
-      "paysight": 3591.0,
-      "baseline": 307.0
+      "paysight": 4604.0,
+      "baseline": 331.0
     },
     {
       "metric": "LLM calls",

@@ -215,7 +215,7 @@ report: [eval/reports/latest.md](eval/reports/latest.md).
 | Cases fully correct | 97.4% (38 of 39) | 30.8% (12 of 39) |
 | Numeric accuracy (17 checks) | 94.1% | 47.1% |
 | Root-cause checks passed (5 questions) | 100% | 20% |
-| Driver recall@2 | 100% | 40% |
+| Expected driver mention rate | 100% | 40% |
 | Clarifies when it should (4) | 100% | 25% |
 | Denies out-of-scope requests (3) | 100% | 33.3% |
 | Refuses unsafe requests (3) | 100% | 100% |

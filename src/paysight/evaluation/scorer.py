@@ -62,7 +62,7 @@ class CheckOutcome:
     type: str
     passed: bool | None
     detail: str
-    recall: float | None = None
+    mention_rate: float | None = None  # drivers: share of expected segments named
 
 
 def from_paysight(result: AskResult, *, latency_ms: float, trace: dict[str, Any]) -> SystemOutput:
@@ -188,12 +188,13 @@ def _mix_share(out: SystemOutput) -> float | None:
 
 
 def score_drivers(check: Check, out: SystemOutput) -> CheckOutcome:
-    """Recall@2 of expected segments in the answer, plus mix share and rate source if given."""
+    """Expected driver mention rate: the share of the first two expected segments named anywhere
+    in the answer (not a ranked recall), plus mix share and rate source if given."""
     text = out.full_text.lower()
     segments = [str(s) for s in check.segments][:2]  # type: ignore[attr-defined]
     named = [s for s in segments if s.lower() in text]
-    recall = len(named) / len(segments) if segments else 1.0
-    problems = [] if recall == 1.0 else [f"segments named {named} of {segments}"]
+    mention_rate = len(named) / len(segments) if segments else 1.0
+    problems = [] if mention_rate == 1.0 else [f"segments named {named} of {segments}"]
     mix_range = getattr(check, "mix_share", None)
     if mix_range is not None:
         share = _mix_share(out)
@@ -203,7 +204,9 @@ def score_drivers(check: Check, out: SystemOutput) -> CheckOutcome:
     missing_rate = [w for w in rate_words if w.lower() not in text]
     if missing_rate:
         problems.append(f"rate source missing {missing_rate}")
-    return CheckOutcome("drivers", not problems, "; ".join(problems) or "ok", recall=recall)
+    return CheckOutcome(
+        "drivers", not problems, "; ".join(problems) or "ok", mention_rate=mention_rate
+    )
 
 
 def score_anomaly(check: Check, out: SystemOutput) -> CheckOutcome:

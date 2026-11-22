@@ -984,7 +984,7 @@ with the same scorer.
 ### 14.3 Metrics
 
 - Numeric accuracy
-- Driver recall@2
+- Expected driver mention rate (the first two expected driver segments named in the answer)
 - Anomaly window hit rate
 - Behavior accuracy, per behavior type
 - Grounding pass rate

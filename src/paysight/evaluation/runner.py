@@ -91,11 +91,11 @@ def _summary(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     add("Cases fully correct (%)", lambda s: _pct([r["passed"][s] for r in rows]))
     add("Numeric accuracy (%)", lambda s: _pct([o.passed for o in collect(s, "numeric")]))
     add(
-        "Driver recall@2 (%)",
+        "Expected driver mention rate (%)",
         lambda s: (
             None
             if not collect(s, "drivers")
-            else round(100 * statistics.mean(o.recall or 0 for o in collect(s, "drivers")), 1)
+            else round(100 * statistics.mean(o.mention_rate or 0 for o in collect(s, "drivers")), 1)
         ),
     )
     add("Root-cause checks passed (%)", lambda s: _pct([o.passed for o in collect(s, "drivers")]))

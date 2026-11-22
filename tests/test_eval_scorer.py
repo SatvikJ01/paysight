@@ -37,7 +37,7 @@ def test_behavior_mentions_and_anomaly() -> None:
     assert not score(window, _out("Something happened on 3 September."), None).passed
 
 
-def test_drivers_recall_mix_share_and_rate_source() -> None:
+def test_drivers_mention_rate_mix_share_and_rate_source() -> None:
     check = Check(
         type="drivers",
         segments=["NovaMart", "Harbor"],
@@ -53,10 +53,10 @@ def test_drivers_recall_mix_share_and_rate_source() -> None:
     )
     good = _out("NovaMart grew; Harbor Bank debit cards declined.", evidence=[decomposition])
     outcome = score(check, good, None)
-    assert outcome.passed and outcome.recall == 1.0
+    assert outcome.passed and outcome.mention_rate == 1.0
     baseline = _out("NovaMart grew; Harbor Bank debit cards declined.", system="baseline")
     outcome = score(check, baseline, None)
-    assert not outcome.passed and outcome.recall == 1.0  # no decomposition: mix share missing
+    assert not outcome.passed and outcome.mention_rate == 1.0  # no decomposition: mix share missing
 
 
 def test_adhoc_is_not_applicable_to_the_baseline() -> None:
@@ -131,3 +131,13 @@ def test_question_file_is_valid_and_covers_the_spec_categories() -> None:
         for check in case.checks:
             if check.type == "numeric":
                 assert (gold_dir / check.gold).exists(), check.gold
+
+
+def test_driver_metric_is_named_for_what_it_measures() -> None:
+    """Review finding 6: the check counts expected segment names mentioned anywhere in the
+    answer, so it is a mention rate, not a ranked recall@2."""
+    from paysight.evaluation.runner import _summary
+
+    names = [row["metric"] for row in _summary([])]
+    assert "Expected driver mention rate (%)" in names
+    assert not any("recall" in n.lower() for n in names)

@@ -7,8 +7,8 @@
 #   behavior       one of answer, clarify, deny_access, refuse_unsafe.
 #   mentions       case-insensitive phrases that must appear in the answer (`all`) or at least one
 #                  of which must appear (`any`). Used for data-quality warnings and reconciliation.
-#   drivers        `segments`: expected driver segments; recall@2 counts the first two named in the
-#                  answer. `mix_share`: [lo, hi] for the payment-method mix share (needs a
+#   drivers        `segments`: expected driver segments; the mention rate counts how many of the
+#                  first two are named anywhere in the answer. `mix_share`: [lo, hi] for the payment-method mix share (needs a
 #                  decomposition, so only Paysight can pass it). `rate_source`: words naming the
 #                  like-for-like source.
 #   anomaly_window expected dates; passes if the answer names a date inside [start-tol, end+tol].
