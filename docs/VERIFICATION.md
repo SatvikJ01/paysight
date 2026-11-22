@@ -37,7 +37,7 @@ were last run on 21–22 Nov 2026.
 - **Evaluation report reproduces: passed.** `eval/reports/latest.md` and `.json` reproduce from
   the cassettes; two consecutive replays are identical apart from timestamp and latency. The
   README's Evaluation section embeds the summary table and states the limits.
-- **Screenshots and rendering: passed locally.** Eight 1600px-wide captures in `docs/images/`,
+- **Screenshots and rendering: passed locally.** Nine 1600px-wide captures in `docs/images/`,
   taken with headless Chrome after Streamlit finished rendering. Every relative link, anchor
   and image in the README and docs resolves. Both Mermaid diagrams parse and render with
   Mermaid 11; GitHub's own rendering is not recorded here.

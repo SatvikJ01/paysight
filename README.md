@@ -37,6 +37,8 @@ evaluation reproduce exactly. Replay mode can answer the example questions (side
 API key to `.env` to ask your own questions. `data generate` builds `data/paysight.duckdb`
 (about 15 seconds) and checks every planted scenario against the committed answer key.
 
+![The Ask page in replay mode, before a question: how it works and a hero-question button](docs/images/ask_empty.png)
+
 **Docker:**
 
 ```bash
