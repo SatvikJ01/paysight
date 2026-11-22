@@ -16,7 +16,7 @@ All banks, PSPs, wallets and merchants in the data are fictional.
 
 ## Demo video
 
-[▶ Watch the demo video (about 7 minutes)](https://drive.google.com/drive/folders/12kUUIUXQmrBxfTnVRQno-tSApbZgkwlM?usp=sharing)
+[▶ Watch the demo video (about 7 minutes)](https://drive.google.com/file/d/1LZfKJ8SMgvpcslXdOu4APMkAku-BG8Un/view?usp=sharing)
 
 ## Quickstart (no API key needed)
 
