@@ -181,6 +181,8 @@ class Evidence(BaseModel):
     result: list[dict[str, Any]] = Field(default_factory=list)
     key_numbers: dict[str, Any] = Field(default_factory=dict)
     chart_data: list[dict[str, Any]] = Field(default_factory=list)  # full series for charts only
+    chart_x: str | None = None  # category column for bar charts (presentation only)
+    chart_y: str | None = None  # value column for bar charts (presentation only)
     meta: dict[str, Any] = Field(default_factory=dict)  # pipeline counters; never narrated
     ad_hoc: bool = False
     llm_suggested: bool = False

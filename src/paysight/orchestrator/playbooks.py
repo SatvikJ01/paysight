@@ -173,6 +173,7 @@ class RunContext:
         ad_hoc: bool = False,
         chart_data: list[dict[str, Any]] | None = None,
         meta: dict[str, Any] | None = None,
+        chart_xy: tuple[str, str] | None = None,
     ) -> Evidence:
         """Record one evidence item with the SQL and validation of every query behind it."""
         self.queries += sum(1 for r in results if r.status != "blocked" and not r.cache_hit)
@@ -198,6 +199,8 @@ class RunContext:
             ad_hoc=ad_hoc,
             chart_data=[_clean(row) for row in (chart_data or [])],
             meta=meta or {},
+            chart_x=chart_xy[0] if chart_xy else None,
+            chart_y=chart_xy[1] if chart_xy else None,
         )
         self.evidence.append(ev)
         return ev
@@ -1175,6 +1178,7 @@ def run_segment_comparison(ctx: RunContext, scope: Scope) -> None:
             for s in stats
         ],
         chart_data=[{dim: s[0], "rate_pct": round(s[3] * 100, 2)} for s in stats],
+        chart_xy=(dim, "rate_pct"),
         key_numbers={
             "highest_segment": hi[0],
             "lowest_segment": lo[0],

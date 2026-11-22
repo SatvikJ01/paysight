@@ -237,24 +237,24 @@ def reconciliation(ev: Evidence) -> go.Figure | None:
 
 
 def bar(ev: Evidence) -> go.Figure | None:
-    """Generic bar: first text column against the first numeric column."""
+    """Bar chart of ``chart_x`` against ``chart_y``; without them, the first text column
+    against the first numeric one. Text may be object or string dtype (pandas 3)."""
     rows = _rows(ev)
     if rows.empty:
         return None
-    text = [c for c in rows.columns if rows[c].dtype == object]
-    nums = [
-        c for c in rows.columns if pd.api.types.is_numeric_dtype(rows[c]) and c not in ("rank",)
-    ]
-    if not text or not nums:
+    numeric = {c for c in rows.columns if pd.api.types.is_numeric_dtype(rows[c])}
+    text = [c for c in rows.columns if c not in numeric and not pd.api.types.is_bool_dtype(rows[c])]
+    nums = [c for c in rows.columns if c in numeric and c != "rank"]
+    x = ev.chart_x if ev.chart_x in rows else (text[0] if text else None)
+    y = ev.chart_y if ev.chart_y in rows else (nums[0] if nums else None)
+    if x is None or y is None:
         return None
     data = rows.head(15)
-    fig = go.Figure(go.Bar(x=data[text[0]].astype(str), y=data[nums[0]], marker_color=GREEN))
-    fig.update_layout(
-        **LAYOUT,
-        title=ev.title,
-        xaxis={"title": text[0].replace("_", " ")},
-        yaxis={"title": nums[0].replace("_", " ")},
-    )
+    fig = go.Figure(go.Bar(x=data[x].astype(str).tolist(), y=data[y], marker_color=GREEN))
+    yaxis: dict[str, Any] = {"title": y.replace("_", " ")}
+    if y.endswith("_pct"):
+        yaxis |= {"title": y.removesuffix("_pct").replace("_", " ") + " (%)", "ticksuffix": "%"}
+    fig.update_layout(**LAYOUT, title=ev.title, xaxis={"title": x.replace("_", " ")}, yaxis=yaxis)
     return fig
 
 
